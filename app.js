@@ -17,10 +17,19 @@ const app = {
       { name: '김민지 사원', role: 'viewer', dept: '자재팀', badge: 'VIEWER', color: '#10b981' }
     ],
 
-    // Phase 6 라이브러리 리소스 상태
+    // Phase 1 글로벌 공통 자원 및 리스크 이력 상태 데이터셋
     auditChecklists: [],
     documentLibrary: [],
     commonCodes: { plants: [], categories: [], processes: [], dimensions_4m: [], source_types: [] },
+    auditFindings: [],
+    changeHistory4m: [],
+    qualityIssues: [],
+    oeQualityAssessmentDetails: [],
+
+    // 글로벌 공통 필터 상태 값 (Plant, Customer, Process)
+    selectedPlant: 'ALL',
+    selectedCustomer: 'ALL',
+    selectedProcess: 'ALL',
     
     // 라이브러리 인터랙션용 필터 및 상태 값
     checklistFilterProcess: 'ALL',
@@ -67,27 +76,86 @@ const app = {
   async initDatabase() {
     console.log("📂 Loading RiskHunter Datasets from data/ ...");
     try {
-      const [checklistsRes, docsRes, commonCodesRes] = await Promise.all([
+      const [
+        checklistsRes, 
+        docsRes, 
+        commonCodesRes, 
+        findingsRes, 
+        changeHistoryRes, 
+        qualityIssuesRes, 
+        usersRes, 
+        oeQualityRes
+      ] = await Promise.all([
         fetch('data/audit_checklists.json').then(r => {
-          if (!r.ok) throw new Error("Checklist file not found");
+          if (!r.ok) throw new Error("Checklist file (audit_checklists.json) not found");
           return r.json();
         }),
         fetch('data/document_library.json').then(r => {
-          if (!r.ok) throw new Error("Document library file not found");
+          if (!r.ok) throw new Error("Document library file (document_library.json) not found");
           return r.json();
         }),
         fetch('data/common_codes.json').then(r => {
-          if (!r.ok) throw new Error("Common codes file not found");
+          if (!r.ok) throw new Error("Common codes file (common_codes.json) not found");
+          return r.json();
+        }),
+        fetch('data/audit_findings.json').then(r => {
+          if (!r.ok) throw new Error("Audit findings file (audit_findings.json) not found");
+          return r.json();
+        }),
+        fetch('data/change_history_4m.json').then(r => {
+          if (!r.ok) throw new Error("4M change history file (change_history_4m.json) not found");
+          return r.json();
+        }),
+        fetch('data/quality_issues_qi.json').then(r => {
+          if (!r.ok) throw new Error("Quality issues file (quality_issues_qi.json) not found");
+          return r.json();
+        }),
+        fetch('data/users.json').then(r => {
+          if (!r.ok) throw new Error("Users file (users.json) not found");
+          return r.json();
+        }),
+        fetch('data/oe_quality_assessment_details.json').then(r => {
+          if (!r.ok) throw new Error("OE Quality assessment file (oe_quality_assessment_details.json) not found");
           return r.json();
         })
       ]);
 
+      // State에 데이터 할당
       this.state.auditChecklists = checklistsRes;
       this.state.documentLibrary = docsRes;
       this.state.commonCodes = commonCodesRes;
+      this.state.auditFindings = findingsRes;
+      this.state.changeHistory4m = changeHistoryRes;
+      this.state.qualityIssues = qualityIssuesRes;
+      this.state.oeQualityAssessmentDetails = oeQualityRes;
 
-      console.log(`✅ Loaded ${this.state.auditChecklists.length} checklists, ${this.state.documentLibrary.length} documents, and common master resources.`);
+      // users 데이터 바인딩 및 매핑 (Profile Switcher 호환성 유지)
+      if (usersRes && Array.isArray(usersRes)) {
+        this.state.users = usersRes.map(u => ({
+          id: u.id,
+          username: u.username,
+          password: u.password,
+          name: u.name,
+          role: u.role,
+          roleName: u.role_name || u.role.toUpperCase(),
+          badge: u.badge || u.role.toUpperCase(),
+          color: u.avatar_color || '#ef4444',
+          dept: u.department || '품질보증부'
+        }));
+        
+        // 현재 유저도 새로 매핑된 목록에 맞춰 동기화
+        const matchingUser = this.state.users.find(u => u.role === this.state.currentRole) || this.state.users[0];
+        if (matchingUser) {
+          this.state.currentUser = matchingUser;
+          this.switchUser(matchingUser);
+        }
+      }
+
+      console.log(`✅ Loaded ${this.state.auditChecklists.length} checklists, ${this.state.documentLibrary.length} documents, ${this.state.auditFindings.length} findings, ${this.state.changeHistory4m.length} 4M changes, ${this.state.qualityIssues.length} quality issues, and common master resources.`);
       
+      // 글로벌 필터 동적 생성 (Phase 1)
+      this.initGlobalFilters();
+
       // 라이브러리 탭 내 데이터 바인딩 및 이벤트 초기화
       this.initLibraryTab();
       
@@ -95,22 +163,125 @@ const app = {
       console.error("❌ Failed to load static resources:", err);
       this.showToast("정적 리소스를 로딩할 수 없습니다. 로컬 data/ 폴더 및 파일명을 확인해 주십시오.", "warning");
       
-      // 에러 발생 시 UI 에 폴백(Fallback) 알림 박스 동적 인서트
-      const mainPanel = document.querySelector('.checklist-main-panel .card-body');
-      if (mainPanel) {
-        mainPanel.innerHTML = `
-          <div style="padding: 30px; border: 1px dashed #ef4444; background: rgba(239, 68, 68, 0.05); border-radius: 8px; text-align: center;">
-            <i data-lucide="alert-octagon" style="width: 48px; height: 48px; color: #ef4444; margin-bottom: 12px; display: inline-block;"></i>
-            <h4 style="color: var(--text-primary); margin-bottom: 8px; font-weight: 600;">데이터 로딩 실패 (Data Access Error)</h4>
-            <p style="font-size: 13px; color: var(--text-secondary); max-width: 500px; margin: 0 auto 16px;">
-              정적 JSON 데이터셋을 파싱하지 못했습니다. <br>
-              <code>data/audit_checklists.json</code>, <code>data/document_library.json</code> 및 <code>data/common_codes.json</code> 파일이 루트에 올바르게 위치해 있는지 확인하십시오.
-            </p>
-          </div>
-        `;
-        if (typeof lucide !== 'undefined') lucide.createIcons();
+      // 에러 바운더리 오버레이 표출 (Glassmorphism Error Overlay)
+      const errorBoundary = document.getElementById('error-boundary');
+      const errorDetailsText = document.getElementById('error-details-text');
+      if (errorBoundary) {
+        errorBoundary.classList.remove('hidden');
+        if (errorDetailsText) {
+          errorDetailsText.textContent = `상세 오류 내용: ${err.message || err}`;
+        }
       }
     }
+  },
+
+  // 🛠️ 글로벌 공통 필터 바 동적 생성 (Phase 1)
+  initGlobalFilters() {
+    console.log("🛠️ Initializing Global Filters...");
+    
+    // 1. 대상 공장 (filter-plant) 생성
+    const filterPlantSelect = document.getElementById('filter-plant');
+    if (filterPlantSelect && this.state.commonCodes && this.state.commonCodes.plants) {
+      filterPlantSelect.innerHTML = '';
+      
+      // 'ALL'을 첫 번째 옵션으로 처리하기 위해 분리 정렬
+      const plants = this.state.commonCodes.plants.filter(p => p.is_active);
+      const allPlant = plants.find(p => p.code === 'ALL');
+      const regularPlants = plants.filter(p => p.code !== 'ALL');
+      
+      // "ALL" (전체 공장) 배치
+      const allOption = document.createElement('option');
+      allOption.value = 'ALL';
+      allOption.textContent = allPlant ? `${allPlant.name} (ALL)` : '전체 공장 (ALL)';
+      filterPlantSelect.appendChild(allOption);
+      
+      // 나머지 공장들 배치
+      regularPlants.forEach(plant => {
+        const opt = document.createElement('option');
+        opt.value = plant.code;
+        opt.textContent = `${plant.name} (${plant.code})`;
+        filterPlantSelect.appendChild(opt);
+      });
+    }
+
+    // 2. 완성차 고객사 (filter-customer) 생성
+    const filterCustomerSelect = document.getElementById('filter-customer');
+    if (filterCustomerSelect) {
+      filterCustomerSelect.innerHTML = '';
+      
+      const allOpt = document.createElement('option');
+      allOpt.value = 'ALL';
+      allOpt.textContent = '전체 고객사 (ALL)';
+      filterCustomerSelect.appendChild(allOpt);
+
+      const customerSet = new Set();
+      if (this.state.documentLibrary) {
+        this.state.documentLibrary.forEach(doc => {
+          if (doc.customer && doc.customer.trim()) {
+            customerSet.add(doc.customer.trim());
+          }
+        });
+      }
+      if (this.state.auditChecklists) {
+        this.state.auditChecklists.forEach(item => {
+          if (item.customer && item.customer.trim()) {
+            customerSet.add(item.customer.trim());
+          }
+        });
+      }
+
+      // 알파벳 순 정렬
+      const sortedCustomers = Array.from(customerSet).sort();
+      sortedCustomers.forEach(cust => {
+        const opt = document.createElement('option');
+        opt.value = cust;
+        opt.textContent = cust;
+        filterCustomerSelect.appendChild(opt);
+      });
+    }
+
+    // 3. 대상 제조 공정 (filter-process) 생성
+    const filterProcessSelect = document.getElementById('filter-process');
+    if (filterProcessSelect && this.state.commonCodes) {
+      filterProcessSelect.innerHTML = '';
+      
+      // 기본 "전체 공정" 옵션
+      const allOpt = document.createElement('option');
+      allOpt.value = 'ALL';
+      allOpt.textContent = '전체 공정 (ALL)';
+      filterProcessSelect.appendChild(allOpt);
+
+      // 제조 공정 (Processes) optgroup
+      if (this.state.commonCodes.processes && this.state.commonCodes.processes.length > 0) {
+        const mfgGroup = document.createElement('optgroup');
+        mfgGroup.label = '제조 공정 (Processes)';
+        this.state.commonCodes.processes.forEach(proc => {
+          const opt = document.createElement('option');
+          opt.value = proc.code;
+          opt.textContent = `${proc.name} (${proc.code})`;
+          mfgGroup.appendChild(opt);
+        });
+        filterProcessSelect.appendChild(mfgGroup);
+      }
+
+      // 관리 영역 (System Categories) optgroup
+      if (this.state.commonCodes.categories && this.state.commonCodes.categories.length > 0) {
+        const systemGroup = document.createElement('optgroup');
+        systemGroup.label = '관리 영역 (Categories)';
+        this.state.commonCodes.categories.forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = cat.code;
+          opt.textContent = `${cat.name} (${cat.code})`;
+          systemGroup.appendChild(opt);
+        });
+        filterProcessSelect.appendChild(systemGroup);
+      }
+    }
+
+    // 초기 필터 선택값 반영
+    if (filterPlantSelect) filterPlantSelect.value = this.state.selectedPlant;
+    if (filterCustomerSelect) filterCustomerSelect.value = this.state.selectedCustomer;
+    if (filterProcessSelect) filterProcessSelect.value = this.state.selectedProcess;
   },
 
   // 👥 역할 계정 전환 팝오버 리스트 렌더링
@@ -536,6 +707,22 @@ const app = {
   getFilteredChecklist() {
     let list = this.state.auditChecklists || [];
     
+    // 글로벌 필터 적용 (Phase 1)
+    if (this.state.selectedPlant && this.state.selectedPlant !== 'ALL') {
+      const plant = this.state.selectedPlant.toLowerCase();
+      list = list.filter(item => (item.plant_code || '').toLowerCase() === plant || (item.plant_code || '').toLowerCase() === 'all');
+    }
+    
+    if (this.state.selectedCustomer && this.state.selectedCustomer !== 'ALL') {
+      const customer = this.state.selectedCustomer.toLowerCase();
+      list = list.filter(item => (item.customer || '').toLowerCase() === customer);
+    }
+
+    if (this.state.selectedProcess && this.state.selectedProcess !== 'ALL') {
+      const process = this.state.selectedProcess.toLowerCase();
+      list = list.filter(item => (item.process_category || '').toLowerCase() === process);
+    }
+    
     // 1. 공정 분류 로컬 필터 (Process & Category 스펙 반영)
     if (this.state.checklistFilterProcess !== 'ALL') {
       const selected = this.state.checklistFilterProcess.toLowerCase();
@@ -826,6 +1013,12 @@ const app = {
     if (!grid) return;
 
     let list = this.state.documentLibrary || [];
+    
+    // 글로벌 고객사 필터 적용 (Phase 1)
+    if (this.state.selectedCustomer && this.state.selectedCustomer !== 'ALL') {
+      const customer = this.state.selectedCustomer.toLowerCase();
+      list = list.filter(d => (d.customer || '').toLowerCase() === customer);
+    }
     
     // 로컬 검색어 필터
     if (this.state.libSearchQuery) {
@@ -1367,6 +1560,71 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
         }
       });
     }
+
+    // 7. 글로벌 필터 조작 이벤트 바인딩 (Phase 1)
+    const filterPlant = document.getElementById('filter-plant');
+    const filterCustomer = document.getElementById('filter-customer');
+    const filterProcess = document.getElementById('filter-process');
+    const btnResetFilters = document.getElementById('btn-reset-filters');
+
+    if (filterPlant) {
+      filterPlant.addEventListener('change', (e) => {
+        this.state.selectedPlant = e.target.value;
+        console.log(`[Global Filter] Plant Changed: ${this.state.selectedPlant}`);
+        this.showToast(`대상 공장이 ${e.target.options[e.target.selectedIndex].text}(으)로 필터링되었습니다.`);
+        this.onGlobalFilterChange();
+      });
+    }
+
+    if (filterCustomer) {
+      filterCustomer.addEventListener('change', (e) => {
+        this.state.selectedCustomer = e.target.value;
+        console.log(`[Global Filter] Customer Changed: ${this.state.selectedCustomer}`);
+        this.showToast(`고객사가 ${e.target.value === 'ALL' ? '전체 고객사' : e.target.value}(으)로 필터링되었습니다.`);
+        this.onGlobalFilterChange();
+      });
+    }
+
+    if (filterProcess) {
+      filterProcess.addEventListener('change', (e) => {
+        this.state.selectedProcess = e.target.value;
+        console.log(`[Global Filter] Process Changed: ${this.state.selectedProcess}`);
+        this.showToast(`제조 공정이 ${e.target.options[e.target.selectedIndex].text}(으)로 필터링되었습니다.`);
+        this.onGlobalFilterChange();
+      });
+    }
+
+    if (btnResetFilters) {
+      btnResetFilters.addEventListener('click', () => {
+        this.state.selectedPlant = 'ALL';
+        this.state.selectedCustomer = 'ALL';
+        this.state.selectedProcess = 'ALL';
+        
+        if (filterPlant) filterPlant.value = 'ALL';
+        if (filterCustomer) filterCustomer.value = 'ALL';
+        if (filterProcess) filterProcess.value = 'ALL';
+        
+        console.log(`[Global Filter] Filters Reset to ALL`);
+        this.showToast('모든 글로벌 필터가 초기화되었습니다.', 'success');
+        this.onGlobalFilterChange();
+      });
+    }
+  },
+
+  // ⚡ 글로벌 공통 필터 변경 이벤트 핸들러 (Phase 1)
+  onGlobalFilterChange() {
+    console.log(`[Global Filter Changed] Plant: ${this.state.selectedPlant}, Customer: ${this.state.selectedCustomer}, Process: ${this.state.selectedProcess}`);
+    
+    // 만약 Library 탭이 활성화되어 있다면, 서브 컴포넌트들을 재렌더링하여 실시간 동기화
+    if (this.state.currentTab === 'library') {
+      this.state.checklistCurrentPage = 1; // 필터 변경 시 첫 페이지로 리셋
+      this.renderProcessSummary();
+      this.renderChecklistTable();
+      this.renderDocumentLibrary();
+      this.renderRequirementMapping();
+    }
+    
+    // (앞으로 Phase 2 ~ Phase 7 진행 시 각 탭별 리스크 동적 갱신 코드가 여기에 순차 배치될 것입니다)
   },
 
   // 🍞 우아한 B2B 토스트 알림 송출 (Toast Message System)
