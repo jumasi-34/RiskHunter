@@ -48,7 +48,7 @@
 | **14** | [14_sample_queries_and_test_data.md](file:///home/jumasi/risk_hunter/context/14_sample_queries_and_test_data.md) | **Build Context** | 정적 CSV/JSON 목업 데이터 셋 및 실시간 조인 쿼리 뷰어용 정밀 예시 스크립트 | Phase 1, 7 |
 | **15** | [15_acceptance_criteria.md](file:///home/jumasi/risk_hunter/context/15_acceptance_criteria.md) | **Build Context** | 각 메뉴별 마우스 호버 동작, 필터 연동, 파일 다운로드 성공 여부의 무결성 검증 기준 | **All (Reference)** |
 | **16** | [16_demo_scenario.md](file:///home/jumasi/risk_hunter/context/16_demo_scenario.md) | **Demo Context** | 해커톤 심사위원을 WOW하게 만들기 위한 "스토리 기반 3단계 시연 시나리오" 시크릿 스크립트 | Phase 7 |
-| **18** | [18_document_library_db_transition_spec.md](file:///home/jumasi/risk_hunter/context/18_document_library_db_transition_spec.md) | **Product Context** | 완성차(OEM) 기술 조항의 타이어 제조공정 역해석 매핑 스펙 및 정적 데이터베이스 전환 가이드 | Phase 1, 6 |
+| **18** | [18_resource_json_database_transition_spec.md](file:///home/jumasi/risk_hunter/context/18_resource_json_database_transition_spec.md) | **Product Context** | 전체 리소스 .json 정적 데이터베이스 전환 및 가상화 통합 규격 스펙 가이드 | Phase 1, 6 |
 
 ---
 
