@@ -26,6 +26,30 @@ const app = {
     qualityIssues: [],
     oeQualityAssessmentDetails: [],
 
+    // Phase 3 Audit Planning 상태 및 모의 일정 기본 데이터셋
+    audits: [],
+    selectedAuditId: null,
+    planningChecklistStates: {}, // {[auditId]: {[taskId]: 'pending'|'in_progress'|'completed'}}
+    planningTasks: [
+      { id: "task_1", milestone: "D-30", title: "OEM 고객 요구 규격서(CSR) 개정판 확보 및 내부 대조", desc: "고객사 최신 품질 요구사항과 당사 SOP 매핑 정합성 확인" },
+      { id: "task_2", milestone: "D-30", title: "감사 TF 조직 구성 및 오디터 자격 검증", desc: "내부 VDA 6.3 오디터 자격 보유자 중심 TF 배치 및 R&R 지정" },
+      { id: "task_3", milestone: "D-15", title: "대상 공장 과거 3개년 품질 실패(QI) 및 고객 불만 이력 추출", desc: "유사 불량 방지를 위한 과거 QI 근본 원인 대책 현장 보완 상태 확인" },
+      { id: "task_4", milestone: "D-15", title: "주요 공정별 OEM 표준 체크리스트 한글화 및 기입 템플릿 배포", desc: "현장 오퍼레이터 대면 수검을 위한 15대 공정별 템플릿 배포" },
+      { id: "task_5", milestone: "D-7", title: "대상 공장 최근 1년 4M 변경점(설비/재료/작업자/방법) 이력 분석", desc: "SOP 무단 변경점 사전 추적 및 이상 조치(OCAP) 가동 상태 확인" },
+      { id: "task_6", milestone: "D-7", title: "과거 제3자 및 OEM 감사 지적사항(Findings) 종결 조치 유효성 검증", desc: "이전 감사 지적사항 중 미결(Open) 건에 대한 현장 물리적 보완 실사" },
+      { id: "task_7", milestone: "D-3", title: "수검 증적 유형별 디지털 공유 폴더(Evidences) 최종 동기화 검사", desc: "원재료 COA, 계측기 검교정 성적서, 작업자 교육일지 실물 매칭" },
+      { id: "task_8", milestone: "D-3", title: "핵심 취약 공정(성형/가류 등) 오퍼레이터 가상 인터뷰 리허설", desc: "현장 오퍼레이터 대상 작업 표준(SOP) 및 고장 대책 인지 상태 인터뷰" },
+      { id: "task_9", milestone: "D-Day", title: "현장 오디팅 수행 및 지적 사항(Live Finding) 실시간 기록", desc: "오디터 동선 밀착 밀수 수행 및 돌발 지적사항 시스템 실시간 등록" },
+      { id: "task_10", milestone: "D-Day", title: "부적합 지적사항에 대한 AI 시정조치안(8D) 및 긴급 피드백 확보", desc: "AI Action Advisor 활용 8D 보고서 초안 및 SOP 개정 가이드라인 즉각 도출" }
+    ],
+
+    // Phase 2 차트 캐시 및 인터랙션 상태
+    charts: {
+      plantRisk: null,
+      processRisk: null,
+      plantSelected: null // Doughnut 차트 전환 시 선택된 공장 코드 보존용 (e.g. 'DP')
+    },
+
     // 글로벌 공통 필터 상태 값 (Plant, Customer, Process)
     selectedPlant: 'ALL',
     selectedCustomer: 'ALL',
@@ -156,8 +180,17 @@ const app = {
       // 글로벌 필터 동적 생성 (Phase 1)
       this.initGlobalFilters();
 
+      // 데이터 사전 가공 및 공정-4M 매핑 (Phase 2)
+      this.preProcessData();
+
       // 라이브러리 탭 내 데이터 바인딩 및 이벤트 초기화
       this.initLibraryTab();
+
+      // Phase 3 감사 일정 및 체크리스트 상태 초기 로딩
+      this.loadAuditPlanningData();
+
+      // 대시보드 실시간 입체 렌더링 및 차트 마운트 (Phase 2)
+      this.renderDashboard();
       
     } catch (err) {
       console.error("❌ Failed to load static resources:", err);
@@ -400,6 +433,13 @@ const app = {
 
     // 4. 페이지 헤더 타이틀 및 설명 싱크
     this.updateHeader(tabId);
+
+    // 대시보드 로드 시 실시간 데이터 입체 드로잉 (Phase 2)
+    if (tabId === 'dashboard') {
+      this.renderDashboard();
+    } else if (tabId === 'audit-planning') {
+      this.initAuditPlanning();
+    }
   },
 
   // 📝 탭별 헤더 텍스트 실시간 업데이트
@@ -473,6 +513,609 @@ const app = {
     } else if (subTabId === 'req-mapping') {
       this.renderRequirementMapping();
     }
+  },
+
+  // ==========================================================================
+  // 📅 2. Audit Planning (사전 일정 및 준비 항목 관리 핵심 구현 - Phase 3)
+  // ==========================================================================
+
+  // 1) 로컬 저장소(localStorage) 영속성 데이터 로드 및 초기 세팅
+  loadAuditPlanningData() {
+    console.log("📅 Initializing Audit Planning local data...");
+    
+    // 기본 일정 정의 (저장소가 비어있을 때 불러옴)
+    const defaultAudits = [
+      {
+        id: "audit_1",
+        title: "BMW 대전공장 VDA 6.3 정기 수검",
+        plantCode: "DP",
+        customer: "BMW",
+        date: "2026-06-15",
+        leadAuditor: "박정호 수석",
+        project: "G60 EV LCI",
+        desc: "VDA 6.3 정기 품질 프로세스 심사 - 전 공정 (배합, 압출, 성형, 가류)"
+      },
+      {
+        id: "audit_2",
+        title: "Audi 헝가리공장 신차 실사 (IATF 16949)",
+        plantCode: "MP",
+        customer: "Audi",
+        date: "2026-06-25",
+        leadAuditor: "이현우 책임",
+        project: "PPE Platform SUV",
+        desc: "신규 완성차 장착용 고성능 타이어 공급선 특수공정 심사"
+      },
+      {
+        id: "audit_3",
+        title: "GM 테네시공장 공급선 정기 평가",
+        plantCode: "TP",
+        customer: "GM",
+        date: "2026-06-08",
+        leadAuditor: "박정호 수석",
+        project: "Lyriq EV",
+        desc: "북미향 전기차 전용 타이어 흡음재(Form) 공정 및 완성도 감사"
+      }
+    ];
+
+    // audits 로딩
+    const storedAudits = localStorage.getItem('riskhunter_audits');
+    if (storedAudits) {
+      try {
+        this.state.audits = JSON.parse(storedAudits);
+      } catch (e) {
+        console.error("Failed to parse audits from localStorage", e);
+        this.state.audits = defaultAudits;
+      }
+    } else {
+      this.state.audits = defaultAudits;
+      localStorage.setItem('riskhunter_audits', JSON.stringify(defaultAudits));
+    }
+
+    // selectedAuditId 로딩
+    const storedSelectedId = localStorage.getItem('riskhunter_selected_audit_id');
+    if (storedSelectedId && this.state.audits.some(a => a.id === storedSelectedId)) {
+      this.state.selectedAuditId = storedSelectedId;
+    } else {
+      this.state.selectedAuditId = this.state.audits[0]?.id || null;
+      if (this.state.selectedAuditId) {
+        localStorage.setItem('riskhunter_selected_audit_id', this.state.selectedAuditId);
+      }
+    }
+
+    // checklist states 로딩
+    const storedStates = localStorage.getItem('riskhunter_checklist_states');
+    if (storedStates) {
+      try {
+        this.state.planningChecklistStates = JSON.parse(storedStates);
+      } catch (e) {
+        console.error("Failed to parse checklist states", e);
+        this.state.planningChecklistStates = {};
+      }
+    } else {
+      // 초기 목업 데이터 세련되게 세팅
+      this.state.planningChecklistStates = {
+        "audit_1": {
+          "task_1": "completed",
+          "task_2": "completed",
+          "task_3": "in_progress",
+          "task_4": "pending",
+          "task_5": "pending"
+        },
+        "audit_2": {
+          "task_1": "completed",
+          "task_2": "in_progress"
+        },
+        "audit_3": {
+          "task_1": "completed",
+          "task_2": "completed",
+          "task_3": "completed",
+          "task_4": "completed",
+          "task_5": "in_progress",
+          "task_6": "in_progress"
+        }
+      };
+      localStorage.setItem('riskhunter_checklist_states', JSON.stringify(this.state.planningChecklistStates));
+    }
+  },
+
+  // 2) Audit Planning 탭 구동 시 초기화 및 리스너 등록
+  initAuditPlanning() {
+    console.log("📅 Initializing Audit Planning Tab...");
+    
+    // 드롭다운 셀렉터 세팅
+    const selectNode = document.getElementById('planning-audit-select');
+    if (selectNode) {
+      selectNode.innerHTML = '';
+      this.state.audits.forEach(audit => {
+        const opt = document.createElement('option');
+        opt.value = audit.id;
+        opt.textContent = `${audit.title} (${audit.date})`;
+        if (audit.id === this.state.selectedAuditId) {
+          opt.selected = true;
+        }
+        selectNode.appendChild(opt);
+      });
+
+      // 셀렉터 변경 이벤트 (onchange 재바인딩으로 중복 방지)
+      selectNode.onchange = (e) => {
+        this.state.selectedAuditId = e.target.value;
+        localStorage.setItem('riskhunter_selected_audit_id', e.target.value);
+        this.renderPlanningScreen();
+        this.showToast("활성 감사 일정이 전환되었습니다.");
+      };
+    }
+
+    // 모달 관련 버튼 바인딩
+    const btnOpenModal = document.getElementById('btn-open-audit-modal');
+    if (btnOpenModal) {
+      btnOpenModal.onclick = () => this.openScheduleModal();
+    }
+
+    const btnCloseModal = document.getElementById('btn-close-audit-modal');
+    if (btnCloseModal) {
+      btnCloseModal.onclick = () => {
+        document.getElementById('audit-registration-modal').classList.add('hidden');
+      };
+    }
+
+    const btnCancelModal = document.getElementById('btn-cancel-audit-modal');
+    if (btnCancelModal) {
+      btnCancelModal.onclick = () => {
+        document.getElementById('audit-registration-modal').classList.add('hidden');
+      };
+    }
+
+    const btnSaveModal = document.getElementById('btn-save-audit-modal');
+    if (btnSaveModal) {
+      btnSaveModal.onclick = () => this.saveSchedule();
+    }
+
+    // 화면 렌더링 기동
+    this.renderPlanningScreen();
+  },
+
+  // 3) 감사 계획 화면 동적 드로잉 (KPI 카드, 마일스톤 타임라인, 태스크 테이블)
+  renderPlanningScreen() {
+    const audit = this.state.audits.find(a => a.id === this.state.selectedAuditId);
+    if (!audit) {
+      console.warn("No active audit schedule found.");
+      return;
+    }
+
+    // [1] D-Day 및 날짜 차이 동적 연산
+    const todayStr = "2026-05-29"; // 고정된 실시간 현재 기준일
+    const today = new Date(todayStr);
+    const auditDate = new Date(audit.date);
+    const diffTime = auditDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    let dDayText = "";
+    let dDayClass = "info";
+    if (diffDays > 0) {
+      dDayText = `D-${diffDays}`;
+      if (diffDays <= 7) dDayClass = "high-risk blink"; // 마감 7일 이내 깜빡이는 모션
+    } else if (diffDays === 0) {
+      dDayText = "D-DAY";
+      dDayClass = "high-risk blink";
+    } else {
+      dDayText = `D+${Math.abs(diffDays)}`;
+      dDayClass = "low-risk";
+    }
+
+    // [2] 태스크 진행도 통계 집계
+    const taskStates = this.state.planningChecklistStates[audit.id] || {};
+    const totalTasks = this.state.planningTasks.length;
+    
+    let completedCount = 0;
+    let inProgressCount = 0;
+    let delayedCount = 0;
+
+    this.state.planningTasks.forEach(task => {
+      const state = taskStates[task.id] || "pending";
+      if (state === "completed") {
+        completedCount++;
+      } else if (state === "in_progress") {
+        inProgressCount++;
+      }
+
+      // 지연(Delayed) 판단 조건:
+      // D-Day가 많이 부족한 상태(예: 10일 이하)에서 여전히 대기(pending) 상태인 테스크
+      // 혹은 특정 시점 마일스톤에 부합하지 못하는 미비 사항
+      if (state === "pending") {
+        const milestoneDays = parseInt(task.milestone.replace("D-", "")) || 0;
+        // 남은 일수가 해당 마일스톤 기준일보다 작으면 지연된 것으로 고도의 품질 일정 계산
+        if (diffDays <= milestoneDays) {
+          delayedCount++;
+        }
+      }
+    });
+
+    const completionRate = totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
+
+    // [3] KPI 카드 바인딩
+    const ddayValNode = document.getElementById('planning-kpi-dday');
+    const ddaySubNode = document.getElementById('planning-kpi-dday-sub');
+    if (ddayValNode && ddaySubNode) {
+      ddayValNode.innerHTML = `<span class="kpi-val ${dDayClass}" style="font-size: 32px; font-weight: 800; font-family: monospace;">${dDayText}</span>`;
+      ddaySubNode.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted);">수검 확정일: <strong>${audit.date}</strong></span>`;
+    }
+
+    const totalValNode = document.getElementById('planning-kpi-total');
+    if (totalValNode) {
+      totalValNode.innerHTML = `<span class="kpi-val" style="font-size: 32px; font-weight: 800; font-family: monospace;">${totalTasks}</span><span style="font-size: 13px; color: var(--text-secondary); margin-left: 4px;">개</span>`;
+    }
+
+    const completedValNode = document.getElementById('planning-kpi-completed');
+    const completedSubNode = document.getElementById('planning-kpi-completed-sub');
+    if (completedValNode && completedSubNode) {
+      completedValNode.innerHTML = `<span class="kpi-val" style="font-size: 32px; font-weight: 800; color: #10b981; font-family: monospace;">${completedCount}</span><span style="font-size: 13px; color: var(--text-secondary); margin-left: 4px;">개</span>`;
+      completedSubNode.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted);">대비 달성율: <strong style="color: #10b981;">${completionRate.toFixed(0)}%</strong></span>`;
+    }
+
+    const progressValNode = document.getElementById('planning-kpi-progress');
+    const progressSubNode = document.getElementById('planning-kpi-progress-sub');
+    if (progressValNode && progressSubNode) {
+      progressValNode.innerHTML = `<span class="kpi-val" style="font-size: 32px; font-weight: 800; color: #3b82f6; font-family: monospace;">${inProgressCount}</span><span style="font-size: 13px; color: var(--text-secondary); margin-left: 4px;">개</span>`;
+      progressSubNode.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted);">부서 조치 및 검토 단계</span>`;
+    }
+
+    const delayedValNode = document.getElementById('planning-kpi-delayed');
+    const delayedSubNode = document.getElementById('planning-kpi-delayed-sub');
+    if (delayedValNode && delayedSubNode) {
+      delayedValNode.innerHTML = `<span class="kpi-val" style="font-size: 32px; font-weight: 800; color: ${delayedCount > 0 ? '#ef4444' : 'var(--text-muted)'}; font-family: monospace;">${delayedCount}</span><span style="font-size: 13px; color: var(--text-secondary); margin-left: 4px;">개</span>`;
+      delayedSubNode.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted);">${delayedCount > 0 ? '<strong style="color: #ef4444;">조치 지연 리스크 감지</strong>' : '일정 지연 없음 (양호)'}</span>`;
+    }
+
+    // [4] 타겟 정보 뱃지 및 카드 헤더 동기화
+    const targetBadgeNode = document.getElementById('planning-target-badge');
+    if (targetBadgeNode) {
+      const plantObj = (this.state.commonCodes.plants || []).find(p => p.code === audit.plantCode);
+      const plantName = plantObj ? plantObj.name : audit.plantCode;
+      targetBadgeNode.textContent = `${plantName} (${audit.plantCode}) / ${audit.customer} 심사`;
+    }
+
+    const timelineTitleNode = document.getElementById('timeline-audit-title');
+    if (timelineTitleNode) {
+      timelineTitleNode.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="color: var(--brand-blue);"><i data-lucide="shield-check" style="width: 18px; height: 18px; vertical-align: middle;"></i></span>
+          <span>[${audit.customer}] ${audit.project || '신규수검'} 로드맵</span>
+        </div>
+      `;
+    }
+
+    // [5] Milestone Timeline 렌더링
+    const milestoneTrackerNode = document.getElementById('planning-milestone-tracker');
+    if (milestoneTrackerNode) {
+      const milestones = [
+        { key: "D-30", title: "Pre-Planning 단계", subtitle: "고객 규격 대조 및 TF 구성", desc: "고객사의 특수품질 사양서(CSR)를 확보하여 내부 작업 표준과 정합성을 매핑하고 자체 수검 TF를 정렬합니다." },
+        { key: "D-15", title: "Checklist Matching 단계", subtitle: "과거 리스크 분석 및 체크리스트 도출", desc: "공장의 최근 3개년 품질 실패 QI 데이터와 고객 불만 이력을 역추적하여 수검 맞춤형 현장 가이드를 배포합니다." },
+        { key: "D-7", title: "Pre-Verification 단계", subtitle: "4M 변경 검증 및 미결 보완", desc: "현장의 4M 변경점과 과거 감사 지적사항의 종결 상태를 오디터 가용 수준으로 종결 및 사전 예방 보완을 마무리합니다." },
+        { key: "D-3", title: "Simulation 단계", subtitle: "가상 인터뷰 및 최종 증적 수렴", desc: "수검용 디지털 공유 폴더에 증빙 실물을 최종 매칭하고 현장 오퍼레이터들과 SOP 인지 가상 모의 인터뷰를 전개합니다." },
+        { key: "D-Day", title: "Auditing (본 감사 수검)", subtitle: "현장 오디트 및 돌발 지적 즉각 대응", desc: "고객사 오디터 밀착 수검을 진행하며, 실시간 검출된 돌발 부적합에 대한 AI Action Advisor 개입 SOP 대책서를 완성합니다." }
+      ];
+
+      // 현재 Active 마일스톤 탐색
+      let activeMilestoneKey = "D-30";
+      if (diffDays <= 0) {
+        activeMilestoneKey = "D-Day";
+      } else if (diffDays <= 3) {
+        activeMilestoneKey = "D-3";
+      } else if (diffDays <= 7) {
+        activeMilestoneKey = "D-7";
+      } else if (diffDays <= 15) {
+        activeMilestoneKey = "D-15";
+      } else {
+        activeMilestoneKey = "D-30";
+      }
+
+      let timelineHTML = `<div class="milestone-timeline" style="position: relative; padding-left: 32px; display: flex; flex-direction: column; gap: 24px;">`;
+      
+      // 세로 은은한 그라데이션 라인
+      timelineHTML += `<div style="position: absolute; top: 8px; left: 11px; width: 2px; height: calc(100% - 16px); background: linear-gradient(180deg, #00c8ff, var(--border-card) 70%, rgba(255,255,255,0.05)); z-index: 0;"></div>`;
+
+      milestones.forEach(m => {
+        // 이 마일스톤에 속한 태스크 분석
+        const mTasks = this.state.planningTasks.filter(t => t.milestone === m.key);
+        const mTotal = mTasks.length;
+        const mCompleted = mTasks.filter(t => (taskStates[t.id] || "pending") === "completed").length;
+        const mPercent = mTotal > 0 ? Math.round((mCompleted / mTotal) * 100) : 0;
+
+        const isCurrentActive = m.key === activeMilestoneKey;
+        const isAllDone = mPercent === 100;
+
+        // 노드 상태 클래스 결정
+        let nodeClass = "pending";
+        let nodeStyle = "background: rgba(15, 23, 42, 0.9); border: 2px solid var(--border-card); color: var(--text-muted);";
+        
+        if (isAllDone) {
+          nodeClass = "completed";
+          nodeStyle = "background: #10b981; border: 2px solid #059669; color: white;";
+        } else if (isCurrentActive) {
+          nodeClass = "active";
+          nodeStyle = "background: #00c8ff; border: 2px solid #0284c7; color: white; box-shadow: 0 0 12px #00c8ff;";
+        }
+
+        const iconHTML = isAllDone 
+          ? `<i data-lucide="check" style="width: 12px; height: 12px; stroke-width: 3px;"></i>` 
+          : (isCurrentActive ? `<i data-lucide="activity" style="width: 12px; height: 12px;" class="animate-pulse"></i>` : `<span style="font-size: 10px; font-weight: 700; font-family: monospace;">-</span>`);
+
+        timelineHTML += `
+          <div class="milestone-item ${isCurrentActive ? 'active' : ''}" style="position: relative; z-index: 1;">
+            <!-- 마일스톤 불렛 노드 -->
+            <div class="milestone-node ${nodeClass}" style="position: absolute; left: -32px; top: 4px; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; ${nodeStyle}">
+              ${iconHTML}
+            </div>
+
+            <!-- 마일스톤 내용 카드 -->
+            <div class="card-solid milestone-card ${isCurrentActive ? 'active-glow' : ''}" style="background: rgba(255, 255, 255, ${isCurrentActive ? '0.04' : '0.02'}); border: 1px solid ${isCurrentActive ? 'rgba(0, 200, 255, 0.25)' : 'rgba(255, 255, 255, 0.05)'}; padding: 14px 18px; border-radius: 8px; transition: all 0.2s ease-in-out;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 6px;">
+                <div>
+                  <span style="font-size: 11px; font-weight: 800; font-family: monospace; color: ${isCurrentActive ? '#00c8ff' : 'var(--text-secondary)'}; text-transform: uppercase;">
+                    ${m.key} ${isCurrentActive ? '• 현재 실행 마일스톤' : ''}
+                  </span>
+                  <h4 style="font-size: 13.5px; font-weight: 700; color: var(--text-light); margin: 2px 0 0 0;">${m.title}</h4>
+                </div>
+                <div style="text-align: right;">
+                  <span style="font-size: 11px; font-weight: 700; font-family: monospace; color: ${isAllDone ? '#10b981' : (isCurrentActive ? '#00c8ff' : 'var(--text-muted)')}; background: ${isAllDone ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.03)'}; border: 1px solid ${isAllDone ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)'}; padding: 2px 8px; border-radius: 4px;">
+                    ${mPercent}% (${mCompleted}/${mTotal})
+                  </span>
+                </div>
+              </div>
+              <p style="font-size: 12px; color: var(--text-secondary); margin: 0 0 8px 0; line-height: 1.5; font-weight: 500;">${m.desc}</p>
+              
+              <!-- 쁘띠 미니 프로그레스바 -->
+              <div style="width: 100%; height: 3px; background: rgba(255,255,255,0.03); border-radius: 1.5px; overflow: hidden; border: 1px solid rgba(255,255,255,0.02);">
+                <div style="width: ${mPercent}%; height: 100%; background: ${isAllDone ? '#10b981' : 'linear-gradient(90deg, #3b82f6, #00c8ff)'}; transition: width 0.3s ease;"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      timelineHTML += `</div>`;
+      milestoneTrackerNode.innerHTML = timelineHTML;
+    }
+
+    // [6] 상세 준비 과제 체크리스트 테이블 렌더링
+    const taskListNode = document.getElementById('planning-task-list');
+    if (taskListNode) {
+      let tableHTML = `
+        <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12.5px;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border-card); background: rgba(255,255,255,0.01);">
+              <th style="padding: 10px 12px; text-align: left; width: 70px; color: var(--text-secondary); font-weight: 700;">단계</th>
+              <th style="padding: 10px 12px; text-align: left; color: var(--text-secondary); font-weight: 700;">검증 준비 과제</th>
+              <th style="padding: 10px 12px; text-align: left; color: var(--text-secondary); font-weight: 700; width: 42%;">세부 검증 설명</th>
+              <th style="padding: 10px 12px; text-align: center; width: 100px; color: var(--text-secondary); font-weight: 700;">준비 상태</th>
+              <th style="padding: 10px 12px; text-align: center; width: 90px; color: var(--text-secondary); font-weight: 700;">상태 전환</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      this.state.planningTasks.forEach(task => {
+        const state = taskStates[task.id] || "pending";
+        
+        let statusBadge = "";
+        let rowStyle = "";
+        if (state === "completed") {
+          statusBadge = `<span class="badge" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); color: #10b981; font-weight: 700; display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px;">완료</span>`;
+          rowStyle = "opacity: 0.85; background: rgba(16, 185, 129, 0.01);";
+        } else if (state === "in_progress") {
+          statusBadge = `<span class="badge" style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); color: #3b82f6; font-weight: 700; display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; animation: pulse-blue 1.5s infinite;">진행 중</span>`;
+          rowStyle = "background: rgba(59, 130, 246, 0.01);";
+        } else {
+          statusBadge = `<span class="badge" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-secondary); font-weight: 600; display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px;">대기</span>`;
+        }
+
+        // 지연(Delayed) 여부에 따라 행 테두리나 텍스트 컬러 강조
+        let delayBadgeHTML = "";
+        const milestoneDays = parseInt(task.milestone.replace("D-", "")) || 0;
+        if (state === "pending" && diffDays <= milestoneDays) {
+          delayBadgeHTML = `<span style="margin-left: 6px; font-size: 10px; font-weight: 700; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; padding: 1px 4px; border-radius: 3px; vertical-align: middle;">지연 위험</span>`;
+        }
+
+        tableHTML += `
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.03); ${rowStyle} transition: background 0.15s;">
+            <!-- 마일스톤 기준일 -->
+            <td style="padding: 12px; font-family: monospace; font-weight: 800; color: var(--brand-blue);">${task.milestone}</td>
+            
+            <!-- 태스크 제목 -->
+            <td style="padding: 12px; font-weight: 700; color: var(--text-light); line-height: 1.4;">
+              <div style="display: flex; align-items: center; flex-wrap: wrap;">
+                <span>${task.title}</span>
+                ${delayBadgeHTML}
+              </div>
+            </td>
+            
+            <!-- 태스크 설명 -->
+            <td style="padding: 12px; color: var(--text-secondary); font-weight: 500; line-height: 1.5;">${task.desc}</td>
+            
+            <!-- 현재 상태 뱃지 -->
+            <td style="padding: 12px; text-align: center;">${statusBadge}</td>
+            
+            <!-- 상태 전환 버튼 -->
+            <td style="padding: 12px; text-align: center;">
+              <button class="btn-toggle-task" data-id="${task.id}" style="padding: 5px 10px; font-size: 11px; font-weight: 700; border-radius: 4px; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border-card); background: rgba(255,255,255,0.03); color: var(--text-primary); display: inline-flex; align-items: center; gap: 4px;">
+                <i data-lucide="refresh-cw" style="width: 10px; height: 10px;"></i>
+                <span>전환</span>
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      tableHTML += `
+          </tbody>
+        </table>
+      `;
+      taskListNode.innerHTML = tableHTML;
+
+      // 상세 과제 상태 전환 토글 액션 바인딩
+      taskListNode.querySelectorAll('.btn-toggle-task').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const taskId = btn.getAttribute('data-id');
+          this.toggleTaskState(taskId);
+        });
+      });
+    }
+
+    // Lucide Icons 리프레시 바인딩
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  },
+
+  // 4) 준비 과제 상태 전환 3단 루프 토글 핸들러
+  toggleTaskState(taskId) {
+    const auditId = this.state.selectedAuditId;
+    if (!auditId) return;
+
+    if (!this.state.planningChecklistStates[auditId]) {
+      this.state.planningChecklistStates[auditId] = {};
+    }
+
+    const currentState = this.state.planningChecklistStates[auditId][taskId] || "pending";
+    let nextState = "pending";
+
+    if (currentState === "pending") {
+      nextState = "in_progress";
+    } else if (currentState === "in_progress") {
+      nextState = "completed";
+    } else {
+      nextState = "pending";
+    }
+
+    this.state.planningChecklistStates[auditId][taskId] = nextState;
+    localStorage.setItem('riskhunter_checklist_states', JSON.stringify(this.state.planningChecklistStates));
+
+    // 화면 즉각 리렌더링
+    this.renderPlanningScreen();
+
+    // 상태 전환별 미학적 토스트 알림 발신
+    const task = this.state.planningTasks.find(t => t.id === taskId);
+    const taskTitle = task ? `'${task.title.substring(0, 15)}...'` : "준비 과제";
+    
+    let stateLabel = "대기";
+    let stateType = "info";
+    if (nextState === "in_progress") {
+      stateLabel = "진행 중";
+    } else if (nextState === "completed") {
+      stateLabel = "완료됨";
+      stateType = "success";
+    }
+
+    this.showToast(`${taskTitle} 준비 과제 상태가 [${stateLabel}]으로 변경되었습니다.`, stateType);
+  },
+
+  // 5) 감사 일정 등록 모달 기동 및 폼 프리세팅
+  openScheduleModal() {
+    console.log("📅 Opening Audit Registration Modal...");
+    
+    const modal = document.getElementById('audit-registration-modal');
+    if (!modal) return;
+
+    // 모달 내 공장 드롭다운 동적 충진 (마스터 자원과 연동)
+    const plantSelect = document.getElementById('modal-audit-plant');
+    if (plantSelect && this.state.commonCodes?.plants) {
+      plantSelect.innerHTML = '';
+      // 'ALL'을 제외한 실제 가용 공장 목록 로딩
+      const realPlants = this.state.commonCodes.plants.filter(p => p.code !== 'ALL' && p.is_active);
+      realPlants.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.code;
+        opt.textContent = `${p.name} (${p.code})`;
+        plantSelect.appendChild(opt);
+      });
+    }
+
+    // 기본 담당자를 현재 세션 로그인 유저명으로 기입하는 스마트함 연출
+    const leadInput = document.getElementById('modal-audit-lead');
+    if (leadInput) {
+      leadInput.value = this.state.currentUser?.name || "박정호 수석";
+    }
+
+    // 예정일 기본값 기입 (미래의 특정일 2026-06-15)
+    const dateInput = document.getElementById('modal-audit-date');
+    if (dateInput) {
+      dateInput.value = "2026-06-15";
+    }
+
+    // 기타 폼 비우기
+    const titleInput = document.getElementById('modal-audit-title');
+    if (titleInput) titleInput.value = "";
+    
+    const projInput = document.getElementById('modal-audit-project');
+    if (projInput) projInput.value = "";
+
+    const descInput = document.getElementById('modal-audit-desc');
+    if (descInput) descInput.value = "";
+
+    // 표출
+    modal.classList.remove('hidden');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  },
+
+  // 6) 신규 감사 일정 정밀 유효성 확인 및 저장
+  saveSchedule() {
+    console.log("📅 Saving New Audit Schedule...");
+
+    const title = document.getElementById('modal-audit-title')?.value.trim();
+    const plant = document.getElementById('modal-audit-plant')?.value;
+    const customer = document.getElementById('modal-audit-customer')?.value;
+    const date = document.getElementById('modal-audit-date')?.value;
+    const lead = document.getElementById('modal-audit-lead')?.value.trim();
+    const project = document.getElementById('modal-audit-project')?.value.trim();
+    const desc = document.getElementById('modal-audit-desc')?.value.trim();
+
+    // 1. 유효성 검사 (Validation)
+    if (!title) {
+      this.showToast("감사 수검명을 올바르게 입력하십시오.", "warning");
+      document.getElementById('modal-audit-title')?.focus();
+      return;
+    }
+    if (!date) {
+      this.showToast("수검 예정일을 지정하십시오.", "warning");
+      document.getElementById('modal-audit-date')?.focus();
+      return;
+    }
+    if (!lead) {
+      this.showToast("담당 수석 감사원(Lead Auditor)을 입력하십시오.", "warning");
+      document.getElementById('modal-audit-lead')?.focus();
+      return;
+    }
+
+    // 2. 신규 감사 오브젝트 구성
+    const newId = "audit_" + (Date.now()); // 안전한 타임스탬프 ID
+    const newAudit = {
+      id: newId,
+      title: title,
+      plantCode: plant,
+      customer: customer,
+      date: date,
+      leadAuditor: lead,
+      project: project || "전사 신규 품질 실사",
+      desc: desc || "정적 MVP 기반 수검 계획 등록"
+    };
+
+    // 3. 전역 State 및 LocalStorage 에 세션 보존 영속화
+    this.state.audits.push(newAudit);
+    localStorage.setItem('riskhunter_audits', JSON.stringify(this.state.audits));
+
+    // 신규 등록 일정을 즉시 활성 감사 일정으로 격상 선택
+    this.state.selectedAuditId = newId;
+    localStorage.setItem('riskhunter_selected_audit_id', newId);
+
+    // 해당 감사 체크리스트 초기상태 빈 객체 배당
+    this.state.planningChecklistStates[newId] = {};
+    localStorage.setItem('riskhunter_checklist_states', JSON.stringify(this.state.planningChecklistStates));
+
+    // 4. 모달 숨기기 및 알림
+    document.getElementById('audit-registration-modal').classList.add('hidden');
+    this.showToast(`'${title}' 수검 일정이 성공적으로 등록되었으며, 실시간 체크리스트가 기동되었습니다!`, "success");
+
+    // 5. 화면 동기화 리렌더링
+    this.initAuditPlanning();
   },
 
   // ==========================================================================
@@ -1364,6 +2007,770 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
   },
 
   // ==========================================================================
+  // 📈 [Phase 2] 대시보드 리스크 연산 및 차트/경고판 인터랙션 엔진
+  // ==========================================================================
+  
+  /**
+   * 🧠 1. 데이터 사전 가공 및 정규식 기반 공정-4M 매핑 엔진
+   * 품질실패(QI), 변경점(4M), 감사지적(Findings) 텍스트를 형태소 분석하여 공정 및 4M 요소를 일관되게 바인딩합니다.
+   */
+  preProcessData() {
+    console.log("🧠 Pre-processing raw issues for process & 4M mapping...");
+    
+    // 15대 표준 공정 및 4M 매핑 정규식 사전 (Special 공정 내 Form, Sealant 포용 준수)
+    const processKeywords = {
+      'Incoming': [/incoming/i, /수입/, /입고/, /자재검사/],
+      'Mixing': [/mixing/i, /배합/, /밀링/, /컴파운드/, /밀리/, /투입 오일/],
+      'Extrusion': [/extrusion/i, /압출/, /트레드/, /사이드월/, /프로파일/],
+      'Calendaring': [/calendar/i, /캘린더/, /토핑/, /스틸코드/, /텍스타일/],
+      'Cutting': [/cutting/i, /재단/, /절단/, /슬리팅/],
+      'Bead': [/bead/i, /비드/, /와이어/, /에이프런/],
+      'Building': [/building/i, /성형/, /그린타이어/, /조립/, /드럼/],
+      'Curing': [/curing/i, /가류/, /금형/, /벤트핀/, /가류기/, /블래더/, /세정 주기/],
+      'Re-work': [/re-work/i, /rework/i, /재작업/, /수정작업/],
+      'Inspection': [/inspection/i, /검사/, /외관/, /uniformity/i, /runout/i, /불합격/],
+      'Special': [/special/i, /form/i, /sealant/i, /폼/, /실란트/, /흡음재/, /스폰지/]
+    };
+
+    const m4Keywords = {
+      'Man': [/man/i, /작업자/, /인적/, /교육/, /자격/, /교대/, /수동/],
+      'Machine': [/machine/i, /설비/, /금형/, /센서/, /장비/, /롤러/, /계측기/, /장치/],
+      'Material': [/material/i, /재료/, /자재/, /고무/, /오일/, /컴파운드/, /원재료/, /타이어/],
+      'Method': [/method/i, /sop/i, /방법/, /지침/, /기준/, /프로세스/, /주기/, /절차/]
+    };
+
+    // ① 품질 이슈 (QI) 매핑
+    if (this.state.qualityIssues) {
+      this.state.qualityIssues.forEach(item => {
+        const text = [
+          item.D2_PROBLEM || '',
+          item.D4_ROOT_CAUSE || '',
+          item.CAT_NAME || '',
+          item.SUB_CAT_NAME || '',
+          item.TYPE_NAME || ''
+        ].join(' ').toLowerCase();
+
+        let matchedProc = 'System'; // 기본 보조 영역
+        for (const [proc, regexes] of Object.entries(processKeywords)) {
+          if (regexes.some(rx => rx.test(text))) {
+            matchedProc = proc;
+            break;
+          }
+        }
+        item._mappedProcess = matchedProc;
+
+        let matched4M = 'Method';
+        for (const [m4, regexes] of Object.entries(m4Keywords)) {
+          if (regexes.some(rx => rx.test(text))) {
+            matched4M = m4;
+            break;
+          }
+        }
+        item._mapped4M = matched4M;
+      });
+    }
+
+    // ② 4M 변경 이력 매핑
+    if (this.state.changeHistory4m) {
+      this.state.changeHistory4m.forEach(item => {
+        const text = [
+          item.SUBJECT || '',
+          item.CHANGE_ITEM || '',
+          item.CHANGE_CONTENT || '',
+          item.PURPOSE || ''
+        ].join(' ').toLowerCase();
+
+        let matchedProc = 'System';
+        for (const [proc, regexes] of Object.entries(processKeywords)) {
+          if (regexes.some(rx => rx.test(text))) {
+            matchedProc = proc;
+            break;
+          }
+        }
+        item._mappedProcess = matchedProc;
+
+        let matched4M = 'Method';
+        if (item.CHANGE_ITEM) {
+          const ci = item.CHANGE_ITEM.toLowerCase();
+          if (ci.includes('machine') || ci.includes('설비') || ci.includes('tool') || ci.includes('롤러')) matched4M = 'Machine';
+          else if (ci.includes('material') || ci.includes('재료') || ci.includes('rubber') || ci.includes('원단')) matched4M = 'Material';
+          else if (ci.includes('man') || ci.includes('작업') || ci.includes('인원')) matched4M = 'Man';
+          else if (ci.includes('method') || ci.includes('공정') || ci.includes('지침') || ci.includes('standard')) matched4M = 'Method';
+        } else {
+          for (const [m4, regexes] of Object.entries(m4Keywords)) {
+            if (regexes.some(rx => rx.test(text))) {
+              matched4M = m4;
+              break;
+            }
+          }
+        }
+        item._mapped4M = matched4M;
+      });
+    }
+
+    // ③ 과거 감사 지적사항 매핑
+    if (this.state.auditFindings) {
+      this.state.auditFindings.forEach(item => {
+        const text = [
+          item.POINT_OUT || '',
+          item.ROOT_CAUSE_ANALYSIS || '',
+          item.COUNTER_MEASURE || '',
+          item.SUBJECT || ''
+        ].join(' ').toLowerCase();
+
+        let matchedProc = 'System';
+        for (const [proc, regexes] of Object.entries(processKeywords)) {
+          if (regexes.some(rx => rx.test(text))) {
+            matchedProc = proc;
+            break;
+          }
+        }
+        item._mappedProcess = matchedProc;
+
+        let matched4M = 'Method';
+        for (const [m4, regexes] of Object.entries(m4Keywords)) {
+          if (regexes.some(rx => rx.test(text))) {
+            matched4M = m4;
+            break;
+          }
+        }
+        item._mapped4M = matched4M;
+      });
+    }
+
+    console.log("✅ Raw issues pre-processing completed!");
+  },
+
+  /**
+   * 🔍 2. 글로벌 공통 필터 적용된 이벤트 추출기
+   */
+  getFilteredEvents(type) {
+    let list = [];
+    if (type === 'qi') {
+      list = this.state.qualityIssues || [];
+    } else if (type === '4m') {
+      list = this.state.changeHistory4m || [];
+    } else if (type === 'findings') {
+      list = this.state.auditFindings || [];
+    } else {
+      return [];
+    }
+
+    return list.filter(item => {
+      // ① 공장 필터
+      if (this.state.selectedPlant !== 'ALL') {
+        const p = (item.PLANT || item.plant_code || '').trim().toUpperCase();
+        if (p !== this.state.selectedPlant) return false;
+      }
+
+      // ② 고객사 필터
+      if (this.state.selectedCustomer !== 'ALL') {
+        const cust = this.state.selectedCustomer.trim().toLowerCase();
+        if (type === 'qi') {
+          const itemCust = (item.OEM || '').trim().toLowerCase();
+          if (itemCust !== cust) return false;
+        } else if (type === 'findings') {
+          const itemCust = (item.CAR_MAKER || '').trim().toLowerCase();
+          if (itemCust !== cust) return false;
+        } else if (type === '4m') {
+          const subject = (item.SUBJECT || '').trim().toLowerCase();
+          if (!subject.includes(cust)) return false;
+        }
+      }
+
+      // ③ 공정 필터
+      if (this.state.selectedProcess !== 'ALL') {
+        if (item._mappedProcess !== this.state.selectedProcess) return false;
+      }
+
+      return true;
+    });
+  },
+
+  /**
+   * 📐 3. 특정 공장 및 공정의 가중 리스크 스코어 계산 엔진
+   * $R_{P,C} = \min \left( 5.0, \;\; 0.3 \times N_{QI}(P, C) + 0.1 \times N_{4M}(P, C) + 0.2 \times N_{Audit}(P, C) \right)$ (미결 unresolved 기준 적용)
+   */
+  calculatePlantRiskScore(plantCode, customer, process) {
+    // QI 미결: STATUS === 'On-going'
+    const qiUnresolved = (this.state.qualityIssues || []).filter(item => {
+      if (plantCode !== 'ALL' && item.PLANT !== plantCode) return false;
+      if (customer !== 'ALL' && (item.OEM || '').toLowerCase() !== customer.toLowerCase()) return false;
+      if (process !== 'ALL' && item._mappedProcess !== process) return false;
+      return item.STATUS === 'On-going';
+    }).length;
+
+    // 4M 미결: PROGRESS === 'On-going'
+    const m4Unresolved = (this.state.changeHistory4m || []).filter(item => {
+      if (plantCode !== 'ALL' && item.PLANT !== plantCode) return false;
+      if (customer !== 'ALL' && !(item.SUBJECT || '').toLowerCase().includes(customer.toLowerCase())) return false;
+      if (process !== 'ALL' && item._mappedProcess !== process) return false;
+      return item.PROGRESS === 'On-going';
+    }).length;
+
+    // Findings 미결: STATUS === 'On-going'
+    const findingsUnresolved = (this.state.auditFindings || []).filter(item => {
+      if (plantCode !== 'ALL' && item.PLANT !== plantCode) return false;
+      if (customer !== 'ALL' && (item.CAR_MAKER || '').toLowerCase() !== customer.toLowerCase()) return false;
+      if (process !== 'ALL' && item._mappedProcess !== process) return false;
+      return item.STATUS === 'On-going';
+    }).length;
+
+    const rawScore = 0.3 * qiUnresolved + 0.1 * m4Unresolved + 0.2 * findingsUnresolved;
+    const clampedScore = Math.min(5.0, Math.round(rawScore * 100) / 100);
+
+    return {
+      score: clampedScore,
+      qiCount: qiUnresolved,
+      m4Count: m4Unresolved,
+      findingsCount: findingsUnresolved
+    };
+  },
+
+  /**
+   * 📊 4. 대시보드 메인 렌더러
+   * 4대 요약 KPI, 진행도 게이지바, Chart.js 2개 차트, Live Risk Alert Board 갱신을 총지휘합니다.
+   */
+  renderDashboard() {
+    console.log("📊 Rendering Premium Risk Dashboard...");
+    
+    // ------------------------------------------------------------------------
+    // [1] 필터링 기반 KPI 연산 및 수려한 게이지 바 동적 렌더링
+    // ------------------------------------------------------------------------
+    const qiFiltered = this.getFilteredEvents('qi');
+    const qiUnresolved = qiFiltered.filter(item => item.STATUS === 'On-going').length;
+    const qiResolved = qiFiltered.filter(item => item.STATUS === 'Closed').length;
+    const qiTotal = qiFiltered.length;
+    const qiRate = qiTotal > 0 ? (qiResolved / qiTotal) * 100 : 100;
+
+    const m4Filtered = this.getFilteredEvents('4m');
+    const m4Unresolved = m4Filtered.filter(item => item.PROGRESS === 'On-going').length;
+    const m4Resolved = m4Filtered.filter(item => item.PROGRESS === 'Complete').length;
+    const m4Total = m4Filtered.length;
+    const m4Rate = m4Total > 0 ? (m4Resolved / m4Total) * 100 : 100;
+
+    const findingsFiltered = this.getFilteredEvents('findings');
+    const findingsUnresolved = findingsFiltered.filter(item => item.STATUS === 'On-going').length;
+    const findingsResolved = findingsFiltered.filter(item => item.STATUS === 'Closed').length;
+    const findingsTotal = findingsFiltered.length;
+    const findingsRate = findingsTotal > 0 ? (findingsResolved / findingsTotal) * 100 : 100;
+
+    const totalUnresolved = qiUnresolved + m4Unresolved + findingsUnresolved;
+    const totalResolved = qiResolved + m4Resolved + findingsResolved;
+    const totalCount = qiTotal + m4Total + findingsTotal;
+    const totalRate = totalCount > 0 ? (totalResolved / totalCount) * 100 : 100;
+
+    // ① KPI 1: 총 누적 리스크 건수 (미결 총합)
+    const kpiTotalVal = document.getElementById('kpi-total-risks-val');
+    const kpiTotalSub = document.getElementById('kpi-total-risks-sub');
+    if (kpiTotalVal && kpiTotalSub) {
+      kpiTotalVal.innerHTML = `
+        <div style="display: flex; align-items: baseline; gap: 4px;">
+          <span style="font-size: 32px; font-weight: 800; color: var(--text-light); font-family: monospace;">${totalUnresolved}</span>
+          <span style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">건 미결</span>
+        </div>
+        <div style="margin-top: 10px; width: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 11px;">
+            <span style="color: var(--text-muted); font-weight: 500;">종합 종결 관리 진행률</span>
+            <span style="color: #00c8ff; font-weight: 700;">${totalRate.toFixed(1)}%</span>
+          </div>
+          <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-card);">
+            <div style="width: ${totalRate}%; height: 100%; background: linear-gradient(90deg, #3b82f6, #00c8ff); border-radius: 3px;"></div>
+          </div>
+        </div>
+      `;
+      kpiTotalSub.innerHTML = `
+        <span style="color: var(--text-muted); font-size: 12px;">전체 누적 건수: <strong>${totalCount}건</strong> (해결 완료 ${totalResolved}건)</span>
+      `;
+    }
+
+    // ② KPI 2: 미해결 품질 이슈 (QI)
+    const kpiQiVal = document.getElementById('kpi-qi-unresolved-val');
+    const kpiQiSub = document.getElementById('kpi-qi-unresolved-sub');
+    if (kpiQiVal && kpiQiSub) {
+      kpiQiVal.innerHTML = `
+        <div style="display: flex; align-items: baseline; gap: 4px;">
+          <span style="font-size: 32px; font-weight: 800; color: var(--text-light); font-family: monospace;">${qiUnresolved}</span>
+          <span style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">건 미결</span>
+        </div>
+        <div style="margin-top: 10px; width: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 11px;">
+            <span style="color: var(--text-muted); font-weight: 500;">품질 이슈 해결 처리율</span>
+            <span style="color: #ef4444; font-weight: 700;">${qiRate.toFixed(1)}%</span>
+          </div>
+          <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-card);">
+            <div style="width: ${qiRate}%; height: 100%; background: linear-gradient(90deg, #ef4444, #ff7b72); border-radius: 3px;"></div>
+          </div>
+        </div>
+      `;
+      kpiQiSub.innerHTML = `
+        <span style="color: var(--text-muted); font-size: 12px;">품질 이슈 총량: <strong>${qiTotal}건</strong> (종결완료 ${qiResolved}건)</span>
+      `;
+    }
+
+    // ③ KPI 3: 미점검 4M 변경점
+    const kpi4mVal = document.getElementById('kpi-4m-unresolved-val');
+    const kpi4mSub = document.getElementById('kpi-4m-unresolved-sub');
+    if (kpi4mVal && kpi4mSub) {
+      kpi4mVal.innerHTML = `
+        <div style="display: flex; align-items: baseline; gap: 4px;">
+          <span style="font-size: 32px; font-weight: 800; color: var(--text-light); font-family: monospace;">${m4Unresolved}</span>
+          <span style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">건 On-going</span>
+        </div>
+        <div style="margin-top: 10px; width: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 11px;">
+            <span style="color: var(--text-muted); font-weight: 500;">공정 변경 안정화 점검률</span>
+            <span style="color: #f59e0b; font-weight: 700;">${m4Rate.toFixed(1)}%</span>
+          </div>
+          <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-card);">
+            <div style="width: ${m4Rate}%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); border-radius: 3px;"></div>
+          </div>
+        </div>
+      `;
+      kpi4mSub.innerHTML = `
+        <span style="color: var(--text-muted); font-size: 12px;">공정 변경 신청: <strong>${m4Total}건</strong> (점검완료 ${m4Resolved}건)</span>
+      `;
+    }
+
+    // ④ KPI 4: 과거 감사 미해결 지적
+    const kpiAuditVal = document.getElementById('kpi-audit-unresolved-val');
+    const kpiAuditSub = document.getElementById('kpi-audit-unresolved-sub');
+    if (kpiAuditVal && kpiAuditSub) {
+      kpiAuditVal.innerHTML = `
+        <div style="display: flex; align-items: baseline; gap: 4px;">
+          <span style="font-size: 32px; font-weight: 800; color: var(--text-light); font-family: monospace;">${findingsUnresolved}</span>
+          <span style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">건 미결</span>
+        </div>
+        <div style="margin-top: 10px; width: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 11px;">
+            <span style="color: var(--text-muted); font-weight: 500;">지적 대책 수립 조치율</span>
+            <span style="color: #a855f7; font-weight: 700;">${findingsRate.toFixed(1)}%</span>
+          </div>
+          <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-card);">
+            <div style="width: ${findingsRate}%; height: 100%; background: linear-gradient(90deg, #a855f7, #c084fc); border-radius: 3px;"></div>
+          </div>
+        </div>
+      `;
+      kpiAuditSub.innerHTML = `
+        <span style="color: var(--text-muted); font-size: 12px;">지적 조항 수량: <strong>${findingsTotal}건</strong> (조치종결 ${findingsResolved}건)</span>
+      `;
+    }
+
+    // ------------------------------------------------------------------------
+    // [2] Chart 1: 공장별 실시간 위험 점수 (Plant Risk Score - Bar / Doughnut)
+    // ------------------------------------------------------------------------
+    const ctxPlant = document.getElementById('chart-plant-risk');
+    const plantTitleNode = document.getElementById('chart-plant-risk-title');
+    
+    if (ctxPlant && typeof Chart !== 'undefined') {
+      // 기존 차트 존재 시 파괴 (메모리 릭 및 잔상 제거)
+      if (this.state.charts.plantRisk) {
+        this.state.charts.plantRisk.destroy();
+        this.state.charts.plantRisk = null;
+      }
+
+      const activePlantCode = this.state.charts.plantSelected;
+
+      if (activePlantCode) {
+        // [Doughnut 모드] 특정 공장 선택 시 리스크 요인 3대 성분 세분화 시각화
+        const plantObj = (this.state.commonCodes.plants || []).find(p => p.code === activePlantCode);
+        const plantName = plantObj ? plantObj.name : activePlantCode;
+        
+        if (plantTitleNode) {
+          plantTitleNode.innerHTML = `
+            <span style="color: #ef4444;"><i data-lucide="shield-alert"></i> ${plantName} 요인별 기여도</span>
+            <button id="btn-restore-plant-chart" style="margin-left: 10px; font-size: 11px; padding: 2px 8px; background: var(--bg-app); border: 1px solid var(--border-card); color: var(--text-secondary); border-radius: 4px; cursor: pointer; font-weight: 700;">
+              목록 복귀 ↩
+            </button>
+          `;
+          
+          // 복귀 버튼 이벤트 수동 추가
+          setTimeout(() => {
+            const btnRestore = document.getElementById('btn-restore-plant-chart');
+            if (btnRestore) {
+              btnRestore.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.state.charts.plantSelected = null;
+                this.renderDashboard();
+              });
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+          }, 50);
+        }
+
+        const scoreDetails = this.calculatePlantRiskScore(activePlantCode, this.state.selectedCustomer, this.state.selectedProcess);
+        
+        const qiWeight = Math.round(0.3 * scoreDetails.qiCount * 10) / 10;
+        const m4Weight = Math.round(0.1 * scoreDetails.m4Count * 10) / 10;
+        const findingsWeight = Math.round(0.2 * scoreDetails.findingsCount * 10) / 10;
+
+        this.state.charts.plantRisk = new Chart(ctxPlant, {
+          type: 'doughnut',
+          data: {
+            labels: [
+              `품질실패 QI 기여분 (${scoreDetails.qiCount}건 • ${qiWeight}점)`,
+              `공정변경 4M 기여분 (${scoreDetails.m4Count}건 • ${m4Weight}점)`,
+              `감사지적 Findings 기여분 (${scoreDetails.findingsCount}건 • ${findingsWeight}점)`
+            ],
+            datasets: [{
+              data: [qiWeight, m4Weight, findingsWeight],
+              backgroundColor: [
+                'rgba(239, 68, 68, 0.75)',  // Red
+                'rgba(245, 158, 11, 0.75)',  // Amber
+                'rgba(168, 85, 247, 0.75)'   // Purple
+              ],
+              borderColor: [
+                '#ef4444',
+                '#f59e0b',
+                '#a855f7'
+              ],
+              borderWidth: 1.5,
+              hoverOffset: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  font: { family: 'Pretendard', size: 11, weight: '500' },
+                  boxWidth: 10
+                }
+              },
+              tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                titleColor: '#fff',
+                bodyColor: 'rgba(255,255,255,0.85)',
+                borderColor: 'rgba(255,255,255,0.1)',
+                borderWidth: 1,
+                callbacks: {
+                  label: function(context) {
+                    return ` ${context.label}`;
+                  }
+                }
+              }
+            },
+            onClick: () => {
+              // 차트 클릭 시에도 복귀 지원
+              this.state.charts.plantSelected = null;
+              this.renderDashboard();
+            }
+          }
+        });
+
+      } else {
+        // [Bar 모드] 전체 8개 공장별 리스크 계량화 비교
+        if (plantTitleNode) {
+          plantTitleNode.textContent = "공장별 실시간 위험 점수 (Plant Risk Score)";
+        }
+
+        const plants = ['DP', 'KP', 'JP', 'HP', 'CP', 'MP', 'IP', 'TP'];
+        const plantNames = ['대전(DP)', '금산(KP)', '가흥(JP)', '강소(HP)', '중경(CP)', '헝가리(MP)', '인니(IP)', '테네시(TP)'];
+        const scores = plants.map(p => this.calculatePlantRiskScore(p, this.state.selectedCustomer, this.state.selectedProcess).score);
+
+        // 점수가 3.5를 넘어가면 Warning/Danger 색상 부여
+        const barColors = scores.map(s => s >= 3.5 ? 'rgba(239, 68, 68, 0.75)' : 'rgba(59, 130, 246, 0.75)');
+        const borderColors = scores.map(s => s >= 3.5 ? '#ef4444' : '#3b82f6');
+
+        this.state.charts.plantRisk = new Chart(ctxPlant, {
+          type: 'bar',
+          data: {
+            labels: plantNames,
+            datasets: [{
+              label: '공장별 리스크 지수',
+              data: scores,
+              backgroundColor: barColors,
+              borderColor: borderColors,
+              borderWidth: 1.5,
+              borderRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 11, family: 'Pretendard' } }
+              },
+              y: {
+                min: 0,
+                max: 5.0,
+                grid: { color: 'rgba(255,255,255,0.04)' },
+                ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10, family: 'monospace' }, stepSize: 1 }
+              }
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                callbacks: {
+                  label: function(context) {
+                    return ` 위험 점수: ${context.parsed.y} / 5.0 (클릭 시 원인분석)`;
+                  }
+                }
+              }
+            },
+            onClick: (event, activeElements) => {
+              if (activeElements && activeElements.length > 0) {
+                const idx = activeElements[0].index;
+                const targetCode = plants[idx];
+                this.state.charts.plantSelected = targetCode;
+                this.renderDashboard();
+                this.showToast(`${plantNames[idx]} 리스크 성분 정밀 요인 분석으로 스위칭합니다.`);
+              }
+            }
+          }
+        });
+      }
+    }
+
+    // ------------------------------------------------------------------------
+    // [3] Chart 2: 취약 공정별 리스크 누적 분포 (Vulnerable Process - Horiz Bar)
+    // ------------------------------------------------------------------------
+    const ctxProcess = document.getElementById('chart-process-risk');
+    if (ctxProcess && typeof Chart !== 'undefined') {
+      if (this.state.charts.processRisk) {
+        this.state.charts.processRisk.destroy();
+        this.state.charts.processRisk = null;
+      }
+
+      // 공정 및 카테고리 정보 마스터 구성
+      const mfgProcs = this.state.commonCodes.processes || [];
+      const systemCats = this.state.commonCodes.categories || [];
+      const allProcessEntities = [...mfgProcs, ...systemCats];
+
+      // 전 공정별 위험점수를 연산 후 내림차순 정렬
+      const computedProcessScores = allProcessEntities.map(proc => {
+        const res = this.calculatePlantRiskScore(this.state.selectedPlant, this.state.selectedCustomer, proc.code);
+        return {
+          code: proc.code,
+          name: proc.name,
+          score: res.score,
+          details: res
+        };
+      });
+
+      // 점수 내림차순 정렬
+      computedProcessScores.sort((a, b) => b.score - a.score);
+
+      // 상위 6개만 슬라이싱
+      const topVulnerable = computedProcessScores.slice(0, 6);
+
+      const labels = topVulnerable.map(x => `${x.name} (${x.code})`);
+      const dataValues = topVulnerable.map(x => x.score);
+
+      // 수평 바 차트 컬러 그라데이션 기법 (위험도가 높을수록 더 짙게 처리)
+      const backgroundColors = dataValues.map(s => {
+        if (s >= 3.5) return 'rgba(239, 68, 68, 0.7)'; // Red
+        if (s >= 2.0) return 'rgba(245, 158, 11, 0.7)'; // Amber
+        return 'rgba(59, 130, 246, 0.7)'; // Blue
+      });
+      const borderColors = dataValues.map(s => {
+        if (s >= 3.5) return '#ef4444';
+        if (s >= 2.0) return '#f59e0b';
+        return '#3b82f6';
+      });
+
+      this.state.charts.processRisk = new Chart(ctxProcess, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: dataValues,
+            backgroundColor: backgroundColors,
+            borderColor: borderColors,
+            borderWidth: 1.5,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y', // 가로 막대 차트 선언
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              min: 0,
+              max: 5.0,
+              grid: { color: 'rgba(255,255,255,0.04)' },
+              ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10, family: 'monospace' } }
+            },
+            y: {
+              grid: { display: false },
+              ticks: { color: 'rgba(255,255,255,0.8)', font: { size: 11, family: 'Pretendard', weight: '600' } }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              callbacks: {
+                label: function(context) {
+                  return ` 공정 위험도 점수: ${context.parsed.x} / 5.0`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // ------------------------------------------------------------------------
+    // [4] Live Risk Alert Board (임계치 3.5 초과 공정 실시간 자동 진단 경고 알림판)
+    // ------------------------------------------------------------------------
+    const alertBoard = document.getElementById('live-risk-alerts');
+    if (alertBoard) {
+      alertBoard.innerHTML = '';
+
+      const plants = ['DP', 'KP', 'JP', 'HP', 'CP', 'MP', 'IP', 'TP'];
+      const plantNamesMapping = {
+        'DP': '대전공장', 'KP': '금산공장', 'JP': '가흥공장',
+        'HP': '강소공장', 'CP': '중경공장', 'MP': '헝가리공장',
+        'IP': '인도네시아공장', 'TP': '테네시공장'
+      };
+
+      const mfgProcs = this.state.commonCodes.processes || [];
+      const systemCats = this.state.commonCodes.categories || [];
+      const allProcessEntities = [...mfgProcs, ...systemCats];
+
+      const highRisks = [];
+
+      // 전 공장 및 전 공정에 대해 3.5 이상 위험 조합 스캔 추출
+      plants.forEach(pCode => {
+        // 만약 특정 공장 필터가 켜져 있으면 해당 공장만 스캔
+        if (this.state.selectedPlant !== 'ALL' && pCode !== this.state.selectedPlant) return;
+
+        allProcessEntities.forEach(proc => {
+          // 만약 특정 공정 필터가 켜져 있으면 해당 공정만 스캔
+          if (this.state.selectedProcess !== 'ALL' && proc.code !== this.state.selectedProcess) return;
+
+          const res = this.calculatePlantRiskScore(pCode, this.state.selectedCustomer, proc.code);
+          if (res.score >= 3.5) {
+            highRisks.push({
+              plantCode: pCode,
+              plantName: plantNamesMapping[pCode] || pCode,
+              procCode: proc.code,
+              procName: proc.name,
+              score: res.score,
+              details: res
+            });
+          }
+        });
+      });
+
+      // 위험 지수 내림차순 정렬
+      highRisks.sort((a, b) => b.score - a.score);
+
+      if (highRisks.length > 0) {
+        // 고위험 공정 경고 알림 리스트 렌더링
+        highRisks.forEach(risk => {
+          const item = document.createElement('div');
+          // 계기판 감성의 미려한 글래스모피즘 형태 카드 렌더
+          item.className = 'alert-item';
+          item.style.cssText = `
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(239, 68, 68, 0.04);
+            border-left: 4px solid #ef4444;
+            border-right: 1px solid rgba(239, 68, 68, 0.15);
+            border-top: 1px solid rgba(239, 68, 68, 0.15);
+            border-bottom: 1px solid rgba(239, 68, 68, 0.15);
+            border-radius: 6px;
+            transition: all 0.2s ease-in-out;
+          `;
+          
+          // 호버 시 살짝 밝아지는 마이크로 인터랙션
+          item.addEventListener('mouseover', () => {
+            item.style.background = 'rgba(239, 68, 68, 0.08)';
+            item.style.transform = 'translateX(2px)';
+          });
+          item.addEventListener('mouseout', () => {
+            item.style.background = 'rgba(239, 68, 68, 0.04)';
+            item.style.transform = 'translateX(0)';
+          });
+
+          // 전문 수석 오디터의 정밀 가이드 어드바이저리 출력
+          let advisoryText = '';
+          if (risk.procCode === 'Curing') {
+            advisoryText = `가류 세정 프로세스 및 벤트핀(Air Vent Pin) 막힘 모니터링 체크리스트 최우선 집중 현장 투어 검증을 강력히 권장합니다.`;
+          } else if (risk.procCode === 'Building') {
+            advisoryText = `드럼 및 권취 롤러 기구 교대점 및 작업자 성형 에어 배출(Air Trapped) 표준 미준수 여부 밀착 오디팅이 긴요합니다.`;
+          } else if (risk.procCode === 'Mixing') {
+            advisoryText = `원재료 COA 검정, 탱크 레벨 센서 및 배합 오일 정밀 교정 이력을 집중 검토하여 재발을 미연에 봉쇄하십시오.`;
+          } else {
+            advisoryText = `과거 지적 시정안 준수 여부 및 작업자 SOP 교육 가동 상태의 현장 긴급 오디팅을 실시하십시오.`;
+          }
+
+          item.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 14px; flex: 1; padding-right: 15px;">
+              <div style="display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: rgba(239,68,68,0.15); border-radius: 50%; color: #ef4444; flex-shrink: 0;">
+                <i data-lucide="alert-triangle" style="width: 18px; height: 18px;"></i>
+              </div>
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                  <span style="font-weight: 700; color: #fff; font-size: 13.5px;">${risk.plantName} (${risk.plantCode})</span>
+                  <span style="font-size: 10px; font-weight: 700; padding: 2px 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: var(--text-light); border-radius: 4px;">
+                    ${risk.procName} 공정
+                  </span>
+                </div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 5px; line-height: 1.45;">
+                  <strong>[Advisory]</strong> ${advisoryText} <span style="color: var(--text-muted);">(${risk.details.qiCount}QI / ${risk.details.m4Count}4M / ${risk.details.findingsCount}Audit Findings)</span>
+                </p>
+              </div>
+            </div>
+            <div style="text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+              <div style="font-size: 10px; font-weight: 700; color: #ef4444; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); padding: 1px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px;">
+                <span class="blink" style="width: 4px; height: 4px; background: #ef4444; border-radius: 50%;"></span>
+                HIGH RISK
+              </div>
+              <div style="font-size: 18px; font-weight: 900; color: #ef4444; font-family: monospace;">
+                ${risk.score.toFixed(1)} <span style="font-size: 10px; color: var(--text-muted); font-weight: 500;">/ 5.0</span>
+              </div>
+            </div>
+          `;
+          alertBoard.appendChild(item);
+        });
+
+      } else {
+        // [Normal Status] 임계치를 초과하는 리스크가 전혀 없는 완벽한 안심 상태일 때
+        const cleanPanel = document.createElement('div');
+        cleanPanel.style.cssText = `
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 30px 20px;
+          background: rgba(16, 185, 129, 0.02);
+          border: 1px dashed rgba(16, 185, 129, 0.25);
+          border-radius: 8px;
+          text-align: center;
+          gap: 12px;
+          margin-top: 10px;
+        `;
+        cleanPanel.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: center; width: 48px; height: 44px; background: rgba(16,185,129,0.08); border-radius: 50%; color: #10b981; margin-bottom: 2px;">
+            <i data-lucide="shield-check" style="width: 24px; height: 24px;"></i>
+          </div>
+          <h3 style="font-size: 14.5px; font-weight: 700; color: var(--text-light);">공정 위험도 감지 안심 상태 (Safe Stable Status)</h3>
+          <p style="font-size: 12px; color: var(--text-secondary); max-width: 500px; line-height: 1.5;">
+            현재 지정된 전사 글로벌 필터 기준 하에 실시간 임계값(<span style="color: #ef4444; font-weight: 600;">3.5점</span>)을 초과하여 누적된 품질실패(QI) / 4M 변경지연 / 감사 지적사항(Findings) 위해 요인이 전혀 식별되지 않은 완벽한 <strong>정상(Stable) 운영 환경</strong>입니다.
+          </p>
+        `;
+        alertBoard.appendChild(cleanPanel);
+      }
+      
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    }
+  },
+
+  // ==========================================================================
   // 💬 6. [전 화면 공통] Audit Assistant (플로팅 AI 챗봇 비서 구현)
   // ==========================================================================
   handleChat() {
@@ -1615,6 +3022,11 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
   onGlobalFilterChange() {
     console.log(`[Global Filter Changed] Plant: ${this.state.selectedPlant}, Customer: ${this.state.selectedCustomer}, Process: ${this.state.selectedProcess}`);
     
+    // 대시보드 탭 실시간 갱신 (Phase 2)
+    if (this.state.currentTab === 'dashboard') {
+      this.renderDashboard();
+    }
+
     // 만약 Library 탭이 활성화되어 있다면, 서브 컴포넌트들을 재렌더링하여 실시간 동기화
     if (this.state.currentTab === 'library') {
       this.state.checklistCurrentPage = 1; // 필터 변경 시 첫 페이지로 리셋
@@ -1623,8 +3035,6 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
       this.renderDocumentLibrary();
       this.renderRequirementMapping();
     }
-    
-    // (앞으로 Phase 2 ~ Phase 7 진행 시 각 탭별 리스크 동적 갱신 코드가 여기에 순차 배치될 것입니다)
   },
 
   // 🍞 우아한 B2B 토스트 알림 송출 (Toast Message System)
