@@ -244,7 +244,23 @@
         <!-- 하단 실시간 경고판 스켈레톤 -->
         <div class="card-solid flex-col alert-board-wrapper">
           <div class="card-header border-none">
-            <div class="fl      <!-- [메뉴 02] Audit Planning -->
+            <div class="flex-between w-100">
+              <div>
+                <h2 class="card-title text-danger"><i data-lucide="shield-alert"></i> Live Risk Alert Board</h2>
+                <p class="card-subtitle">임계값(3.5점 이상) 초과 고위험 감지 공정 대응 권고</p>
+              </div>
+              <span class="badge badge-danger blink">REALTIME</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding-top: 0;">
+            <div class="skeleton skeleton-text" style="width: 90%; margin-bottom: 12px; height: 18px;"></div>
+            <div class="skeleton skeleton-text" style="width: 85%; margin-bottom: 12px; height: 18px;"></div>
+            <div class="skeleton skeleton-text" style="width: 70%; height: 18px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- [메뉴 02] Audit Planning -->
       <section id="tab-audit-planning" class="tab-pane">
         <!-- 5단계 요약 KPI 카드 -->
         <div class="kpi-grid" style="grid-template-columns: repeat(5, 1fr);">
@@ -462,46 +478,74 @@
 
         <!-- 서브 탭 1: Master Checklist -->
         <div id="sub-tab-content-master-checklist" class="sub-tab-pane active-sub-pane">
+          <!-- 공정별 전체 현황 요약 보드 -->
+          <div id="checklist-process-summary-container" class="card-solid" style="padding: 14px 20px; margin-bottom: 16px;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+              <i data-lucide="layers" style="width: 14px; height: 14px; color: var(--brand-blue);"></i>
+              <span>Process-wise Overall Status (공정 Process별 수검 현황 요약)</span>
+            </div>
+            <div id="checklist-process-summary" style="display: flex; min-height: 40px; align-items: center; width: 100%;">
+              <!-- Dynamic process dropdown & stats loaded from JS -->
+              <div class="loading-text" style="color: var(--text-secondary); font-size: 13px;">데이터를 파싱하여 공정별 통계를 연산 중입니다...</div>
+            </div>
+          </div>
+
           <div class="checklist-container">
             <div class="card-solid checklist-main-panel w-100">
               <div class="card-header">
-                <div class="flex-between">
+                <div class="flex-between" style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
                   <div>
                     <h2 class="card-title">현장 자체 감사 마스터 체크리스트 (Smart Checklist)</h2>
                     <p class="card-subtitle">공정 리스크 및 OEM 규격 조항이 하이브리드 연계된 표준 체크리스트</p>
                   </div>
-                  <div class="flex-row gap-8">
-                    <div class="skeleton skeleton-text" style="width: 100px; height: 32px;"></div>
-                    <div class="skeleton skeleton-text" style="width: 120px; height: 32px;"></div>
+                  <div class="flex-row gap-8" style="display: flex; gap: 8px; align-items: center;">
+                    <input type="text" id="checklist-search-input" class="chat-input" placeholder="질문, 규격, 증적 통합 검색..." style="width: 220px; font-size: 13px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-card); border-radius: 6px; padding: 6px 12px; color: var(--text-primary);">
+                    <button class="btn btn-secondary" id="btn-checklist-csv-export" style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; cursor: pointer;">
+                      <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+                      <span>CSV 내보내기</span>
+                    </button>
                   </div>
                 </div>
               </div>
-              <div class="card-body">
-                <div class="skeleton-table">
-                  <div class="skeleton skeleton-bar" style="width: 100%; height: 35px; margin-bottom: 15px;"></div>
-                  <div class="skeleton skeleton-bar" style="width: 100%; height: 30px; margin-bottom: 10px;"></div>
-                  <div class="skeleton skeleton-bar" style="width: 100%; height: 30px; margin-bottom: 10px;"></div>
-                  <div class="skeleton skeleton-bar" style="width: 100%; height: 30px; margin-bottom: 10px;"></div>
-                  <div class="skeleton skeleton-bar" style="width: 100%; height: 30px;"></div>
+              <div class="card-body" style="overflow: hidden; display: flex; flex-direction: column; flex: 1;">
+                <div class="table-responsive" style="overflow-y: auto; flex: 1; min-height: 250px;">
+                  <table class="data-table" id="checklist-data-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                      <tr style="border-bottom: 1px solid var(--border-card); background: rgba(255,255,255,0.02);">
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 60px;">ID</th>
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 80px;">고객사</th>
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 130px;">규격 코드</th>
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 110px;">공정 분류</th>
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 80px; text-align: center;">중요도</th>
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary);">감사 핵심 질문 (Audit Question)</th>
+                      </tr>
+                    </thead>
+                    <tbody id="checklist-table-body">
+                      <!-- Dynamic rows loaded from JS -->
+                    </tbody>
+                  </table>
+                </div>
+                <div id="checklist-table-pagination" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-top: 1px solid var(--border-card); font-size: 12px; color: var(--text-secondary);">
+                  <span id="checklist-pagination-info">데이터 로딩 중...</span>
+                  <div style="display: flex; gap: 6px;">
+                    <button class="btn btn-secondary" id="btn-checklist-prev-page" style="padding: 4px 10px; font-size: 11px;"><i data-lucide="chevron-left" style="width: 12px; height: 12px;"></i> 이전</button>
+                    <button class="btn btn-secondary" id="btn-checklist-next-page" style="padding: 4px 10px; font-size: 11px;">다음 <i data-lucide="chevron-right" style="width: 12px; height: 12px;"></i></button>
+                  </div>
                 </div>
               </div>
             </div>
             
             <!-- 상세 수검 증빙 패널 (Detail Drawer) -->
-            <div id="checklist-drawer" class="detail-drawer card-solid">
-              <div class="drawer-header">
-                <h3 class="drawer-title">세부 수검 증빙 가이드</h3>
-                <button class="btn-close-drawer" id="btn-close-drawer"><i data-lucide="x"></i></button>
+            <div id="checklist-drawer" class="detail-drawer card-solid" style="width: 440px;">
+              <div class="drawer-header" style="border-bottom: 1px solid var(--border-card); padding-bottom: 12px; margin-bottom: 16px;">
+                <h3 class="drawer-title" style="font-size: 16px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+                  <i data-lucide="clipboard-check" style="color: var(--brand-blue); width: 18px; height: 18px;"></i>
+                  <span>세부 수검 증빙 가이드</span>
+                </h3>
+                <button class="btn-close-drawer" id="btn-close-drawer" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer;"><i data-lucide="x" style="width: 18px; height: 18px;"></i></button>
               </div>
-              <div class="drawer-body">
-                <div class="skeleton-drawer-content">
-                  <div class="skeleton skeleton-text" style="width: 80%; height: 24px; margin-bottom: 16px;"></div>
-                  <div class="skeleton skeleton-bar" style="width: 100%; height: 80px; margin-bottom: 16px;"></div>
-                  <div class="skeleton skeleton-text" style="width: 50%; height: 18px; margin-bottom: 8px;"></div>
-                  <div class="skeleton skeleton-text" style="width: 90%; height: 14px; margin-bottom: 6px;"></div>
-                  <div class="skeleton skeleton-text" style="width: 85%; height: 14px; margin-bottom: 16px;"></div>
-                  <div class="skeleton skeleton-bar" style="width: 100%; height: 120px;"></div>
-                </div>
+              <div class="drawer-body" id="checklist-drawer-body" style="overflow-y: auto; flex: 1; padding-right: 4px;">
+                <!-- Dynamic detail content loaded from JS -->
               </div>
             </div>
           </div>
@@ -509,52 +553,43 @@
 
         <!-- 서브 탭 2: Customer Reqs -->
         <div id="sub-tab-content-customer-reqs" class="sub-tab-pane">
-          <div class="grid-layout-library">
-            <div class="card-solid lib-list-panel w-100">
+          <div class="grid-layout-library" style="grid-template-columns: 1.1fr 1fr; grid-template-rows: 1fr; height: calc(100vh - 210px); display: grid; gap: 20px; min-height: 0; overflow: hidden;">
+            <div class="card-solid lib-list-panel w-100" style="display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden;">
               <div class="card-header">
-                <div class="flex-between">
+                <div class="flex-between" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                   <div>
                     <h2 class="card-title">OE Technical Specifications</h2>
                     <p class="card-subtitle">완성차 요구 규격서 라이브러리 목록 및 실시간 탐색</p>
                   </div>
-                  <div class="skeleton skeleton-text" style="width: 80px; height: 24px;"></div>
+                  <input type="text" id="lib-search-input" class="chat-input" placeholder="규격서/고객사 검색..." style="width: 180px; font-size: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-card); border-radius: 6px; padding: 4px 10px; color: var(--text-primary);">
                 </div>
               </div>
-              <div class="card-body">
-                <div class="skeleton-table">
-                  <div class="skeleton skeleton-bar" style="width: 100%; height: 35px; margin-bottom: 15px;"></div>
-                  <div class="skeleton skeleton-bar" style="width: 100%; height: 30px; margin-bottom: 10px;"></div>
-                  <div class="skeleton skeleton-bar" style="width: 100%; height: 30px; margin-bottom: 10px;"></div>
-                  <div class="skeleton skeleton-bar" style="width: 100%; height: 30px;"></div>
+              <div class="card-body" style="overflow-y: auto; flex: 1; padding: 16px; min-height: 0;">
+                <div class="document-card-grid" id="lib-document-grid" style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+                  <!-- Dynamic cards loaded from JS -->
                 </div>
               </div>
             </div>
             
             <!-- AI 핵심 규격 검토 요약 패널 -->
-            <div class="card-solid lib-summary-panel w-100">
-              <div class="card-header border-none" style="background-color: var(--bg-status-info);">
-                <div class="flex-between w-100">
+            <div class="card-solid lib-summary-panel w-100" style="display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden;">
+              <div class="card-header border-none" style="background-color: var(--bg-status-info); border-top-left-radius: 12px; border-top-right-radius: 12px;">
+                <div class="flex-between w-100" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                   <div>
-                    <h2 class="card-title text-info"><i data-lucide="sparkles"></i> AI 핵심 규격 검토 요약 (Review Summary)</h2>
+                    <h2 class="card-title text-info" style="display: flex; align-items: center; gap: 8px;"><i data-lucide="sparkles"></i> AI 핵심 규격 검토 요약 (Review Summary)</h2>
                     <p class="card-subtitle text-info-sub">선택된 규격서의 핵심 적용 조건 및 특별 의무 조항 추출</p>
                   </div>
-                  <div class="skeleton skeleton-text" style="width: 140px; height: 32px;"></div>
+                  <button class="btn btn-primary" id="btn-lib-download-doc" style="display: none; align-items: center; gap: 6px; font-size: 12px; padding: 6px 12px; border-radius: 6px;">
+                    <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+                    <span>요약본 다운로드</span>
+                  </button>
                 </div>
               </div>
-              <div class="card-body">
-                <div class="grid-2col">
-                  <div>
-                    <div class="skeleton skeleton-text" style="width: 40%; height: 20px; margin-bottom: 12px;"></div>
-                    <div class="skeleton skeleton-text" style="width: 90%; height: 14px; margin-bottom: 8px;"></div>
-                    <div class="skeleton skeleton-text" style="width: 85%; height: 14px; margin-bottom: 8px;"></div>
-                    <div class="skeleton skeleton-text" style="width: 80%; height: 14px;"></div>
-                  </div>
-                  <div>
-                    <div class="skeleton skeleton-text" style="width: 40%; height: 20px; margin-bottom: 12px;"></div>
-                    <div class="skeleton skeleton-text" style="width: 90%; height: 14px; margin-bottom: 8px;"></div>
-                    <div class="skeleton skeleton-text" style="width: 85%; height: 14px; margin-bottom: 8px;"></div>
-                    <div class="skeleton skeleton-text" style="width: 80%; height: 14px;"></div>
-                  </div>
+              <div class="card-body" id="lib-summary-body" style="overflow-y: auto; flex: 1; padding: 20px; display: flex; flex-direction: column; justify-content: flex-start; min-height: 0;">
+                <div class="summary-placeholder-msg" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                  <i data-lucide="book-open" style="width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.5; color: var(--brand-blue);"></i>
+                  <p style="font-size: 14px; font-weight: 500; margin-bottom: 6px;">규격서를 선택하십시오</p>
+                  <p style="font-size: 12px; opacity: 0.7;">좌측 완성차 기술 규격 리스트에서 문서를 선택하면 AI 요약 내용 및 다운로드 기동 장치가 활성화됩니다.</p>
                 </div>
               </div>
             </div>
@@ -563,18 +598,13 @@
 
         <!-- 서브 탭 3: Req Mapping -->
         <div id="sub-tab-content-req-mapping" class="sub-tab-pane">
-          <div class="card-solid flex-col">
+          <div class="card-solid flex-col" style="height: calc(100vh - 210px); display: flex; flex-direction: column;">
             <div class="card-header">
               <h2 class="card-title">글로벌 표준 규격 - 현장 리스크 매핑 보드 (Requirement Mapping)</h2>
               <p class="card-subtitle">VDA 6.3, IATF 16949 및 OEM 특수 요항 조항별 리스크 연계 메트릭스</p>
             </div>
-            <div class="card-body">
-              <div class="skeleton-table">
-                <div class="skeleton skeleton-bar" style="width: 100%; height: 35px; margin-bottom: 12px;"></div>
-                <div class="skeleton skeleton-bar" style="width: 100%; height: 28px; margin-bottom: 8px;"></div>
-                <div class="skeleton skeleton-bar" style="width: 100%; height: 28px; margin-bottom: 8px;"></div>
-                <div class="skeleton skeleton-bar" style="width: 100%; height: 28px;"></div>
-              </div>
+            <div class="card-body" id="req-mapping-body" style="overflow-y: auto; flex: 1; padding: 20px;">
+              <!-- Dynamic matrix table or list loaded from JS -->
             </div>
           </div>
         </div>
@@ -750,59 +780,6 @@
                     </tbody>
                   </table>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>           <span class="kpi-title">지연됨</span>
-              <div class="kpi-icon-wrapper high-risk"><i data-lucide="alert-circle"></i></div>
-            </div>
-            <div class="kpi-value-container">
-              <div class="skeleton skeleton-text skeleton-val"></div>
-            </div>
-            <div class="kpi-footer">
-              <div class="skeleton skeleton-text skeleton-sub"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid-2col" style="grid-template-columns: 1fr 1.2fr; margin-top: 20px;">
-          <!-- 마일스톤 타임라인 트랙 -->
-          <div class="card-solid flex-col">
-            <div class="card-header">
-              <h2 class="card-title">수검 일정 마일스톤 (Milestone Tracker)</h2>
-              <p class="card-subtitle">D-30 감사 계획 단계별 추진 마일스톤 흐름</p>
-            </div>
-            <div class="card-body">
-              <div class="skeleton-timeline">
-                <div class="skeleton-timeline-item">
-                  <div class="skeleton skeleton-circle" style="width: 16px; height: 16px;"></div>
-                  <div class="skeleton skeleton-text" style="width: 150px; margin-left: 12px;"></div>
-                </div>
-                <div class="skeleton-timeline-item">
-                  <div class="skeleton skeleton-circle" style="width: 16px; height: 16px;"></div>
-                  <div class="skeleton skeleton-text" style="width: 180px; margin-left: 12px;"></div>
-                </div>
-                <div class="skeleton-timeline-item">
-                  <div class="skeleton skeleton-circle" style="width: 16px; height: 16px;"></div>
-                  <div class="skeleton skeleton-text" style="width: 120px; margin-left: 12px;"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 트리-뷰 태스크 리스트 -->
-          <div class="card-solid flex-col">
-            <div class="card-header">
-              <h2 class="card-title">단계별 상세 준비 과제 (Grouped Tasks)</h2>
-              <p class="card-subtitle">마일스톤에 연계된 하위 실무 검증 과제 및 진행도</p>
-            </div>
-            <div class="card-body">
-              <div class="skeleton-table">
-                <div class="skeleton skeleton-bar" style="width: 100%; height: 35px; margin-bottom: 12px;"></div>
-                <div class="skeleton skeleton-bar" style="width: 100%; height: 25px; margin-bottom: 8px;"></div>
-                <div class="skeleton skeleton-bar" style="width: 100%; height: 25px; margin-bottom: 8px;"></div>
-                <div class="skeleton skeleton-bar" style="width: 100%; height: 25px;"></div>
               </div>
             </div>
           </div>

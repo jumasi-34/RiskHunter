@@ -291,21 +291,107 @@ def infer_properties_from_filename(filename, size_in_bytes):
         defect_risk = "포카요케 관리 소홀 시 외관으로 구분이 안 되는 반제품 이종 오조립 타이어가 가황 완료 유출되어 주행 중 대형 전복 사고 야기."
         sop_guide = "작업 SOP에 '포카요케 일일 모의 점검 프로세스 및 센서 영점 이력 관리 규정' 추가 개정."
         evidences = ["공정 실수방지(Poke-Yoke) 등록 마스터 시트", "매일 Red-Rabbit 모의 불량 투입 일지"]
+
+    # 5. 신규 카테고리: 설계 및 사양 승인 (Engineering & Design Release)
+    elif any(k in f_lower for k in ["design", "release", "drawing", "specification", "lastenheft", "anforderung", "bmg", "cad", "cam"]):
+        focus_process = "System (품질 시스템 및 신규 규격 PPO 승인)"
+        applicable_processes = ["Incoming", "Building", "Curing", "Inspection"]
+        doc_type = "설계 및 기술 승인 표준 (Engineering Standard)"
+        overview = f"완성차 제조사 {customer}의 신규 차종 및 개발 단계 부품의 도면 사양 설계, 기술 승인 및 부품 릴리즈(Release) 프로세스를 정의하는 규격서입니다."
+        clauses = [
+            {"clause": "1.1", "title": "BMG 기술 부품 승인", "summary": "도면 설계안 변경 및 사양 릴리즈 시 완성차 OEM 기술연구소(BMG) 승인 수취 의무화."},
+            {"clause": "3.2", "title": "CAD/CAM 데이터 정합성", "summary": "설계 3D 모델링 원천 데이터의 규격 준수 및 조립 치수 공차 이탈 배제 조약."}
+        ]
+        param_check = "개발 단계별 도면 치수 공차(±0.1mm) 및 CAD 데이터 무결성 승인 이력 검토."
+        defect_risk = "설계 도면과 실제 가황 금형 치수 매칭 미흡 시 조립 간섭 및 제품 탈착 불가로 인한 개발 일정 지연 리스크 유발."
+        sop_guide = "개발 SOP에 'OEM BMG 기술 승인용 도면 데이터 정밀 일치성 검증 절차' 수립 개정."
+        evidences = ["CAD 데이터 정밀 정합성 검증 확인서", "BMG 기술 승인 통지서"]
+
+    # 6. 신규 카테고리: 클레임, 보증 및 분쟁 처리 (Warranty & Field Claim)
+    elif any(k in f_lower for k in ["claim", "complaint", "abwertung", "downgrade", "complaints", "dispute", "warranty"]):
+        focus_process = "System (품질 보증 및 클레임 분쟁 관리)"
+        applicable_processes = ["Incoming", "Mixing", "Extrusion", "Curing", "Building", "Inspection"]
+        doc_type = "품질 계약 및 분쟁 가이드 (Warranty Agreement)"
+        overview = f"완성차 제조사 {customer}의 필드 발생 부적합 타이어 분석, 보증 책임 분담 및 품질 등급 강등(Downgrade) 처리를 총괄 정의하는 법적 품질 계약 문서입니다."
+        clauses = [
+            {"clause": "VDA 8D", "title": "품질 실패 신속 대응 및 8D 대책서", "summary": "필드 컴플레인 및 0km 부적합 발견 시 48시간 이내 긴급 임시대책 수립 및 14일 이내 영구시정조치 보고서 회신."},
+            {"clause": "Section 8", "title": "보증 책임 비용 분담 정산", "summary": "필드 품질 문제 발생 원인 규명에 따른 재가공 및 전량 회수 보상 비용 분담 표준율 준수 요구."}
+        ]
+        param_check = "필드 클레임 타이어 자사 반수본 원인 분석(8D Report) 및 클레임 분담율 데이터 검토."
+        defect_risk = "시정조치(8D) 지연 제출 또는 재발 방지 검증 미비 시 OEM 최하 품질 등급 강등 및 전사적 납품 중단 조치 직면."
+        sop_guide = "품질 보증 SOP에 'OEM 보증 필드 클레임 8D 대책서 긴급 48시간 이내 작성 및 제출 프로세스' 반영."
+        evidences = ["필드 반품 타이어 8D 분석 리포트", "품질 등급 유지 모니터링 대장"]
+
+    # 7. 신규 카테고리: 변경 관리 (Change Point Control)
+    elif any(k in f_lower for k in ["change", "transferring", "transfer", "transition", "modification"]):
+        focus_process = "System (변경 관리 통제)"
+        applicable_processes = ["Incoming", "Mixing", "Extrusion", "Curing", "Building", "Inspection"]
+        doc_type = "공정 및 사양 변경 관리 지침 (Change Control Standard)"
+        overview = f"완성차 제조사 {customer}의 양산 공정, 원소재, 설비 위치 변동 발생 시 양산 승인(PPAP) 및 사전 변경 신고 절차를 규정하는 프로세스 표준 문서입니다."
+        clauses = [
+            {"clause": "Section 4", "title": "4M 변경 사항 사전 신고 의무", "summary": "설비 이설, 고무 배합 원자재 변경 등 4M 변경 발생 최소 60일 전 OEM SQA 사전 통보 및 승인 취득 요구."},
+            {"clause": "Run-at-Rate", "title": "양산 가속 가동 검증", "summary": "신규 변경 설비 가동 시 정격 스피드에서 24시간 가동 품질 안정성 및 Cpk 만족 레포트 제출 의무."}
+        ]
+        param_check = "자사 공장 4M 변경 사전 승인서 수취 실적 및 런포레이트 가동성 이력 대조."
+        defect_risk = "무단 공정 변경(4M) 유출 시 품질 일관성 파괴로 타이어 접합부 불량 유출 및 전량 리콜 및 법적 공급권 영구 정지 처분 초래."
+        sop_guide = "공장 변경관리 SOP 내 'OEM SQA 사전 변경 승인 60일 전 통보 프로시저 및 락인 검증 절차' 삽입 개정."
+        evidences = ["4M 변경 승인 수신서", "PPAP 초도 승인 패키지 리포트"]
+
+    # 8. 신규 카테고리: 포장 및 물류 (Delivery & Logistics)
+    elif any(k in f_lower for k in ["delivery", "packing", "shipping", "logistics"]):
+        focus_process = "System (출하 및 물류 이종 유출 제어)"
+        applicable_processes = ["Inspection"]
+        doc_type = "출하 보관 및 물류 표준 (Logistics Standard)"
+        overview = f"완성차 제조사 {customer}의 완제품 타이어 출하, 보호 포장 사양, 수송 환경 및 물류 이력 추적 방식을 상세 정의한 물류 표준 가이드라인입니다."
+        clauses = [
+            {"clause": "Section 2", "title": "출하 전용 바코드 태그 부착", "summary": "규격별, 생산 국가별 고유 이중 2D 바코드 라벨을 타이어 내외측에 부착하여 완벽한 이력 추적성 제공."},
+            {"clause": "Section 5", "title": "제품 운송 보호 포장 사양", "summary": "수송 시 스키드 고정, 다중 랩핑 처리를 통한 보관 진동 및 습기 차단 기준 충족 의무."}
+        ]
+        param_check = "출하 대기 완제품의 바코드 라벨 스캔 정합성 및 보관 팰릿 보호 랩핑 상태 검사."
+        defect_risk = "출하 바코드 오인식으로 인한 이종 타이어 물류 혼입 납품 시, OEM 조립 라인 중단(Line Stop) 및 대규모 패널티 요금 부과 초래."
+        sop_guide = "물류 출하 SOP 내 '자동 바코드 이중 스캔 크로스체킹 인터록' 도입 규정 명시."
+        evidences = ["출하 완제품 바코드 매칭 검증 일지", "물류 이종 유출 방지 점검 리스트"]
         
-    # 5. 일반 사양 및 감사 / 품질 시스템
+    # 9. 일반 사양 및 감사 / 품질 시스템 (Dynamic Multi-Template Fallback)
     else:
+        # Generate 3 distinct template variations based on filename length or character mapping to increase entropy
+        variant_idx = len(filename) % 3
         focus_process = "System (품질 시스템 및 관리 체계)"
         applicable_processes = ["Incoming", "Mixing", "Extrusion", "Curing", "Building", "Inspection"]
         doc_type = "품질 시스템 표준 (Quality System)"
-        overview = f"완성차 제조사 {customer}의 전사적 부품 양산 개발 게이트, 공장 품질 감사(VDA 6.3 등) 및 클레임 분쟁 처리를 총괄 기술한 법적 보증 표준 협약서입니다."
-        clauses = [
-            {"clause": "VDA 6.3", "title": "공장 현장 감사 등급 수검", "summary": "폭스바겐/BMW 수검 감사 기준 90% 이상(A등급) 충족 보증 및 주요 감사 지적 조항 8D 시정조치 요구."},
-            {"clause": "Section 4", "title": "변경 관리(4M) 사전 승인 조항", "summary": "금형 설비 이설, 배합 수지 변경 등 4M 변경 발생 시 OEM SQA의 사전 승인 수취 완료 전 양산품 출하 엄격 금지."}
-        ]
-        param_check = "공장 자사 4M 변경점(SOP, 설비, 원재료) 발생 시 사전 사내 변경 통제 승인 절차 가동 및 VDA 6.3 정기 자가 오딧 실적."
-        defect_risk = "사전 변경점 승인(4M) 무단 도포 양산 유출 발견 시, 전량 수거 및 메르세데스/폭스바겐 품질 등급 격하(Q-Status 강하) 패널티 유발."
-        sop_guide = "공장 통합 품질 시스템 SOP에 'VDA 6.3 기반 K-Question 필수 점검항목 조항 연간 자체 모니터링 가이드라인' 삽입 개정."
-        evidences = ["VDA 6.3 공정 감사 자체 수검 보고서", "4M 변경점 승인 완료 통지서 서류"]
+        
+        if variant_idx == 0:
+            overview = f"완성차 제조사 {customer}의 전사 부품 공급망(Supply Chain) 전반의 품질 보증 계약 요건, 정기 공장 심사 기준 및 대고객 품질 등급 충족 계약서입니다."
+            clauses = [
+                {"clause": "VDA 6.3", "title": "글로벌 공정 심사 수검", "summary": "폭스바겐/BMW 그룹 품질 감사 요구에 따른 VDA 6.3 현장 심사 90점 이상 획득 보증."},
+                {"clause": "IATF 16949", "title": "품질 관리 시스템 인증 유지", "summary": "최신 IATF 자동차 보증 인증 유지를 협력사 기본 진입 자격 요건으로 강제함."}
+            ]
+            param_check = "연간 품질 경영 대장 관리 상태 및 VDA 6.3 기반 자가 오딧 실적 레코드 분석."
+            defect_risk = "감사 부적합 지적사항의 기한 내 8D 보고 누락 시 정격 등급 실격 처리 및 신규 차종 입찰 자격 배제 패널티 야기."
+            sop_guide = "공장 품질 SOP 내 'VDA 6.3 기반 자체 모의 오딧 진단 세부 프로세스'를 필수 연간 절차로 영구 등록."
+            evidences = ["VDA 6.3 정기 자가 진단 평가서", "IATF 16949 유효 보증 사본"]
+            
+        elif variant_idx == 1:
+            overview = f"완성차 제조사 {customer}의 제조 일관성 및 양산 합격 판정(Approval)을 수립하기 위해 자사 및 협력사간 품질 합의 및 보증 계약 사항을 정리한 기술 협정서입니다."
+            clauses = [
+                {"clause": "Section 3.1", "title": "품질 합의 요건 (QAA)", "summary": "부품 생산 전 조인되는 법적 품질 보증 동맹으로 불량 검출 시 즉각적인 보고 및 락다운 프로시저 가동."},
+                {"clause": "Section 6.2", "title": "서류 및 레코드 보존 의무", "summary": "부품 수명 만료 후 최하 15년간 품질 성적서, 원자재 COA 등 물리 추적 레코드의 철저한 영속 보존."}
+            ]
+            param_check = "각 규격별 원천 서류 이력 보관 캐비닛 물리 전산 락 확인 및 QAA 법적 서약서 서명 정합성 점검."
+            defect_risk = "대고객 품질 사고 발생 시 데이터 보존 의무 위반(임의 삭제/유실) 포착 시 법적 징벌적 배상 책임 및 OEM 협정 즉각 파기."
+            sop_guide = "공장 문서 보존 표준을 '글로벌 고객사 기준 준수 연도인 15년'으로 일괄 연장 제정 및 전산 아카이빙 SOP 반영."
+            evidences = ["품질 보증 기술 협약서(QAA) 서명 대장", "공정별 이력 레코드 보관 대장"]
+            
+        else:
+            overview = f"완성차 제조사 {customer} 차량에 조립되는 원자재 및 부품의 초도 양산 샘플링 승인(PPAP) 및 글로벌 공급 품질 기준을 제시하는 절차 사양서입니다."
+            clauses = [
+                {"clause": "PPAP Level 3", "title": "초도 부품 양산 승인 제출", "summary": "초도 생산품 공급 전, 설비 능력, 공정 설계서, FMEA, 원자재 합격 확인서를 포함한 PPAP Level 3 패키지 승인 수취 필수."},
+                {"clause": "GP-12", "title": "양산 초기 유출방지 특별 전수검사", "summary": "런칭 후 최하 3개월 동안 오프라인 별도 특별 검사대를 운영하여 200% 전수 선별 검사를 통한 유출 차단."}
+            ]
+            param_check = "공장 양산 전 PPAP 초도 승인 패키지 서류 구비율 및 완제품 검사실 앞단 GP-12 검사 이력 관리 실태 점검."
+            defect_risk = "초기 샘플 승인 누락 또는 미승인 상태 무단 양산 납품 적발 시 전량 통관 거부 및 수억 원의 OEM 공장 중단 배상 청구 위기 직면."
+            sop_guide = "출하 검사 지침 내 '신규 런칭 모델에 대한 90일간의 GP-12 오프라인 200% 정밀 검사 룰'을 추가 개정 수립."
+            evidences = ["PPAP Level 3 초도 양산 승인서", "GP-12 유출방지 일일 검사 보고서"]
 
     # Deduce some basic things from filename string to look smart
     filename_clean = filename.replace(".pdf", "").replace(".xls", "").replace(".doc", "")

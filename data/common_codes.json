@@ -1,0 +1,45 @@
+{
+  "plants": [
+    { "code": "DP", "name": "대전공장", "location": "대한민국 대전", "desc": "국내 주요 생산 거점, 전 공정 및 특수 공정 포함", "is_active": true },
+    { "code": "KP", "name": "금산공장", "location": "대한민국 금산", "desc": "초고성능 및 특수 타이어 주력 생산 거점", "is_active": true },
+    { "code": "JP", "name": "가흥공장", "location": "중국 가흥", "desc": "중국 내수 및 아시아 수출용 제품 생산", "is_active": true },
+    { "code": "HP", "name": "강소공장", "location": "중국 강소", "desc": "중국 시장 공략 및 주요 글로벌 수출용 친환경 타이어 거점", "is_active": true },
+    { "code": "CP", "name": "중경공장", "location": "중국 중경", "desc": "중국 서부 지역 생산 거점", "is_active": true },
+    { "code": "MP", "name": "헝가리공장", "location": "헝가리 라첼마스", "desc": "유럽 완성차(BMW, Audi 등) 납품용 핵심 기지", "is_active": true },
+    { "code": "IP", "name": "인도네시아공장", "location": "인도네시아", "desc": "동남아시아 시장 및 글로벌 수출 기지", "is_active": true },
+    { "code": "TP", "name": "테네시공장", "location": "미국 테네시 클락스빌", "desc": "북미 완성차 시장 대응 핵심 거점", "is_active": true },
+    { "code": "ALL", "name": "전사 공통", "location": "-", "desc": "특정 공장에 종속되지 않고 전 공장에 일괄 적용되는 표준 자료", "is_active": true }
+  ],
+  "categories": [
+    { "code": "Design", "name": "설계/개발", "english_name": "Design & Development", "desc": "도면 관리, 제품 설계 표준, 특수 특성 지정 및 타당성 검증" },
+    { "code": "Test", "name": "시험/검증", "english_name": "Lab Test & Verification", "desc": "신뢰성 시험, 치수 측정, 재료 물리적/화학적 성능 시험" },
+    { "code": "System", "name": "품질 시스템", "english_name": "Quality System", "desc": "문서 관리, 변경 관리, 사내 변경 승인(4M), 교육 및 자격 부여" },
+    { "code": "Logistics", "name": "물류/외주창고", "english_name": "Logistics & Warehouse", "desc": "자사 완제품 창고, 원재료 창고 및 제3자 외주 물류 창고 관리" }
+  ],
+  "processes": [
+    { "code": "Incoming", "name": "수입검사", "english_name": "Incoming Inspection", "desc": "원재료/원단 입고 검사, 성적서(COA) 검증 및 부적합품 격리" },
+    { "code": "Mixing", "name": "배합", "english_name": "Mixing", "desc": "고무 가공 전 원재료 평량, 고무 컴파운드 배합 및 가공성 확인" },
+    { "code": "Extrusion", "name": "압출", "english_name": "Extrusion", "desc": "트레드, 사이드월 등 반제품 가공, 치수 및 온도 실시간 프로파일링" },
+    { "code": "Calendaring", "name": "캘린더링", "english_name": "Calendaring", "desc": "스틸/텍스타일 코드 고무 토핑, 인장강도 및 접착력 검사" },
+    { "code": "Cutting", "name": "재단", "english_name": "Cutting", "desc": "반제품 지정 각도/폭 절단, 카카스 및 벨트 반제품 가공" },
+    { "code": "Bead", "name": "비드", "english_name": "Bead", "desc": "와이어 권취, 에이프런 부착 및 비드 링 성형성 관리" },
+    { "code": "Building", "name": "성형", "english_name": "Building", "desc": "드럼상 반제품 조립, 성형 중 Air 배출 유무 및 그린타이어 외관 관리" },
+    { "code": "Curing", "name": "가류", "english_name": "Curing", "desc": "금형 가열/가압, 가류 온도/압력 프로파일 및 벤트핀 막힘 관리" },
+    { "code": "Re-work", "name": "재작업", "english_name": "Re-work", "desc": "승인된 작업 표준서에 따른 재작업 프로세스 및 승인 경로 확보" },
+    { "code": "Inspection", "name": "검사", "english_name": "Inspection", "desc": "외관 검사, 기하학적 치수 검사(Uniformity, Runout) 및 불합격품 격리" },
+    { "code": "Form", "name": "폼", "english_name": "Form", "desc": "타이어 흡음재(Polyurethane Foam) 접착 가공 및 제어 프로세스" },
+    { "code": "Sealant", "name": "실란트", "english_name": "Sealant", "desc": "펑크 방지용 점성 실란트 도포 공정 및 두께 균일도 모니터링" }
+  ],
+  "dimensions_4m": [
+    { "code": "Man", "name": "작업자/인적요소", "desc": "작업 표준 교육 이력, 특수 작업자 자격 부여, 공정 교대 시 인수인계 및 안전 수칙 준수 여부" },
+    { "code": "Machine", "name": "설비/금형", "desc": "설비 일일/주간/월간 점검표, 계측기 검교정 성적서, 금형 세정 주기 및 예방 보전 이력" },
+    { "code": "Material", "name": "재료/부품", "desc": "원재료 COA 검증, 부품 보관 조건(온/습도) 준수, 선입선출(FIFO) 현황 및 부적합 자재 격리" },
+    { "code": "Method", "name": "SOP/공정방법", "desc": "작업 표준서(SOP) 현장 게시 여부, 제/개정 관리 이력, 이상 발생 시 조치 가이드(OCAP) 구축 현황" }
+  ],
+  "source_types": [
+    { "code": "DOCUMENT", "name": "규격서 기반", "desc": "완성차 OEM 규격서 텍스트에서 AI가 직접 도출한 표준 요구사항 체크리스트" },
+    { "code": "DATABASE_QI", "name": "QI 품질 실패 이력 기반", "desc": "자사 공장별 과거 품질 이슈(QI) 분석 데이터에서 AI가 도출한 재발 방지용 체크리스트" },
+    { "code": "DATABASE_4M", "name": "4M 변경 이력 기반", "desc": "설비/공정 변경 이력(4M)에서 발생 리스크 검증을 위해 AI가 도출한 검증용 체크리스트" },
+    { "code": "DATABASE_AUDIT", "name": "과거 지적사항 기반", "desc": "과거 완성차 및 제3자 감사에서 지적된 사항(Audit Findings)과 시정 대책을 기반으로 AI가 도출한 재발 검증용 체크리스트" }
+  ]
+}

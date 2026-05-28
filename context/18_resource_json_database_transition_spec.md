@@ -387,7 +387,33 @@ flowchart TD
 
 ---
 
-## 📅 6. 전체 데이터 마이그레이션 및 단계별 로드맵 (Transition Path)
+## 🛡️ 7. 정적 데이터 반복 생성(휴리스틱 Fallback) 방지 및 품질 관리 대책 (Data Quality & Anti-Repetitive Guard)
+
+### ① 반복성(Low Entropy) 데이터 노이즈의 발생 원인
+- `data/document_library.json` 생성 파이프라인(`scratch/generate_library.py`) 가동 시, 수동 매핑 프리셋(`premium_presets`)에 존재하지 않는 규격서 파일들은 파일명을 분석하는 **휴리스틱 판단 엔진(`infer_properties_from_filename`)**으로 이관됩니다.
+- 입고 원부재, 품질 통계, 완제품 테스트, 실수방지 키워드 매칭에 모두 실패한 잔여 규격서들은 공통 Fallback 블록(`else`)으로 수렴합니다.
+- 이 과정에서 완성차 제조사명(`customer`)을 제외한 나머지 개요(`overview`), 통제 조항(`clauses`), 매개변수 점검(`param_check`) 텍스트가 **단 하나의 고정 템플릿 양식**(`"완성차 제조사 {customer}의 전사적 부품 양산 개발 게이트, 공장 품질 감사..."`)으로 일괄 포맷팅되어 출력되면서 동일한 문장이 과도하게 중복 적재되는 노이즈가 발생하였습니다.
+
+### ② 단계별 재발 방지 대책 (Recurrence Prevention & Action Plan)
+
+#### 1. 다차원 휴리스틱 분류 사전(Heuristic Classifier) 대폭 확장
+- 기존 4종 분류(Incoming, Capability, Test, Pokayoke)에서 세부 도메인 특성을 추가로 반영할 수 있도록 키워드 매핑 사전을 확장합니다:
+  - **설계/승인 사양 (Engineering Spec)**: `drawing`, `spec`, `standard`, `lastenheft`, `requirement`, `anforderung`
+  - **공정 관리 및 설비 (Process & Machinery)**: `line`, `process`, `equipment`, `maschine`, `calibration`
+  - **출하 및 서비스 (Logistics & Warranty)**: `claim`, `dispute`, `warranty`, `logistics`, `shipping`
+- 각 분류별로 3개 이상의 **문장 템플릿 풀(Template Pool)을 구성하여 랜덤/순차 매핑**함으로써 정적 생성 텍스트의 엔트로피를 확보하고 가독성을 다변화합니다.
+
+#### 2. LLM 오프라인 메타데이터 추출 엔진(LLM Offline Extraction ETL) 도입
+- 파일명 기반의 정규식 휴리스틱 한계를 탈피하기 위해, 로컬 빌드 또는 CI/CD 단계에서 가벼운 오픈소스 LLM(또는 API)을 활용해 `oe_requirements/` 실제 파일의 헤더, 표지, 목차 텍스트를 기계 해석(Text PDF parsing)합니다.
+- 추출된 실제 맥락에 맞추어 개요(`overview`) 및 핵심 통제 조항(`clauses`)을 문서 본질에 가깝게 동적 요약 생성함으로써 100% 무결한 고유 요약 데이터를 영속화합니다.
+
+#### 3. ETL 데이터 유사도 및 반복성 검증 린터(Similarity Guard Linter) 탑재
+- `generate_library.py` 스크립트 실행 마감 시점에 생성된 `document_library.json` 배열 내의 모든 `overview` 및 `review_summary` 필드를 대조 분석하는 자체 린팅 검사를 가동합니다.
+- **품질 임계치 통제**: 전체 리포트 중 동일한 구문 유형(변수명만 다른 정적 중복도)을 공유하는 비율이 **20%를 초과할 경우 빌드가 즉각 실패(Fail)** 처리되도록 제어하여, 개발 단계에서 노이즈 데이터가 데이터베이스로 릴리즈되는 것을 원천 차단합니다.
+
+---
+
+## 📅 8. 전체 데이터 마이그레이션 및 단계별 로드맵 (Transition Path)
 
 ### [Phase 1: 데이터 셋 완전 가상화 배치 단계]
 - 마스터 CSV 및 엑셀 데이터 파일들을 파싱하여 상기 정의된 6대 JSON 스키마를 만족하는 `data/*.json` 파일군으로 빌드 완료합니다.
