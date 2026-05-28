@@ -204,6 +204,25 @@ flowchart TD
 
 ---
 
+### ⑥ `users` (사용자 마스터 및 권한 테이블)
+
+*   **설명**: 플랫폼에 로그인 및 역할 전환(RBAC)을 보장하기 위한 사용자 마스터 정보 테이블입니다. (정적 `data/users.json` 데이터셋과 1:1 대응)
+*   **소스**: `data/users.json`
+
+| 컬럼명 | 데이터 타입 | 설명 | 예시 |
+| :--- | :--- | :--- | :--- |
+| `id` | INTEGER | 사용자 일련번호 (PK) | `1` |
+| `username` | TEXT | 로그인 ID | `admin` |
+| `password` | TEXT | 패스워드 (가상) | `admin123` |
+| `name` | TEXT | 사용자 성명 | `박정호 수석` |
+| `role` | TEXT | 역할 권한 (`admin`, `manager`, `viewer`) | `admin` |
+| `role_name` | TEXT | 표시 직책/역할명 | `Lead Auditor` |
+| `badge` | TEXT | UI에 표시할 뱃지 텍스트 | `ADMIN` |
+| `avatar_color` | TEXT | 프로필 아바타 배경 색상 (HSL/HEX) | `#ff3b30` |
+| `department` | TEXT | 소속 부서 | `품질보증그룹` |
+
+---
+
 ## 🧠 4. 현장 이력(DB) 기반 AI Checklist 추출 엔진 설계
 
 마스터 데이터(`change_history_4m`, `quality_issues_qi`, `audit_findings`)를 기반으로 AI를 가동하여 Checklist 질문과 대응 방안을 동적으로 생성하는 아키텍처와 로직 설계입니다.

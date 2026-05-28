@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RiskHunter - Risk-Based Audit Checklist System</title>
+  
+  <!-- Google Fonts: Outfit (Header/Metrics), Inter (Body), JetBrains Mono (Console) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Custom Design System styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  
+  <div class="app-layout">
+    
+    <!-- 🌌 대비 극대화 사이드바 (Contrast Sidebar) -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-logo">
+          <i data-lucide="shield-alert" class="logo-icon"></i>
+          <span class="logo-text">RiskHunter</span>
+        </div>
+        <div class="logo-sub">Audit Decision Dashboard</div>
+        
+        <!-- 네비게이션 메뉴 탭 리스트 -->
+        <nav class="sidebar-nav">
+          <button class="sidebar-nav-item active" data-tab="risk-assessment">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Risk Assessment</span>
+          </button>
+          <button class="sidebar-nav-item" data-tab="oe-library">
+            <i data-lucide="book-open"></i>
+            <span>OE Library</span>
+          </button>
+          <button class="sidebar-nav-item" data-tab="self-audit">
+            <i data-lucide="clipboard-check"></i>
+            <span>Self-Audit Checklist</span>
+          </button>
+          <button class="sidebar-nav-item" data-tab="ai-action">
+            <i data-lucide="sparkles"></i>
+            <span>AI Action Plan</span>
+          </button>
+          <button class="sidebar-nav-item" data-tab="sql-console">
+            <i data-lucide="terminal"></i>
+            <span>SQL Explorer</span>
+          </button>
+          <button class="sidebar-nav-item" data-tab="audit-timeline">
+            <i data-lucide="calendar"></i>
+            <span>Audit Timeline</span>
+          </button>
+        </nav>
+      </div>
+      
+      <!-- 하단 오디터 프로필 노드 (클릭 시 롤 셀렉터 토글) -->
+      <div class="sidebar-profile" id="profile-trigger">
+        <div class="profile-avatar" id="profile-avatar-node" style="background-color: var(--danger-red);">
+          <i data-lucide="user"></i>
+        </div>
+        <div class="profile-info">
+          <div class="profile-name" id="profile-name-node">박정호 수석</div>
+          <div class="profile-role" id="profile-role-node">Lead Auditor</div>
+        </div>
+        <div class="profile-badge" id="profile-badge-node">ADMIN</div>
+        <i data-lucide="chevron-up" class="profile-chevron"></i>
+        
+        <!-- 👥 글래스모피즘 사용자 역할 체인저 팝오버 -->
+        <div class="profile-popover hidden" id="profile-popover">
+          <div class="popover-header">역할 계정 전환</div>
+          <div class="popover-list" id="popover-user-list">
+            <!-- JavaScript가 users.json 마스터 데이터를 로드하여 동적 렌더링함 -->
+          </div>
+        </div>
+      </div>
+    </aside>
+    
+    <!-- ⬜ 맑은 라이트 캔버스 (Clean Light Canvas) -->
+    <main class="main-content">
+      
+      <!-- 공통 페이지 헤더 -->
+      <header class="page-header">
+        <div class="header-left">
+          <h1 id="page-title" class="header-title">Risk Assessment</h1>
+          <p id="page-subtitle" class="header-subtitle">공장 현장 실시간 리스크 연산 및 취약 공정 선제 진단 모니터링</p>
+        </div>
+        <div class="header-right">
+          <div id="header-action-area">
+            <!-- 탭별 동적 헤더 버튼 등이 들어갈 영역 (Phase 0 에서는 가이드를 위한 정적 버튼) -->
+            <button class="btn btn-outline">
+              <i data-lucide="help-circle"></i>
+              <span>사용 가이드</span>
+            </button>
+            <button class="btn btn-primary">
+              <i data-lucide="refresh-cw"></i>
+              <span>새로고침</span>
+            </button>
+          </div>
+        </div>
+      </header>
+      
+      <!-- 🛠️ 글로벌 공통 필터 바 (Global Dynamic Filter Panel) -->
+      <div class="card-solid filter-bar-card" id="global-filter-bar">
+        <div class="filter-item">
+          <label for="filter-plant"><i data-lucide="factory"></i> 대상 공장</label>
+          <select id="filter-plant" class="filter-select">
+            <!-- 동적 로딩 -->
+          </select>
+        </div>
+        <div class="filter-item">
+          <label for="filter-customer"><i data-lucide="car"></i> 완성차 고객사 (OEM)</label>
+          <select id="filter-customer" class="filter-select">
+            <!-- 동적 로딩 -->
+          </select>
+        </div>
+        <div class="filter-item">
+          <label for="filter-process"><i data-lucide="settings"></i> 대상 제조 공정</label>
+          <select id="filter-process" class="filter-select">
+            <!-- 동적 로딩 -->
+          </select>
+        </div>
+        <div class="filter-item filter-btn-item">
+          <button class="btn btn-outline btn-reset-filters" id="btn-reset-filters">
+            <i data-lucide="rotate-ccw"></i>
+            <span>초기화</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ⚠️ 에러 바운더리 폴백 UI -->
+      <div id="error-boundary" class="error-boundary-overlay hidden">
+        <div class="error-boundary-content card-solid border-danger flex-col align-center text-center">
+          <div class="error-icon-wrapper"><i data-lucide="alert-octagon"></i></div>
+          <h2 class="error-title">시스템 오류 감지</h2>
+          <p class="error-message">⚠️ 데이터 리소스를 비동기 로드할 수 없습니다. /data 폴더 내부 파일 또는 파일 구조를 확인하십시오.</p>
+          <p class="error-details" id="error-details-text"></p>
+          <button class="btn btn-primary btn-danger-bg" onclick="window.location.reload();">
+            <i data-lucide="refresh-cw"></i>
+            <span>다시 시도</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 🗂️ 탭 콘텐츠 영역 -->
+      
+      <!-- [메뉴 01] Risk Assessment -->
+      <section id="tab-risk-assessment" class="tab-pane active">
+        <!-- 4대 통계 KPI 스켈레톤 -->
+        <div class="kpi-grid">
+          <div class="card-solid kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">총 누적 리스크 건수</span>
+              <div class="kpi-icon-wrapper high-risk"><i data-lucide="alert-triangle"></i></div>
+            </div>
+            <div class="kpi-value-container">
+              <div class="skeleton skeleton-text skeleton-val"></div>
+            </div>
+            <div class="kpi-footer">
+              <div class="skeleton skeleton-text skeleton-sub"></div>
+            </div>
+          </div>
+          
+          <div class="card-solid kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">미해결 품질 이슈 (QI)</span>
+              <div class="kpi-icon-wrapper info"><i data-lucide="activity"></i></div>
+            </div>
+            <div class="kpi-value-container">
+              <div class="skeleton skeleton-text skeleton-val"></div>
+            </div>
+            <div class="kpi-footer">
+              <div class="skeleton skeleton-text skeleton-sub"></div>
+            </div>
+          </div>
+          
+          <div class="card-solid kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">미점검 4M 변경점</span>
+              <div class="kpi-icon-wrapper medium-risk"><i data-lucide="shuffle"></i></div>
+            </div>
+            <div class="kpi-value-container">
+              <div class="skeleton skeleton-text skeleton-val"></div>
+            </div>
+            <div class="kpi-footer">
+              <div class="skeleton skeleton-text skeleton-sub"></div>
+            </div>
+          </div>
+          
+          <div class="card-solid kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">과거 감사 미해결 지적</span>
+              <div class="kpi-icon-wrapper high-risk"><i data-lucide="clipboard"></i></div>
+            </div>
+            <div class="kpi-value-container">
+              <div class="skeleton skeleton-text skeleton-val"></div>
+            </div>
+            <div class="kpi-footer">
+              <div class="skeleton skeleton-text skeleton-sub"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 차트 및 리스크 보드 스켈레톤 -->
+        <div class="grid-2col">
+          <div class="card-solid flex-col">
+            <div class="card-header">
+              <h2 class="card-title">공장별 실시간 위험 점수 (Plant Risk Score)</h2>
+              <p class="card-subtitle">과거 이력 가중치 연산 기반 Max 5.0 스코어링</p>
+            </div>
+            <div class="card-body flex-center" style="height: 300px;">
+              <div class="skeleton-chart donut">
+                <div class="skeleton skeleton-circle"></div>
+                <div class="skeleton-legend">
+                  <div class="skeleton skeleton-text" style="width: 120px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 100px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 110px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card-solid flex-col">
+            <div class="card-header">
+              <h2 class="card-title">취약 공정별 리스크 누적 분포</h2>
+              <p class="card-subtitle">15대 표준 공정 내 위해 위험 요소 비율</p>
+            </div>
+            <div class="card-body flex-center" style="height: 300px;">
+              <div class="skeleton-chart bar-grid">
+                <div class="skeleton skeleton-bar" style="width: 80%;"></div>
+                <div class="skeleton skeleton-bar" style="width: 60%;"></div>
+                <div class="skeleton skeleton-bar" style="width: 45%;"></div>
+                <div class="skeleton skeleton-bar" style="width: 70%;"></div>
+                <div class="skeleton skeleton-bar" style="width: 30%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 하단 실시간 경고판 스켈레톤 -->
+        <div class="card-solid flex-col alert-board-wrapper">
+          <div class="card-header border-none">
+            <div class="flex-between w-100">
+              <div>
+                <h2 class="card-title text-danger"><i data-lucide="shield-alert"></i> Live Risk Alert Board</h2>
+                <p class="card-subtitle">임계값(3.5점 이상) 초과 고위험 감지 공정 대응 권고</p>
+              </div>
+              <span class="badge badge-danger blink">REALTIME</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding-top: 0;">
+            <div class="skeleton skeleton-text" style="width: 90%; margin-bottom: 12px; height: 18px;"></div>
+            <div class="skeleton skeleton-text" style="width: 85%; margin-bottom: 12px; height: 18px;"></div>
+            <div class="skeleton skeleton-text" style="width: 70%; height: 18px;"></div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- [메뉴 02] OE Library -->
+      <section id="tab-oe-library" class="tab-pane">
+        <div class="grid-layout-library">
+          <div class="card-solid lib-list-panel">
+            <div class="card-header">
+              <div class="flex-between">
+                <div>
+                  <h2 class="card-title">OE Technical Specifications</h2>
+                  <p class="card-subtitle">완성차 요구 규격서 라이브러리 목록</p>
+                </div>
+                <div class="skeleton skeleton-text" style="width: 80px; height: 24px;"></div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="skeleton-table">
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 35px; margin-bottom: 15px;"></div>
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 30px; margin-bottom: 10px;"></div>
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 30px; margin-bottom: 10px;"></div>
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 30px; margin-bottom: 10px;"></div>
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 30px; margin-bottom: 10px;"></div>
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 30px;"></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 하단 AI 핵심 검토 요약 패널 -->
+          <div class="card-solid lib-summary-panel">
+            <div class="card-header border-none" style="background-color: var(--bg-status-info);">
+              <div class="flex-between w-100">
+                <div>
+                  <h2 class="card-title text-info"><i data-lucide="sparkles"></i> AI 핵심 규격 검토 요약 (Review Summary)</h2>
+                  <p class="card-subtitle text-info-sub">선택된 규격서의 핵심 적용 조건 및 특별 의무 조항 추출</p>
+                </div>
+                <div class="skeleton skeleton-text" style="width: 140px; height: 32px;"></div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="grid-2col">
+                <div>
+                  <div class="skeleton skeleton-text" style="width: 40%; height: 20px; margin-bottom: 12px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 90%; height: 14px; margin-bottom: 8px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 85%; height: 14px; margin-bottom: 8px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 80%; height: 14px;"></div>
+                </div>
+                <div>
+                  <div class="skeleton skeleton-text" style="width: 40%; height: 20px; margin-bottom: 12px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 90%; height: 14px; margin-bottom: 8px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 85%; height: 14px; margin-bottom: 8px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 80%; height: 14px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- [메뉴 03] Self-Audit Checklist -->
+      <section id="tab-self-audit" class="tab-pane">
+        <!-- 상단 4열 통합 AI 분석 요약 보드 -->
+        <div class="checklist-summary-board">
+          <!-- 1열: 대상 OEM 프로필 카드 -->
+          <div class="card-solid flex-row align-center gap-16">
+            <div class="oem-profile-logo">
+              <i data-lucide="building-2"></i>
+            </div>
+            <div>
+              <div class="oem-profile-title">BMW Group</div>
+              <div class="oem-profile-sub">Technical Supplier Audit</div>
+            </div>
+          </div>
+          
+          <!-- 2열: 주요 감사 Focus Area (AI 분석) -->
+          <div class="card-solid">
+            <div class="board-col-title"><i data-lucide="target" class="text-danger"></i> AI Focus Area ➊~➎</div>
+            <div class="board-col-content">
+              <div class="skeleton skeleton-text" style="width: 90%; margin-bottom: 6px;"></div>
+              <div class="skeleton skeleton-text" style="width: 80%; margin-bottom: 6px;"></div>
+              <div class="skeleton skeleton-text" style="width: 85%;"></div>
+            </div>
+          </div>
+          
+          <!-- 3열: 공장 Risk 요약 (AI 분석) -->
+          <div class="card-solid">
+            <div class="board-col-title"><i data-lucide="trending-up" class="text-warning"></i> Factory Risk Trends</div>
+            <div class="board-col-content">
+              <div class="skeleton skeleton-text" style="width: 70%; margin-bottom: 6px;"></div>
+              <div class="skeleton skeleton-text" style="width: 75%; margin-bottom: 6px;"></div>
+              <div class="skeleton skeleton-text" style="width: 65%;"></div>
+            </div>
+          </div>
+          
+          <!-- 4열: 추천 준비 우선순위 (Circular Donut Chart) -->
+          <div class="card-solid flex-row align-center justify-center gap-12">
+            <div class="skeleton skeleton-circle" style="width: 60px; height: 60px; flex-shrink: 0;"></div>
+            <div class="w-100">
+              <div class="skeleton skeleton-text" style="width: 80%; margin-bottom: 6px;"></div>
+              <div class="skeleton skeleton-text" style="width: 60%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 탭 및 필터바 영역 -->
+        <div class="card-solid filter-bar-card">
+          <div class="checklist-process-tabs">
+            <div class="skeleton skeleton-text" style="width: 400px; height: 30px;"></div>
+          </div>
+        </div>
+
+        <!-- 체크리스트 메인 그리드 및 상세 드로어 구조 -->
+        <div class="checklist-container">
+          <div class="card-solid checklist-main-panel">
+            <div class="card-header">
+              <div class="flex-between">
+                <div>
+                  <h2 class="card-title">현장 자체 감사 체크리스트 (Smart Checklist)</h2>
+                  <p class="card-subtitle">공정 리스크 및 OEM 규격 조항이 하이브리드 연계된 체크리스트</p>
+                </div>
+                <div class="flex-row gap-8">
+                  <div class="skeleton skeleton-text" style="width: 100px; height: 32px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 120px; height: 32px;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="skeleton-table">
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 35px; margin-bottom: 15px;"></div>
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 30px; margin-bottom: 10px;"></div>
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 30px; margin-bottom: 10px;"></div>
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 30px; margin-bottom: 10px;"></div>
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 30px;"></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 상세 수검 증빙 패널 (Detail Drawer - 평소엔 감춤, active 시 우측 슬라이드인) -->
+          <div id="checklist-drawer" class="detail-drawer card-solid">
+            <div class="drawer-header">
+              <h3 class="drawer-title">세부 수검 증빙 가이드</h3>
+              <button class="btn-close-drawer" id="btn-close-drawer"><i data-lucide="x"></i></button>
+            </div>
+            <div class="drawer-body">
+              <div class="skeleton-drawer-content">
+                <div class="skeleton skeleton-text" style="width: 80%; height: 24px; margin-bottom: 16px;"></div>
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 80px; margin-bottom: 16px;"></div>
+                <div class="skeleton skeleton-text" style="width: 50%; height: 18px; margin-bottom: 8px;"></div>
+                <div class="skeleton skeleton-text" style="width: 90%; height: 14px; margin-bottom: 6px;"></div>
+                <div class="skeleton skeleton-text" style="width: 85%; height: 14px; margin-bottom: 16px;"></div>
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 120px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- [메뉴 04] AI Action Plan -->
+      <section id="tab-ai-action" class="tab-pane">
+        <div class="grid-2col" style="grid-template-columns: 1fr 1.2fr;">
+          <!-- 좌측 오디트 지적 사항 대화창/입력 카드 -->
+          <div class="card-solid flex-col">
+            <div class="card-header">
+              <h2 class="card-title">지적 사항 및 부적합 상황 입력</h2>
+              <p class="card-subtitle">오디트 중 감지된 지적 내용을 기입하거나 선택하십시오</p>
+            </div>
+            <div class="card-body flex-col gap-16">
+              <div class="skeleton skeleton-bar" style="width: 100%; height: 40px; border-radius: var(--radius-chip);"></div>
+              <div class="skeleton skeleton-bar" style="width: 100%; height: 180px; border-radius: var(--radius-chip);"></div>
+              <div class="skeleton skeleton-bar" style="width: 100%; height: 45px; margin-top: auto; border-radius: var(--radius-chip);"></div>
+            </div>
+          </div>
+          
+          <!-- 우측 AI 종합 피드백 보드 -->
+          <div class="card-solid flex-col">
+            <div class="card-header" style="background-color: var(--bg-status-info);">
+              <h2 class="card-title text-info"><i data-lucide="sparkles"></i> AI 8D 대응 조치 계획 (Action Feed)</h2>
+              <p class="card-subtitle text-info-sub">글로벌 표준 및 과거 완결 이력 기반의 즉각 조치 가이드</p>
+            </div>
+            <div class="card-body">
+              <!-- 로딩 시뮬레이션용 스피너 (Phase 0 에서는 정적 형태 유지 가능하나, 미학적 요소 추가) -->
+              <div class="ai-feed-placeholder">
+                <div class="spinner-spinner"></div>
+                <div class="skeleton skeleton-text" style="width: 180px; margin-top: 16px; margin-bottom: 12px;"></div>
+                <div class="skeleton skeleton-text" style="width: 250px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- [메뉴 05] SQL Console -->
+      <section id="tab-sql-console" class="tab-pane">
+        <div class="sql-console-container">
+          <!-- 상단 SQL 템플릿 로더 및 에디터 -->
+          <div class="card-solid sql-editor-panel">
+            <div class="card-header flex-between">
+              <div>
+                <h2 class="card-title">SELECT 템플릿 쿼리 에디터</h2>
+                <p class="card-subtitle">자주 쿼리하는 분석용 SELECT 서식을 안전 샌드박스로 실행합니다</p>
+              </div>
+              <div class="skeleton skeleton-text" style="width: 150px; height: 32px;"></div>
+            </div>
+            <div class="card-body flex-col gap-12" style="padding: 16px;">
+              <div class="skeleton-editor">
+                <div class="skeleton-editor-line"></div>
+                <div class="skeleton-editor-line"></div>
+                <div class="skeleton-editor-line"></div>
+              </div>
+              <div class="flex-between">
+                <span class="text-muted text-sm"><i data-lucide="shield-check"></i> SELECT 전용 안전 샌드박스 작동 중</span>
+                <div class="skeleton skeleton-text" style="width: 100px; height: 38px;"></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 하단 결과 뷰어 -->
+          <div class="card-solid sql-results-panel">
+            <div class="card-header border-none">
+              <h2 class="card-title">쿼리 실행 결과 (Result Dataset)</h2>
+              <p class="card-subtitle">메모리 상에서 조회 변환된 쿼리 결과셋</p>
+            </div>
+            <div class="card-body">
+              <div class="skeleton-table">
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 35px; margin-bottom: 15px;"></div>
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 30px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 안전 보안 샌드박스 경고 모달 (정적 구조) -->
+        <div id="sql-security-modal" class="modal-overlay hidden">
+          <div class="modal-content card-solid border-danger">
+            <div class="modal-header">
+              <h3 class="text-danger flex-row align-center gap-8">
+                <i data-lucide="shield-alert"></i>
+                <span>보안 샌드박스 규정 위반 경고</span>
+              </h3>
+            </div>
+            <div class="modal-body">
+              <p class="text-primary font-semibold" style="margin-bottom: 12px;">SELECT 전용 안전 샌드박스 상태입니다.</p>
+              <p class="text-secondary">원천 마스터 데이터의 무결한 보존 및 훼손 방지를 위해 쓰기 행위(INSERT, UPDATE, DELETE, DROP, ALTER 등)는 완벽하게 차단됩니다.</p>
+            </div>
+            <div class="modal-footer flex-right">
+              <button class="btn btn-primary btn-danger-bg" id="btn-close-sql-modal">확인 및 복귀</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- [메뉴 06] Audit Timeline -->
+      <section id="tab-audit-timeline" class="tab-pane">
+        <!-- 5단계 요약 KPI 카드 -->
+        <div class="kpi-grid" style="grid-template-columns: repeat(5, 1fr);">
+          <div class="card-solid kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">D-DAY</span>
+              <div class="kpi-icon-wrapper info"><i data-lucide="clock"></i></div>
+            </div>
+            <div class="kpi-value-container">
+              <div class="skeleton skeleton-text skeleton-val"></div>
+            </div>
+            <div class="kpi-footer">
+              <div class="skeleton skeleton-text skeleton-sub"></div>
+            </div>
+          </div>
+          <div class="card-solid kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">전체 태스크</span>
+              <div class="kpi-icon-wrapper"><i data-lucide="list-todo"></i></div>
+            </div>
+            <div class="kpi-value-container">
+              <div class="skeleton skeleton-text skeleton-val"></div>
+            </div>
+            <div class="kpi-footer">
+              <div class="skeleton skeleton-text skeleton-sub"></div>
+            </div>
+          </div>
+          <div class="card-solid kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">완료됨</span>
+              <div class="kpi-icon-wrapper low-risk"><i data-lucide="check-circle-2"></i></div>
+            </div>
+            <div class="kpi-value-container">
+              <div class="skeleton skeleton-text skeleton-val"></div>
+            </div>
+            <div class="kpi-footer">
+              <div class="skeleton skeleton-text skeleton-sub"></div>
+            </div>
+          </div>
+          <div class="card-solid kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">진행 중</span>
+              <div class="kpi-icon-wrapper info"><i data-lucide="hourglass"></i></div>
+            </div>
+            <div class="kpi-value-container">
+              <div class="skeleton skeleton-text skeleton-val"></div>
+            </div>
+            <div class="kpi-footer">
+              <div class="skeleton skeleton-text skeleton-sub"></div>
+            </div>
+          </div>
+          <div class="card-solid kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">지연됨</span>
+              <div class="kpi-icon-wrapper high-risk"><i data-lucide="alert-circle"></i></div>
+            </div>
+            <div class="kpi-value-container">
+              <div class="skeleton skeleton-text skeleton-val"></div>
+            </div>
+            <div class="kpi-footer">
+              <div class="skeleton skeleton-text skeleton-sub"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2col" style="grid-template-columns: 1fr 1.2fr; margin-top: 20px;">
+          <!-- 마일스톤 타임라인 트랙 -->
+          <div class="card-solid flex-col">
+            <div class="card-header">
+              <h2 class="card-title">수검 일정 마일스톤 (Milestone Tracker)</h2>
+              <p class="card-subtitle">D-30 감사 계획 단계별 추진 마일스톤 흐름</p>
+            </div>
+            <div class="card-body">
+              <div class="skeleton-timeline">
+                <div class="skeleton-timeline-item">
+                  <div class="skeleton skeleton-circle" style="width: 16px; height: 16px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 150px; margin-left: 12px;"></div>
+                </div>
+                <div class="skeleton-timeline-item">
+                  <div class="skeleton skeleton-circle" style="width: 16px; height: 16px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 180px; margin-left: 12px;"></div>
+                </div>
+                <div class="skeleton-timeline-item">
+                  <div class="skeleton skeleton-circle" style="width: 16px; height: 16px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 120px; margin-left: 12px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 트리-뷰 태스크 리스트 -->
+          <div class="card-solid flex-col">
+            <div class="card-header">
+              <h2 class="card-title">단계별 상세 준비 과제 (Grouped Tasks)</h2>
+              <p class="card-subtitle">마일스톤에 연계된 하위 실무 검증 과제 및 진행도</p>
+            </div>
+            <div class="card-body">
+              <div class="skeleton-table">
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 35px; margin-bottom: 12px;"></div>
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 25px; margin-bottom: 8px;"></div>
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 25px; margin-bottom: 8px;"></div>
+                <div class="skeleton skeleton-bar" style="width: 100%; height: 25px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+  
+  <!-- 🔐 권한 제한 안내 모달 -->
+  <div id="permission-modal" class="modal-overlay hidden">
+    <div class="modal-content card-solid border-danger">
+      <div class="modal-header">
+        <h3 class="text-danger flex-row align-center gap-8">
+          <i data-lucide="lock" style="color: var(--danger-red);"></i>
+          <span>메뉴 접근 권한 제한</span>
+        </h3>
+      </div>
+      <div class="modal-body">
+        <p class="text-primary font-semibold" style="margin-bottom: 12px;" id="permission-modal-title">선택하신 메뉴는 현재 권한에서 접근할 수 없습니다.</p>
+        <p class="text-secondary" id="permission-modal-desc">해당 기능을 사용하시려면 상위 권한 이상의 계정으로 역할을 전환해 주십시오.</p>
+      </div>
+      <div class="modal-footer flex-right">
+        <button class="btn btn-primary" id="btn-close-permission-modal">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🍞 우아한 권한 경고 토스트 알림 컨테이너 -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Core script -->
+  <script src="app.js"></script>
+</body>
+</html>

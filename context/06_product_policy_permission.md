@@ -39,34 +39,32 @@
 
 ## 👥 2. 역할 기반 사용자 권한 정책 (RBAC - Role-Based Access Control)
 
-초기 MVP 단계에서는 원활하고 신속한 피드백을 위해 **단일 권한 구조(모든 사용자가 전체 기능 사용 가능)**로 운영됩니다. 그러나 향후 실제 전사 배포 및 보안 통제를 대비해 아래와 같이 4단계로 확장 가능한 역할 기반 보안 아키텍처(RBAC)를 수립하여 설계에 반영해 둡니다.
+본 시스템은 실무 오디팅 환경과 데모 편의성을 정렬하기 위해 사용자 권한을 직관적인 **3개 핵심 역할(Admin / Manager / Viewer)**로 축소 통합하여 제어합니다.
 
 ```mermaid
 gantt
-    title 역할별 기능 접근 권한 범위
+    title 역할별 기능 접근 권한 범위 (3대 권한 통합)
     dateFormat  X
     axisFormat %s
-    section System Admin
-    전체 시스템 제어 및 마스터/SQL 쓰기 권한   :active, 0, 100
-    section Data Manager (품질담당)
-    OE Library 관리, AI Action Plan 생성 및 수정 :active, 0, 75
-    section Checklist User (현장오디터)
-    Self-Audit Checklist 조건 조회 및 Export 가능  :active, 0, 50
-    section Viewer (읽기전용)
-    Risk Assessment 및 Checklist 열람/인쇄만 가능  :active, 0, 25
+    section Admin (최고관리자)
+    전체 시스템 제어 및 마스터/DB 쓰기 권한   :active, 0, 100
+    section Manager (실무담당)
+    체크리스트 편집, AI 대응 도출 및 SQL 조회 :active, 0, 66
+    section Viewer (일반조회)
+    대시보드 모니터링 및 체크리스트 조회 전용 :active, 0, 33
 ```
 
-### 📋 역할별 세부 접근 권한 매핑 테이블
+### 📋 역할별 세부 접근 권한 매핑 테이블 (Consolidated)
 
-| 기능 구분 | 세부 기능 및 API 경로 | System Admin | Data Manager | Checklist User | Viewer |
-| :---: | :--- | :---: | :---: | :---: | :---: |
-| **시스템** | 글로벌 환경설정 및 마스터 코드 제어 | **O** | X | X | X |
-| **SQL Console** | SELECT 및 특정 유용 쿼리 템플릿 실행 | **O** (All) | **O** (Select) | X | X |
-| **OE Requirement Library** | 완제품 규격서 메타데이터 필터링, 요약 및 다운로드 | **O** | **O** | X | X |
-| **AI Action Plan** | 감사 수검 후 AI 개선 방향 및 SOP 가이드 자동 제안 | **O** | **O** | X | X |
-| **Self-Audit & Master Checklist** | 통합 체크리스트 마스터 조회, 조건 검색 및 편집 | **O** | **O** | **O** | X |
-| **Risk Assessment** | 공장별 실시간 품질 실패/4M 리스크 시각화 및 모니터링 | **O** | **O** | **O** | **O** |
-| **데이터 추출** | 필터링 결과 CSV 내보내기 (Export) | **O** | **O** | **O** | **O** |
+| 기능 구분 | 세부 기능 및 가상 API 경로 | Admin (최고관리자) | Manager (실무담당) | Viewer (일반조회) |
+| :---: | :--- | :---: | :---: | :---: |
+| **시스템** | 글로벌 환경설정 및 공장별 가중치/마스터 편집 | **O** | X | X |
+| **SQL Console** | SQL SELECT 및 템플릿 쿼리 실행 | **O** | **O** (Select 전용) | X |
+| **OE Library** | 완제품 규격서 필터링, 요약 뷰어 및 다운로드 | **O** | **O** | **O** (Read-Only) |
+| **AI Action Plan** | AI 개선 대책 가이드 및 SOP 개정 권고 도출 | **O** | **O** | X |
+| **Self-Audit Checklist** | 통합 체크리스트 검색, 필터링 및 CSV Export | **O** | **O** | **O** |
+| **Self-Audit Checklist** | 체크리스트 활성 상태 변경 및 직접 텍스트 수정 | **O** | **O** | X |
+| **Risk Assessment** | 공장별 실시간 품질 실패/4M 리스크 시각화 및 모니터링 | **O** | **O** | **O** |
 
 ---
 

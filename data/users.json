@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "password": "admin123",
+    "name": "박정호 수석",
+    "role": "admin",
+    "role_name": "Lead Auditor",
+    "badge": "ADMIN",
+    "avatar_color": "#ff3b30",
+    "department": "품질보증그룹"
+  },
+  {
+    "id": 2,
+    "username": "manager",
+    "password": "manager123",
+    "name": "이현우 책임",
+    "role": "manager",
+    "role_name": "Quality Manager",
+    "badge": "MANAGER",
+    "avatar_color": "#00c8ff",
+    "department": "품질기획팀"
+  },
+  {
+    "id": 3,
+    "username": "viewer",
+    "password": "viewer123",
+    "name": "최선아 연구원",
+    "role": "viewer",
+    "role_name": "Quality Viewer",
+    "badge": "VIEWER",
+    "avatar_color": "#a1a1a1",
+    "department": "생산기술센터"
+  }
+]

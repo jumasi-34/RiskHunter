@@ -1,0 +1,1321 @@
+/* ==========================================================================
+   🌌 RiskHunter Design System & Premium CSS
+   B2B Premium Clean Enterprise Console Theme (HSL Palette Basis)
+   ========================================================================== */
+
+:root {
+  /* --- 🎨 Core Brand Palette --- */
+  --brand-navy: #0f172a;         /* HSL(222, 47%, 11%) - 사이드바 고정 다크 네이비 */
+  --brand-blue: #2563eb;         /* HSL(221, 83%, 53%) - 포인트 로열 블루 */
+  --brand-blue-hover: #1d4ed8;   /* HSL(221, 83%, 46%) - 로열 블루 호버 */
+
+  /* --- 🌌 Base Backgrounds --- */
+  --bg-app: #f8fafc;             /* HSL(210, 20%, 98%) - 메인 콘텐츠 기본 밝은 배경 */
+  --bg-sidebar: #0f172a;         /* HSL(222, 47%, 11%) - 사이드바 어두운 배경 */
+  --bg-card: #ffffff;            /* HSL(0, 0%, 100%) - 카드 및 패널 순백색 배경 */
+  
+  /* --- 🚦 Semantic Status Colors (Flat Pastel B2B Style) --- */
+  /* High (Red) - 고위험 / 지연 */
+  --color-status-high: #ef4444;           /* HSL(0, 84%, 60%) */
+  --bg-status-high: #fef2f2;              /* HSL(0, 100%, 97%) */
+  --border-status-high: #fca5a5;          /* HSL(0, 93%, 84%) */
+  --text-status-high: #b91c1c;            /* HSL(0, 72%, 41%) */
+  
+  /* Medium (Orange/Amber) - 보통 / 주의 */
+  --color-status-medium: #f59e0b;         /* HSL(38, 92%, 50%) */
+  --bg-status-medium: #fffbeb;            /* HSL(48, 100%, 96%) */
+  --border-status-medium: #fcd34d;        /* HSL(48, 96%, 77%) */
+  --text-status-medium: #b45309;          /* HSL(35, 92%, 33%) */
+
+  /* Low (Green/Mint) - 낮음 / 완료 */
+  --color-status-low: #10b981;            /* HSL(150, 84%, 45%) */
+  --bg-status-low: #f0fdf4;               /* HSL(143, 80%, 96%) */
+  --border-status-low: #86efac;           /* HSL(142, 72%, 73%) */
+  --text-status-low: #15803d;             /* HSL(142, 70%, 29%) */
+
+  /* Info / In Progress (Blue) - 진행중 */
+  --color-status-info: #3b82f6;           /* HSL(221, 83%, 53%) */
+  --bg-status-info: #eff6ff;              /* HSL(214, 100%, 97%) */
+  --border-status-info: #bfdbfe;          /* HSL(214, 95%, 87%) */
+  --text-status-info: #1d4ed8;            /* HSL(221, 83%, 46%) */
+
+  /* --- 📄 Premium Typography --- */
+  --text-primary: #0f172a;        /* HSL(222, 47%, 11%) - 주조색 텍스트 (다크 네이비) */
+  --text-secondary: #475569;      /* HSL(215, 16%, 47%) - 부조색 텍스트 (슬레이트 그레이) */
+  --text-muted: #94a3b8;          /* HSL(218, 11%, 65%) - 설명/비활성 텍스트 (슬레이트 실버) */
+  --text-light: #ffffff;          /* 어두운 컴포넌트/사이드바용 밝은 텍스트 */
+
+  /* --- 🫧 Layout Borders --- */
+  --border-card: #e2e8f0;         /* 표준 카드 연그레이 테두리 */
+  --border-input: #cbd5e1;        /* 입력 폼 및 셀렉터 테두리 */
+  --radius-panel: 16px;
+  --radius-card: 12px;
+  --radius-chip: 6px;
+
+  /* --- 📦 Natural Box Shadows (No Glows) --- */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-base: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================================================
+   Reset & Base Styles
+   ========================================================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   2컬럼 그리드 앱 셸 (App Shell)
+   ========================================================================== */
+.app-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* 🌌 대비 극대화 사이드바 (Contrast Sidebar) */
+.sidebar {
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 16px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-light);
+  font-family: 'Outfit', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.logo-icon {
+  color: var(--brand-blue);
+  width: 26px;
+  height: 26px;
+}
+
+.logo-sub {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 4px;
+  margin-left: 36px;
+  margin-bottom: 32px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-card);
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 12px 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+}
+
+.sidebar-nav-item i {
+  width: 18px;
+  height: 18px;
+}
+
+.sidebar-nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-light);
+}
+
+.sidebar-nav-item.active {
+  background-color: var(--brand-blue);
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+/* 사이드바 하단 프로필 */
+.sidebar-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: auto;
+}
+
+.profile-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-light);
+}
+
+.profile-avatar i {
+  width: 18px;
+  height: 18px;
+}
+
+.profile-info {
+  flex-grow: 1;
+}
+
+.profile-name {
+  color: var(--text-light);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.profile-role {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.profile-badge {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-light);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-chip);
+}
+
+/* ⬜ 맑은 라이트 캔버스 (Clean Light Canvas) */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 32px;
+  gap: 24px;
+  background-color: var(--bg-app);
+}
+
+/* ==========================================================================
+   Page Header
+   ========================================================================== */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-card);
+  padding-bottom: 20px;
+  margin-bottom: 8px;
+}
+
+.header-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.header-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+#header-action-area {
+  display: flex;
+  gap: 10px;
+}
+
+/* ==========================================================================
+   Tabs Pane Configuration (SPA)
+   ========================================================================== */
+.tab-pane {
+  display: none;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tab-pane.active {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   Premium Components Standard
+   ========================================================================== */
+
+/* 순백색 솔리드 표면 카드 (Solid White Surfaces) */
+.card-solid {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-base);
+  padding: 24px;
+  display: flex;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-solid:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.gap-16 { gap: 16px; }
+
+.card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-bottom: 1px solid var(--border-card);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.card-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.border-none {
+  border-bottom: none !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* ==========================================================================
+   Buttons & Badges
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: var(--radius-card);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary {
+  background-color: var(--brand-blue);
+  border: 1px solid var(--brand-blue);
+  color: var(--text-light);
+}
+
+.btn-primary:hover {
+  background-color: var(--brand-blue-hover);
+  border-color: var(--brand-blue-hover);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--border-input);
+  color: var(--text-secondary);
+}
+
+.btn-outline:hover {
+  background-color: var(--bg-app);
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
+.btn-danger-bg {
+  background-color: var(--color-status-high) !important;
+  border-color: var(--color-status-high) !important;
+  color: var(--text-light) !important;
+}
+
+.btn-danger-bg:hover {
+  background-color: var(--text-status-high) !important;
+  border-color: var(--text-status-high) !important;
+}
+
+/* 파스텔톤 플랫 상태 배지 (Semantic Flat Badges) */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: var(--radius-chip);
+}
+
+.badge-danger {
+  color: var(--text-status-high);
+  background-color: var(--bg-status-high);
+  border: 1px solid var(--border-status-high);
+}
+
+.badge-warning {
+  color: var(--text-status-medium);
+  background-color: var(--bg-status-medium);
+  border: 1px solid var(--border-status-medium);
+}
+
+.badge-success {
+  color: var(--text-status-low);
+  background-color: var(--bg-status-low);
+  border: 1px solid var(--border-status-low);
+}
+
+.badge-info {
+  color: var(--text-status-info);
+  background-color: var(--bg-status-info);
+  border: 1px solid var(--border-status-info);
+}
+
+/* 깜박임 애니메이션 */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.blink {
+  animation: blink 1.8s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   KPI Cards & Grids
+   ========================================================================== */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.kpi-card {
+  flex-direction: column;
+  gap: 12px;
+}
+
+.kpi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.kpi-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.kpi-icon-wrapper {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-chip);
+  background-color: var(--bg-app);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.kpi-icon-wrapper.high-risk {
+  color: var(--text-status-high);
+  background-color: var(--bg-status-high);
+}
+
+.kpi-icon-wrapper.medium-risk {
+  color: var(--text-status-medium);
+  background-color: var(--bg-status-medium);
+}
+
+.kpi-icon-wrapper.low-risk {
+  color: var(--text-status-low);
+  background-color: var(--bg-status-low);
+}
+
+.kpi-icon-wrapper.info {
+  color: var(--text-status-info);
+  background-color: var(--bg-status-info);
+}
+
+.kpi-value-container {
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   Grids Layout Configuration
+   ========================================================================== */
+.grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   Premium Glassmorphism Skeleton Layout Basis
+   ========================================================================== */
+@keyframes pulse {
+  0%, 100% {
+    background-color: #f1f5f9;
+  }
+  50% {
+    background-color: #e2e8f0;
+  }
+}
+
+.skeleton {
+  animation: pulse 1.5s ease-in-out infinite;
+  border-radius: var(--radius-chip);
+}
+
+.skeleton-text {
+  height: 14px;
+  width: 100%;
+}
+
+.skeleton-val {
+  height: 36px;
+  width: 60%;
+  border-radius: var(--radius-card);
+}
+
+.skeleton-sub {
+  height: 12px;
+  width: 80%;
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-bar {
+  height: 14px;
+  animation: pulse 1.5s ease-in-out infinite;
+  border-radius: var(--radius-chip);
+}
+
+/* 스켈레톤 차트 형태 */
+.skeleton-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.skeleton-chart.donut {
+  gap: 24px;
+}
+
+.skeleton-chart.donut .skeleton-circle {
+  width: 140px;
+  height: 140px;
+  position: relative;
+}
+
+/* 도넛 구멍 뚫기 */
+.skeleton-chart.donut .skeleton-circle::after {
+  content: '';
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  width: 90px;
+  height: 90px;
+  background-color: var(--bg-card);
+  border-radius: 50%;
+}
+
+.skeleton-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-chart.bar-grid {
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+/* 스켈레톤 테이블 형태 */
+.skeleton-table {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* ==========================================================================
+   OE Library & Checklist Spec Layout
+   ========================================================================== */
+.grid-layout-library {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 20px;
+  height: calc(100vh - 180px);
+}
+
+.lib-list-panel {
+  flex-direction: column;
+}
+
+.lib-summary-panel {
+  flex-direction: column;
+  border-left: 4px solid var(--color-status-info) !important;
+}
+
+.text-info {
+  color: var(--text-status-info) !important;
+}
+
+.text-info-sub {
+  color: var(--text-secondary);
+}
+
+/* Checklist 4열 요약 보드 */
+.checklist-summary-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.oem-profile-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-card);
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-blue);
+}
+
+.oem-profile-logo i {
+  width: 24px;
+  height: 24px;
+}
+
+.oem-profile-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.oem-profile-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.board-col-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.board-col-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.text-danger { color: var(--color-status-high) !important; }
+.text-warning { color: var(--color-status-medium) !important; }
+
+/* Checklist Container & Drawer Structure */
+.checklist-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  position: relative;
+  overflow: hidden;
+  height: calc(100vh - 350px);
+}
+
+.checklist-main-panel {
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ⑩ Detail Drawer (우측 슬라이드 상세 패널) */
+.detail-drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 420px;
+  height: 100%;
+  z-index: 50;
+  background-color: var(--bg-card);
+  border-left: 1px solid var(--border-card);
+  box-shadow: -4px 0 15px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  
+  /* 마이크로 트랜지션 인터랙션 */
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+}
+
+.detail-drawer.active {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-card);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.drawer-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.btn-close-drawer {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.btn-close-drawer:hover {
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   AI Action Plan Spec Layout
+   ========================================================================== */
+.ai-feed-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  color: var(--text-secondary);
+}
+
+.spinner-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--bg-status-info);
+  border-top: 4px solid var(--brand-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   SQL Console Spec Layout
+   ========================================================================== */
+.sql-console-container {
+  display: grid;
+  grid-template-rows: 1.2fr 1fr;
+  gap: 20px;
+  height: calc(100vh - 180px);
+}
+
+.sql-editor-panel {
+  flex-direction: column;
+}
+
+.skeleton-editor {
+  background-color: #1e293b; /* 흑색/다크 그레이 터미널 스타일 텍스트 에디터 */
+  border-radius: var(--radius-card);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 180px;
+}
+
+.skeleton-editor-line {
+  height: 14px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-chip);
+  animation: pulse-dark 1.5s ease-in-out infinite;
+}
+
+.skeleton-editor-line:nth-child(1) { width: 40%; }
+.skeleton-editor-line:nth-child(2) { width: 70%; }
+.skeleton-editor-line:nth-child(3) { width: 55%; }
+
+@keyframes pulse-dark {
+  0%, 100% { background-color: rgba(255, 255, 255, 0.08); }
+  50% { background-color: rgba(255, 255, 255, 0.15); }
+}
+
+.sql-results-panel {
+  flex-direction: column;
+}
+
+/* ==========================================================================
+   SQL Console Security Alert Modal
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-overlay:not(.hidden) {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  width: 480px;
+  flex-direction: column;
+  border-left: 6px solid var(--color-status-high) !important;
+  animation: scale-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes scale-up {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--border-card);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.modal-body {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ==========================================================================
+   Audit Timeline Layout
+   ========================================================================== */
+.skeleton-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: relative;
+  padding-left: 20px;
+}
+
+.skeleton-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 7px;
+  width: 2px;
+  height: 100%;
+  background-color: var(--border-card);
+}
+
+.skeleton-timeline-item {
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   Scrollbars Optimization
+   ========================================================================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ==========================================================================
+   Global Filter Bar Styles (Phase 1)
+   ========================================================================== */
+.filter-bar-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 24px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.filter-item label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.filter-item label i {
+  width: 12px;
+  height: 12px;
+  color: var(--brand-blue);
+}
+
+.filter-select {
+  padding: 10px 14px;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border-input);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 14px;
+  padding-right: 36px;
+}
+
+.filter-select:hover {
+  border-color: var(--text-muted);
+}
+
+.filter-select:focus {
+  border-color: var(--brand-blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.filter-btn-item {
+  flex: 0;
+  min-width: auto;
+  align-self: flex-end;
+}
+
+.btn-reset-filters {
+  padding: 10px 16px;
+  height: 38px;
+}
+
+/* ==========================================================================
+   Error Boundary Fallback UI Styles (Phase 1)
+   ========================================================================== */
+.error-boundary-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.error-boundary-content {
+  width: 500px;
+  padding: 40px;
+  background-color: var(--bg-card);
+  border-top: 6px solid var(--color-status-high) !important;
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-panel);
+}
+
+.error-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: var(--bg-status-high);
+  color: var(--color-status-high);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.error-icon-wrapper i {
+  width: 32px;
+  height: 32px;
+}
+
+.error-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.error-message {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.error-details {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-status-high);
+  background-color: var(--bg-status-high);
+  padding: 12px;
+  border-radius: var(--radius-chip);
+  border: 1px solid var(--border-status-high);
+  width: 100%;
+  text-align: left;
+  margin-bottom: 24px;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+/* ==========================================================================
+   👥 사용자 역할 체인저 & 권한 제어 (RBAC Styles)
+   ========================================================================== */
+.sidebar-profile {
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s ease, border-radius 0.2s ease;
+}
+
+.sidebar-profile:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-card);
+}
+
+.profile-chevron {
+  width: 16px !important;
+  height: 16px !important;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.sidebar-profile:hover .profile-chevron {
+  color: var(--text-light);
+}
+
+.sidebar-profile.popover-open .profile-chevron {
+  transform: rotate(180deg);
+}
+
+/* 팝오버 컨테이너 (글래스모피즘 적용) */
+.profile-popover {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 8px;
+  right: 8px;
+  background: rgba(15, 24, 46, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-card);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  padding: 12px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: bottom center;
+}
+
+.profile-popover.hidden {
+  display: none !important;
+  opacity: 0;
+  transform: scale(0.95) translateY(8px);
+}
+
+.popover-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 4px;
+  text-align: left;
+}
+
+.popover-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.popover-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-chip);
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+  text-align: left;
+}
+
+.popover-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.popover-item.active {
+  background-color: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.popover-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-light);
+}
+
+.popover-info {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.popover-name {
+  color: var(--text-light);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.popover-role {
+  color: var(--text-muted);
+  font-size: 11px;
+  text-align: left;
+}
+
+.popover-badge {
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: var(--radius-chip);
+  background-color: rgba(255, 255, 255, 0.15);
+  color: var(--text-light);
+}
+
+/* 사이드바 메뉴 잠금 상태 (Locked Menu) */
+.sidebar-nav-item.locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.sidebar-nav-item.locked:hover {
+  background-color: transparent;
+  color: var(--text-muted);
+}
+
+.sidebar-nav-item.locked::after {
+  content: "🔒";
+  position: absolute;
+  right: 16px;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* 우아한 아래에서 떠오르는 토스트 알림 (Toast Alert) */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  background: rgba(15, 24, 46, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 14px 20px;
+  border-radius: var(--radius-card);
+  color: var(--text-light);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 320px;
+  max-width: 450px;
+  animation: toast-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast.fade-out {
+  opacity: 0;
+  transform: translateY(15px);
+}
+
+.toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+
+.toast-success i { color: #30d158; }
+.toast-warning i { color: #ff9f0a; }
+.toast-danger i { color: #ff453a; }
+.toast-info i { color: #0a84ff; }
+
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 뷰어 모드 시 쓰기 요소 잠금 처리 */
+.disabled-action {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
