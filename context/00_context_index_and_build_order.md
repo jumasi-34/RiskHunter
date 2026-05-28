@@ -28,16 +28,16 @@
 | :---: | :--- | :---: | :--- | :---: |
 | **00** | [00_context_index_and_build_order.md](file:///home/jumasi/risk_hunter/context/00_context_index_and_build_order.md) | **Index** | 전체 설계 문서의 목차, 단계별 빌드 오더 및 바이브코딩 AI 지침 정의 | **All Phases** |
 | **01** | [01_product_system_overview.md](file:///home/jumasi/risk_hunter/context/01_product_system_overview.md) | **Product Context** | 전체 비즈니스 배경, 타겟 생산 공장/공정 마스터 및 전체 업무 흐름 개요 | Phase 0, 1, 2, 7 |
-| **02** | [02_product_common_resources.md](file:///home/jumasi/risk_hunter/context/02_product_common_resources.md) | **Product Context** | 자사 8대 공장 정보, 15대 표준공정, 4M 요소, 공통 증적 유형 등 참조 마스터 데이터 정의 | Phase 1, 2, 4 |
-| **03** | [03_product_database_schema.md](file:///home/jumasi/risk_hunter/context/03_product_database_schema.md) | **Product Context** | 통합 DB(database.db) 스키마 구조, 데이터 흐름도 및 공장 리스크 가중치 산출 공식 정의 | Phase 1, 4, 6 |
-| **04** | [04_product_menu_workspace.md](file:///home/jumasi/risk_hunter/context/04_product_menu_workspace.md) | **Menu Context** | 통합 메뉴 화면/업무 상세 설계서 (5대 화면 레이아웃 및 UX 구성 사양) | **All (Reference)** |
-| **04_1**| [04_1_menu_risk_assessment.md](file:///home/jumasi/risk_hunter/context/04_1_menu_risk_assessment.md) | **Menu Context** | 공장별 실시간 리스크 연산 및 시각화 (향후 분할 예정 / 현재 04_product_menu_workspace.md 통합본 참조) | Phase 2 |
-| **04_2**| [04_2_menu_oe_requirement_library.md](file:///home/jumasi/risk_hunter/context/04_2_menu_oe_requirement_library.md) | **Menu Context** | 완성차 기술 규격 메타 필터링 그리드 및 다운로드 (향후 분할 예정 / 현재 04_product_menu_workspace.md 통합본 참조) | Phase 3 |
-| **04_3**| [04_3_menu_self_audit_checklist.md](file:///home/jumasi/risk_hunter/context/04_3_menu_self_audit_checklist.md) | **Menu Context** | 3중 필터 기반 통합 체크리스트 및 CSV 추출 (향후 분할 예정 / 현재 04_product_menu_workspace.md 통합본 참조) | Phase 4 |
-| **04_4**| [04_4_menu_ai_action_plan.md](file:///home/jumasi/risk_hunter/context/04_4_menu_ai_action_plan.md) | **Menu Context** | 8D Report 기반 AI 조치 대응 계획 및 SOP 수정 가이드 (향후 분할 예정 / 현재 04_product_menu_workspace.md 통합본 참조) | Phase 5 |
-| **04_5**| [04_5_menu_sql_console.md](file:///home/jumasi/risk_hunter/context/04_5_menu_sql_console.md) | **Menu Context** | 안전 보안 샌드박스 및 SELECT 템플릿 쿼리 에디터 (향후 분할 예정 / 현재 04_product_menu_workspace.md 통합본 참조) | Phase 6 |
+| **02** | [02_product_common_resources.md](file:///home/jumasi/risk_hunter/context/02_product_common_resources.md) | **Product Context** | 자사 8대 공장 정보, 15대 표준공정, 4M 요소, 공통 증적 유형 등 참조 마스터 데이터 정의 | Phase 1, 2, 3, 5 |
+| **03** | [03_product_database_schema.md](file:///home/jumasi/risk_hunter/context/03_product_database_schema.md) | **Product Context** | 통합 DB(database.db) 스키마 구조, 데이터 흐름도 및 공장 리스크 가중치 산출 공식 정의 | Phase 1, 3, 4, 7 |
+| **04_0** | [04_0_product_menu_workspace.md](file:///home/jumasi/risk_hunter/context/04_0_product_menu_workspace.md) | **Menu Context** | 전체 메뉴 통합 및 화면/업무 상세 설계 개요 (5대 메인 메뉴 + 플로팅 및 SQL 콘솔 화면 구성 사양) | **All (Reference)** |
+| **04_1**| [04_1_menu_dashboard.md](file:///home/jumasi/risk_hunter/context/04_1_menu_dashboard.md) | **Menu Context** | 1. Dashboard - 전체 Audit 현황, D-Day 타임라인, 리스크 통계 요약 화면 설계서 | Phase 2 |
+| **04_2**| [04_2_menu_audit_planning.md](file:///home/jumasi/risk_hunter/context/04_2_menu_audit_planning.md) | **Menu Context** | 2. Audit Planning - 일정 등록, 기간별 가이드 피드 및 준비 체크리스트 화면 설계서 | Phase 3 |
+| **04_3**| [04_3_menu_plant_risk_action.md](file:///home/jumasi/risk_hunter/context/04_3_menu_plant_risk_action.md) | **Menu Context** | 3. Plant Risk & Action - 공장별 이력 및 리스크 분석, 지적사항 수검 및 조치 입력 화면 설계서 | Phase 4 |
+| **04_4**| [04_4_menu_ai_action_advisor.md](file:///home/jumasi/risk_hunter/context/04_4_menu_ai_action_advisor.md) | **Menu Context** | 4. AI Action Advisor - 부적합 상황 8D 개선안 도출 및 SOP 수정 제안 화면 설계서 | Phase 5 |
+| **04_7**| [04_7_menu_admin_settings.md](file:///home/jumasi/risk_hunter/context/04_7_menu_admin_settings.md) | **Menu Context** | Admin Settings - 사용자, 권한 매트릭스, 감사 로그 및 가상 SQL 콘솔 설계서 | Phase 7 |
 | **05** | [05_product_ai_features.md](file:///home/jumasi/risk_hunter/context/05_product_ai_features.md) | **Rule Context** | 의무조항 식별 룰, 오픈엔드 질문 가공 기준, 공정 키워드 매퍼 추천 로직 명시 | Phase 3, 5 |
-| **06** | [06_product_policy_permission.md](file:///home/jumasi/risk_hunter/context/06_product_policy_permission.md) | **Rule Context** | 상태값 표준 코드, 임시 단일 권한 MVP 정책, AI 제안 데이터 승인 프로세스 명시 | Phase 4, 6 |
+| **06** | [06_product_policy_permission.md](file:///home/jumasi/risk_hunter/context/06_product_policy_permission.md) | **Rule Context** | 상태값 표준 코드, 3단계 통합 권한(RBAC) 및 사용자 DB 정책, AI 제안 데이터 승인 프로세스 명시 | Phase 4, 6 |
 | **07** | [07_business_rules_and_logic.md](file:///home/jumasi/risk_hunter/context/07_business_rules_and_logic.md) | **Rule Context** | 공정 매핑 키워드 매칭 우선순위, 리스크 점수 상한 클램핑 및 동적 뱃지 룰 정의 | Phase 1, 2, 4, 5 |
 | **08** | [08_domain_terms_glossary.md](file:///home/jumasi/risk_hunter/context/08_domain_terms_glossary.md) | **Rule Context** | 품질 보증 및 자동차 제조 공정 전문 도메인(SOP, OCAP, VDA, IATF 등) 해설 용어집 | **All (Reference)** |
 | **09** | [09_design_system_and_ui_guidelines.md](file:///home/jumasi/risk_hunter/context/09_design_system_and_ui_guidelines.md) | **Rule Context** | HSL 프리미엄 다크 테마 컬러 팔레트, 글래스모피즘 CSS 스타일, 반응형 레이아웃 가이드 | Phase 0, 2~7 |
@@ -45,9 +45,10 @@
 | **11** | [11_implementation_sequence.md](file:///home/jumasi/risk_hunter/context/11_implementation_sequence.md) | **Build Context** | 각 Phase별 세부 개발 절차, 컴포넌트 마일스톤 및 실시간 마이그레이션 이정표 | **All (Reference)** |
 | **12** | [12_project_structure_and_coding_rules.md](file:///home/jumasi/risk_hunter/context/12_project_structure_and_coding_rules.md) | **Build Context** | 폴더 구조 표준화, 바닐라 CSS 우선 가이드, 파일 분할 및 전역 예외 처리 코딩 룰 | **All (Reference)** |
 | **13** | [13_prompt_templates.md](file:///home/jumasi/risk_hunter/context/13_prompt_templates.md) | **Build Context** | 8D 영구 대책 수립, 공정 SOP 표준 가공 등 Gemini 프롬프트 엔지니어링 룰셋 | Phase 5 |
-| **14** | [14_sample_queries_and_test_data.md](file:///home/jumasi/risk_hunter/context/14_sample_queries_and_test_data.md) | **Build Context** | 정적 CSV/JSON 목업 데이터 셋 및 실시간 조인 쿼리 뷰어용 정밀 예시 스크립트 | Phase 1, 6 |
+| **14** | [14_sample_queries_and_test_data.md](file:///home/jumasi/risk_hunter/context/14_sample_queries_and_test_data.md) | **Build Context** | 정적 CSV/JSON 목업 데이터 셋 및 실시간 조인 쿼리 뷰어용 정밀 예시 스크립트 | Phase 1, 7 |
 | **15** | [15_acceptance_criteria.md](file:///home/jumasi/risk_hunter/context/15_acceptance_criteria.md) | **Build Context** | 각 메뉴별 마우스 호버 동작, 필터 연동, 파일 다운로드 성공 여부의 무결성 검증 기준 | **All (Reference)** |
 | **16** | [16_demo_scenario.md](file:///home/jumasi/risk_hunter/context/16_demo_scenario.md) | **Demo Context** | 해커톤 심사위원을 WOW하게 만들기 위한 "스토리 기반 3단계 시연 시나리오" 시크릿 스크립트 | Phase 7 |
+| **18** | [18_document_library_db_transition_spec.md](file:///home/jumasi/risk_hunter/context/18_document_library_db_transition_spec.md) | **Product Context** | 완성차(OEM) 기술 조항의 타이어 제조공정 역해석 매핑 스펙 및 정적 데이터베이스 전환 가이드 | Phase 1, 6 |
 
 ---
 
@@ -67,10 +68,10 @@ graph TD
     subgraph Menu_Build ["개별 메뉴 설계서 및 공통 논리 매칭 (Phase 2 ~ 6)"]
         D01["01_product_system_overview.md<br>(비즈니스 및 공정 흐름 파악)"]
         D02["02_product_common_resources.md<br>(글로벌 공장/공정 마스터 매핑)"]
-        D04["04_product_menu_workspace.md<br>(화면 레이아웃 공통 원칙)"]
+        D04["04_0_product_menu_workspace.md<br>(화면 레이아웃 공통 원칙)"]
         D07["07_business_rules_and_logic.md<br>(비즈니스 상세 연산 공식 수용)"]
         
-        D_Menus["04_1 ~ 04_5 Menu Workspaces<br>(각 Phase 타겟 메뉴 집중 구현)"]
+        D_Menus["04_1 ~ 04_6 Menu Workspaces<br>(각 Phase 타겟 메뉴 집중 구현)"]
     end
 
     subgraph Final_Polish ["검증 및 데모 극대화 (Phase 7 마감)"]
@@ -95,7 +96,7 @@ graph TD
 *   **100% 클라이언트 사이드 싱글 페이지 애플리케이션(SPA) 구동 원칙**: Node.js, Python, FastAPI 등 외부 백엔드 서버 없이 웹 표준 브라우저가 직접 페이지를 렌더링하고 로직을 실행하는 고성능 프론트엔드-온리 환경을 지향합니다.
 *   **정적 JSON 비동기 Fetch 및 localStorage 기반 영속성**: 물리 DB 커넥션을 여는 대신, `data/` 디렉토리에 적재된 마스터 데이터 JSON 파일들을 비동기 fetch하여 클라이언트 인메모리에 적재 연산하고, 사용자가 입력 및 변경한 결과는 브라우저 영속 보관함(`localStorage`)에 저장 및 동기화합니다.
 *   **정교한 Mock AI Response 및 로딩 시뮬레이션**: 외부 API 인프라나 인터넷 차단 상황에서도 중단 없이 초고속 실무 대응 계획을 도출하는 딕셔너리 기반의 가상 AI 대응 모듈을 탑재하고, 개선 대기 시간을 체감하도록 우아한 로딩 스피너 및 프로그레스 바를 연출합니다.
-*   **보안 SQL-like 샌드박스 장착**: SQL 에뮬레이팅을 통해 SELECT 쿼리 템플릿 탐색 결과를 메모리에서 직접 렌더링하고, 파괴성 구문(`INSERT`, `UPDATE`, `DELETE`, `DROP`, `ALTER`, `CREATE` 등) 입력 시 정규식 패턴 검사로 즉각 경고창을 인서트하여 원천 데이터 보호 요건을 증명합니다.
+*   **보안 SQL-like 샌드박스 장착**: SQL 에뮬레이팅을 통해 SELECT 쿼리 템플릿 탐색 결과를 메모리에서 직접 렌더링하고, 파괴성 구문(`INSERT`, `UPDATE`, `DELETE`, `DROP`, `ALTER`, `CREATE`, `REPLACE` 등) 입력 시 정규식 패턴 검사로 즉각 경고창을 인서트하여 원천 데이터 보호 요건을 증명합니다.
 *   **안정적인 예외 처리**: 파일 미탐지, 잘못된 JSON 파싱 등의 장애 상황에서도 화면 전체가 멈추지(White-out) 않도록 우아한 글래스모피즘 에러 바운더리 알럿을 노출합니다.
 *   **Gemini 준수 사항 연계**: 코딩 아키텍처 및 에이전트 행동 제한 룰은 프로젝트 루트의 **[GEMINI.md](file:///home/jumasi/risk_hunter/GEMINI.md)** 정책을 전적으로 적용하며 항상 상위 지침으로 준수합니다.
 
@@ -107,14 +108,14 @@ graph TD
 
 | Phase | Goal | Main Documents | Expected Output | Exit Criteria |
 | :---: | :--- | :--- | :--- | :--- |
-| **Phase 0** | **Static Project Scaffold** | `04`, `09`, `10`, `12` | `index.html`, `styles.css`, `app.js` 기본 뼈대, 메뉴 전환 탭, 글래스모피즘 스켈레톤 레이아웃 구축 | `index.html`을 브라우저에 직접 구동했을 때 HSL 다크 테마 기반의 레이아웃이 미려하게 그려지며 탭 전환이 물 흐르듯 작동할 것. |
-| **Phase 1** | **Data Loading & Common Resources** | `02`, `03`, `07`, `14` | `data/` 디렉토리에 정적 JSON 마스터 데이터 배치, 비동기 데이터 fetch 엔진 장착, 사이드바 글로벌 필터 동적 생성 | 정적 JSON 데이터 파일들이 비동기 파싱되어 전역 변수에 적재되고, 사이드바 필터에 "ALL", "DP" 등의 옵션이 마스터와 정밀히 연계되어 동적 로드될 것. |
-| **Phase 2** | **Risk Assessment** | `04_1`, `01`, `07`, `09` | 상단 리스크 요약 KPI 카드, Plotly.js/Chart.js 기반 동적 도넛/바 차트, 실시간 위험 경고 보드 패널 완성 | 전사/공장/공정 필터 조작 시 리스크 연산 가중치 공식이 완벽 작동하여 차트가 동적 갱신되고, 3.5점 이상 고위험 공정 경고 마커가 정확히 팝업될 것. |
-| **Phase 3** | **OE Requirement Library** | `04_2`, `05`, `09` | OEM/규격유형 다중 필터 적용 테이블 그리드, 하단 AI 핵심 검토 요약 패널, 규격서 원본 PDF/DOC 파일 즉시 다운로드 구현 | 특정 규격서 클릭 시 하단 요약 내용이 가독성 높게 바인딩되어 나타나고, 다운로드 클릭 시 `documents/` 디렉토리 내의 원본 규격 파일이 로컬로 안전하게 내려받아질 것. |
-| **Phase 4** | **Self-Audit Checklist** | `04_3`, `02`, `06`, `07` | 소스 유형별 퀵 탭 전환기, 라이브 텍스트 검색창, 동적 리스크 중요도 뱃지(`High` / `Medium`), 한글 깨짐 방지 UTF-8 BOM CSV Export 기능 | 3중 필터와 텍스트 검색이 유기적으로 AND 연산 처리되어 대량의 데이터가 즉각 갱신 및 조회되며, CSV Export 시 엑셀에서 한국어 인코딩 에러 없이 즉각 구동될 것. |
-| **Phase 5** | **AI Action Plan** | `04_4`, `05`, `13` | 지적사항 선택/직접 입력 대화형 카드, [개선 조치 가이드라인 생성] 버튼, 8D Report 영구 개선 대책/SOP 개정/필수 합치 증적의 Mock/API 생성 피드 | 지적 질문을 넣고 생성 버튼을 눌렀을 때, 글래스모피즘 피드에 실감 나고 실무 적합성이 극대화된 영구 시정 대책안 및 구체적 SOP 대응 가이드라인이 에러 없이 우아하게 노출될 것. |
-| **Phase 6** | **SQL-like Data Explorer** | `04_5`, `03`, `06`, `14` | 원클릭 유용 SELECT 쿼리 템플릿 로더, 다중 라인 SQL 쿼리 에디터, INSERT/UPDATE/DELETE 차단용 보안 샌드박스 경고 모달, 결과 프레임 및 CSV 출력 | SELECT 템플릿 로딩 및 정적 조회가 무지연 작동하며, 쓰기 명령어(UPDATE 등) 상신 시 즉각 보안 샌드박스가 포착하여 "SELECT만 허용된다"는 적색 모달 창을 띄우며 차단할 것. |
-| **Phase 7** | **Demo Polishing** | `16`, `01`, `04`, `09` | 시연 최적화 프리세팅 보강, 화면 조율용 마이크로 인터랙션 및 스피드 로딩 인디케이터 장착, 예외 모서리 처리 최종 마감 | 해커톤 3단계 시연 스나리오 동선에 따라 순차 제어할 때 데이터 수치나 화면 변환상의 논리적 마찰이 전혀 없고 시각적인 몰입도(Aesthetic WOW)가 최상으로 보장될 것. |
+| **Phase 0** | **Static Project Scaffold** | `04`, `09`, `10`, `12` | `index.html`, `styles.css`, `app.js` 기본 뼈대, 신규 5대 메뉴 전환 탭, 플로팅 챗봇 버튼 및 ADMIN 전용 SQL 콘솔 레이아웃 구축 | `index.html`을 브라우저에 직접 구동했을 때 HSL 다크 테마 기반의 레이아웃이 미려하게 그려지며 신규 5대 탭 전환과 ADMIN 선택 시 SQL Explorer 메뉴 노출이 정상 작동할 것. |
+| **Phase 1** | **Data Loading & Common Resources** | `02`, `03`, `07`, `14` | `data/` 디렉토리에 정적 JSON 마스터 데이터(공장, 예정 감사 일정, 마스터 체크리스트, 과거 지적사항 등) 배치, 비동기 데이터 fetch 엔진 장착, 사이드바 글로벌 필터 동적 생성 | 정적 JSON 데이터 파일들이 비동기 파싱되어 전역 변수에 적재되고, 사이드바 필터에 "ALL", "DP" 등의 옵션이 마스터와 정밀히 연계되어 동적 로드될 것. |
+| **Phase 2** | **Dashboard** | `04_1`, `01`, `07`, `09` | 상단 전사/공장/공정 Audit 현황 요약 카드, 예정 Audit D-Day 일정 위젯, 주요 품질 리스크 분배 도넛/바 차트, 개선조치 진행률 게이지 바 개발 | 필터 조작 시 대시보드 요약 지표와 차트가 동적 갱신되고, 예정 감사 일정 카드 및 조치 비율 지표가 흐트러짐 없이 미려하게 렌더링될 것. |
+| **Phase 3** | **Audit Planning** | `04_2`, `02`, `09` | Audit 일정 등록 모달창, 기간별 준비 가이드 타임라인 피드, 사전 준비 필수 체크리스트 테이블 그리드 및 로컬스토리지 완료 상태 연동 | 신규 Audit 일정을 팝업창에서 기입하여 등록 시 리스트에 반영되고, 기간별 가이드라인 피드가 시각적으로 우아하게 흐르며, 사전 체크리스트 토글 상태가 브라우저를 새로고침해도 유지될 것. |
+| **Phase 4** | **Plant Risk & Action** | `04_3`, `01`, `03`, `07` | 공장별 Audit 이력 타임라인, 다차원 리스크 현황 보드, 품질 지적사항(QI, 4M, Audit Findings) 목록 조회, 신규 지적사항 등록 및 조치 완료/미결 토글 인터랙션 | 특정 공장 클릭 시 과거 이력이 동적으로 바인딩되고, 지적사항 행별로 조치 전환 버튼을 누를 시 로컬스토리지에 조치 완료 여부가 즉시 저장되어 상태 뱃지가 실시간 변경될 것. |
+| **Phase 5** | **AI Action Advisor** | `04_4`, `05`, `13` | 지적사항 선택/직접 입력 대화형 카드, [개선 조치 가이드라인 생성] 버튼, 8D Report 기반 영구 개선 대책/SOP 개정 가이드/필수 합치 증적의 Mock/API 생성 피드 | 지적 질문을 넣고 생성 버튼을 눌렀을 때, 글래스모피즘 피드에 실감 나고 실무 적합성이 극대화된 영구 시정 대책안 및 구체적 SOP 대응 가이드라인이 에러 없이 우아하게 노출될 것. |
+| **Phase 6** | **Library & Floating Assistant** | `04_5`, `02`, `06`, `09` | 3중 서브 탭(마스터 체크리스트, OEM 규격 요구사항 요약 및 다운로드, Requirement Mapping), 화면 우측 하단 상시 플로팅 AI Assistant 챗봇 연동 | 서브 탭 전환이 무지연 구동되고 규격 요약 다운로드가 안전하게 내려받아지며, 플로팅 챗봇 아이콘 클릭 시 현재 활성화된 탭에 특화된 인사말과 감사 지침 Q&A 가이드가 채팅 피드에 렌더링될 것. |
+| **Phase 7** | **Admin Settings & Demo Polishing** | `04_7`, `03`, `14`, `16` | (ADMIN 전용) Admin Settings 통합 관리자 센터 (사용자 프로필 관리, 역할 권한 맵, 실시간 감사 로그 타임라인, 가상 SQL Explorer) 및 전체 시연 시나리오 정합성 마이크로 튜닝 | ADMIN 프로필 상태에서만 Admin Settings 탭이 노출되고, 사용자 전환 및 권한 맵 설명 호버, 실시간 로깅 및 SQL 탐색 결과 출력이 완벽히 조화되어 작동할 것. 전체 시연 동선에서 데이터 유실 및 레이아웃 마찰이 제로일 것. |
 
 ---
 
@@ -124,7 +125,7 @@ graph TD
 
 ### 🏁 Phase 0: Static Project Scaffold
 *   `00_context_index_and_build_order.md` (전체 가이드라인)
-*   `04_product_menu_workspace.md` (통합 메뉴 화면/업무 상세 설계 및 조작 제어)
+*   `04_0_product_menu_workspace.md` (통합 메뉴 화면/업무 상세 설계 및 조작 제어 개요)
 *   `09_design_system_and_ui_guidelines.md` (프리미엄 컬러 토큰 및 글래스모피즘 CSS 명세)
 *   `10_mvp_scope_and_non_goals.md` (MVP 경계 설정)
 *   `12_project_structure_and_coding_rules.md` (바닐라 CSS 및 단일 파일 정렬 약속)
@@ -135,39 +136,38 @@ graph TD
 *   `07_business_rules_and_logic.md` (공정 매핑 우선순위 및 룰)
 *   `14_sample_queries_and_test_data.md` (테스트용 목업 데이터 파싱 구조)
 
-### 📈 Phase 2: Risk Assessment
+### 📈 Phase 2: Dashboard
 *   `01_product_system_overview.md` (품질 이력 종합 배경)
-*   `02_product_common_resources.md` (4M 차원 및 공장 가중치 원인 매핑)
-*   `04_1_menu_risk_assessment.md` (리스크 평가 세부 레이아웃 및 차트 사양)
-*   `07_business_rules_and_logic.md` (실시간 리스크 점수 산출 가중치 공식 수용)
-*   `09_design_system_and_ui_guidelines.md` (리스크 등급별 경고색 및 도넛 차트 테마 일치화)
+*   `04_1_menu_dashboard.md` (대시보드 세부 레이아웃 및 KPI 차트 사양)
+*   `07_business_rules_and_logic.md` (리스크 점수 공식 및 동적 게이지 연산)
+*   `09_design_system_and_ui_guidelines.md` (글래스모피즘 KPI 카드 및 테마 컬러)
 
-### 📁 Phase 3: OE Requirement Library
-*   `04_2_menu_oe_requirement_library.md` (라이브러리 탐색 화면 및 AI 요약 레이아웃)
-*   `05_product_ai_features.md` (AI 핵심 검토 요약 조건 및 특별보고 조항 분류 룰)
-*   `09_design_system_and_ui_guidelines.md` (상세 요약 패널의 슬라이드인 또는 오버레이 기법)
+### 📅 Phase 3: Audit Planning
+*   `02_product_common_resources.md` (공장 및 담당자 속성 정의)
+*   `04_2_menu_audit_planning.md` (준비 가이드 및 모달창 사양)
+*   `09_design_system_and_ui_guidelines.md` (모달 팝업 및 타임라인 피드 CSS)
 
-### 📋 Phase 4: Self-Audit Checklist
-*   `02_product_common_resources.md` (질문 원천 Source Type 및 4M 분류 기준)
-*   `04_3_menu_self_audit_checklist.md` (체크리스트 필터링 세부 레이아웃 및 컨트롤 가이드)
-*   `06_product_policy_permission.md` (Active / Excluded 데이터 관리 기준)
-*   `07_business_rules_and_logic.md` (우선순위 뱃지 동적 격상 기준)
+### 📋 Phase 4: Plant Risk & Action
+*   `01_product_system_overview.md` (과거 품질 실패 QI 및 변경점 이력 배경)
+*   `03_product_database_schema.md` (지적사항 테이블 및 상태 속성 정의)
+*   `04_3_menu_plant_risk_action.md` (공장 이력 및 지적사항 로깅 UI 가이드)
+*   `06_product_policy_permission.md` (상태값 변경 및 저장 규칙)
 
-### 🔍 Phase 5: AI Action Plan
-*   `04_4_menu_ai_action_plan.md` (액션 플랜 대화형 피드 화면 및 입력창 사양)
-*   `05_product_ai_features.md` (8대 품질 도메인 및 8D Report 가공 규칙)
-*   `13_prompt_templates.md` (실제 LLM 호출 또는 Mock 응답 생성에 주입할 프롬프트 원문)
+### 🔍 Phase 5: AI Action Advisor
+*   `04_4_menu_ai_action_advisor.md` (어드바이저 피드 화면 및 입력창 사양)
+*   `05_product_ai_features.md` (8D Report 가공 규칙)
+*   `13_prompt_templates.md` (AI 가상 대응 가이드를 조율하는 프롬프트 원문)
 
-### 💻 Phase 6: SQL-like Data Explorer
-*   `03_product_database_schema.md` (정밀 테이블 스키마 및 컬럼 참조)
-*   `04_5_menu_sql_console.md` (SQL 콘솔 입력 제어 및 결과 테이블 사양)
-*   `06_product_policy_permission.md` (안전 보안 샌드박스 키워드 필터링 룰)
-*   `14_sample_queries_and_test_data.md` (원클릭 로드용 실시간 쿼리 템플릿 텍스트 사전)
+### 📁 Phase 6: Library & Floating Assistant
+*   `02_product_common_resources.md` (4M 마스터 및 규격 조항 속성)
+*   `04_5_menu_library.md` (통합 라이브러리 및 3중 서브 탭, 플로팅 챗봇 기획안)
+*   `05_product_ai_features.md` (자연어 도움말 매핑 조건)
 
-### 🎬 Phase 7: Demo Polishing
-*   `16_demo_scenario.md` (스토리텔링 기반 3단계 오디트 수검 대책 시연 시나리오)
-*   `01_product_system_overview.md` (업무 시나리오 완벽 매칭 검증)
-*   `15_acceptance_criteria.md` (최종 품질 검증을 위한 자가 테스트 체크리스트)
+### ⚙️ Phase 7: Admin Settings & Demo Polishing
+*   `03_product_database_schema.md` (테이블 스키마 및 컬럼 참조)
+*   `04_7_menu_admin_settings.md` (통합 관리자 센터 사양 및 실시간 감사 로그 명세)
+*   `14_sample_queries_and_test_data.md` (실행용 템플릿 쿼리 사전)
+*   `16_demo_scenario.md` (심사위원 대상 3단계 스토리 시연 가이드라인)
 
 ---
 
@@ -175,8 +175,8 @@ graph TD
 
 해커톤 본질 및 백엔드 프로토타입 범위에 집중하기 위해 개발 범위에서 철저하고 명확하게 제외(Non-Goals)하는 대상입니다.
 
-*   **Login & Authentication**: 다중 유저 보안 인증 및 계정 관리 로직은 구현하지 않으며, 접근하는 모든 이를 최고 관리자 단일 권한으로 취급합니다.
-*   **Full RBAC Enforcement**: 역할 기반 접근 제한(RBAC)은 시각적인 마크업 및 단일 권한 API로 제어하며, 복잡한 다중 조직도 결재선이나 세션 세분화는 구현하지 않습니다.
+*   **Server-side Authentication**: 백엔드 기반 다중 유저 보안 인증 및 계정 관리 서버 로직은 구현하지 않으며, 클라이언트 사이드 프로필 선택기 및 `data/users.json` 마스터 데이터를 통해 프론트엔드 모의 세션 상태로 전환 및 동기화합니다.
+*   **Complex Multi-department Approval Workflows**: 3단계 권한(Admin, Manager, Viewer)에 따른 실시간 탭 차단 및 쓰기 작업 가드 인터랙션은 프론트엔드에서 완전히 보장하나, 복잡한 사내 다중 조직도 결재 승인선, 원격 LDAP 동기화 및 실제 DB 수준의 세분화된 보안 통제는 구현 범위에서 제외합니다.
 *   **Multi-user Editing**: 웹소켓 등을 활용한 동시 다중 접속자 체크리스트 실시간 협업 및 동기화 처리 기술은 제외합니다.
 *   **Production Deployment Security**: Google Cloud Deploy 표준 이외의 개별 데이터 양방향 암호화, SSL 인증 제어, 엄격한 CORS 방어 대책 등 상용 프로덕션 수준의 보안 설계는 제외합니다.
 *   **Complex Frontend Build Pipeline**: Webpack, Rollup, Babel, Sass 컴파일 등 무거운 프론트엔드 빌드 체인은 일체 생략하고 심플한 바닐라 HTML/JS 호출을 극대화합니다.

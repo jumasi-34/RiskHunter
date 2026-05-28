@@ -46,8 +46,8 @@
 
 해커톤 시연 안정성 및 단일 프론트엔드 구동 환경의 단순성을 유지하기 위해 MVP 범위에서 **의도적이고 철저하게 제외(Out of Scope)**하는 대상입니다.
 
-1.  **로그인 및 회원 관리 (Login & Session)**: 다중 계정 로그인, 가입, 암호 변경 및 세션 유지 로직은 구현하지 않으며, 모든 접속자를 최고 관리자(Admin) 권한으로 기본 설정합니다.
-2.  **완전한 물리 RBAC (Role-Based Access Control)**: 감사자, 피감사자, AI 제안 데이터 실시간 결재선 등 복잡한 역할 기반 차단 엔진은 배제하며, 단일 최고 관리자 권한의 로컬 제어로 제한합니다.
+1.  **서버 사이드 로그인 및 세션 관리 (No Server-side Session)**: 백엔드 데이터베이스 기반 회원가입, 실인증 토큰, 비밀번호 암호화 및 영속 세션 관리 백엔드 서버는 구현하지 않으며, 클라이언트 사이드 프로필 선택기 및 `data/users.json` 데이터 바인딩을 통해 프론트엔드 모의 세션 상태로 전환 및 동기화합니다.
+2.  **완전한 엔터프라이즈 물리 RBAC (No Enterprise physical RBAC)**: 3단계 권한(Admin, Manager, Viewer)에 따른 실시간 메뉴 잠금, 탭 가드, 쓰기 작업 차단 알림 인터랙션은 클라이언트 단에서 보장하되, 실제 다중 조직도 결재선 승인, AD(Active Directory) 연동 및 네트워크 소켓 수준의 데이터 무단 접근 차단은 제외합니다.
 3.  **실시간 협업 편집 시스템 (Multi-user Collaborative Editing)**: 웹소켓 등을 활용하여 체크리스트 진행률이나 대응 문서를 다자간 실시간 공유하며 공동 편집하는 동적 협업 모듈은 구현 대상에서 제외합니다.
 4.  **운영 배포용 전용 보안 조치 (Production Security)**: 데이터 양방향 암호화, API 라우트 프록시 암호화, CORS 방어 대책 등 실제 상용 프로덕션 수준의 고도화된 보안 설계는 제외합니다.
 5.  **AI 대책 최종 승인 결재선 워크플로우 (Draft Approval Workflow)**: AI가 도출한 대책에 대해 여러 부서장의 결재 승인을 득해 배포하는 ERP 수준의 복잡한 워크플로우는 제외하며, 단일 클릭 승인 연출 및 localStorage 영속화로 단순화하여 종결합니다.
@@ -112,7 +112,7 @@
 *   각 페이지 전환 및 드로어 슬라이드인 시 부드러운 가속 이징(cubic-bezier) 인터랙션 튜닝.
 
 ### 🚫 Out of Scope: 구현 배제
-*   로그인, 회원가입, 세션 보존 및 원격 데이터베이스 실시간 연동.
+*   서버 기반 로그인인증, 회원가입 및 원격 데이터베이스 실시간 연동 (단, 브라우저 localStorage 기반 모의 세션 전환 및 복원은 허용).
 *   다중 사용자 실시간 협업 공동 편집 및 채팅 서버 개설.
 *   실제 Python 백엔드(FastAPI) 구축, 파일 시스템 실시간 감시 watchdog 가동 및 Docker 컨테이너 클라우드 배포 파이프라인.
 
@@ -129,7 +129,7 @@
 ## 11. 관련 문서
 
 *   [00_context_index_and_build_order.md](file:///home/jumasi/risk_hunter/context/00_context_index_and_build_order.md) (프로젝트 인덱스 마스터)
-*   [04_product_menu_workspace.md](file:///home/jumasi/risk_hunter/context/04_product_menu_workspace.md) (5대 화면 구성안 기획 설계서)
+*   [04_0_product_menu_workspace.md](file:///home/jumasi/risk_hunter/context/04_0_product_menu_workspace.md) (전체 메뉴 통합 및 화면/업무 상세 설계 개요)
 *   [09_design_system_and_ui_guidelines.md](file:///home/jumasi/risk_hunter/context/09_design_system_and_ui_guidelines.md) (프리미엄 디자인 토큰 및 HSL CSS 명세서)
 *   [15_acceptance_criteria.md](file:///home/jumasi/risk_hunter/context/15_acceptance_criteria.md) (자가 검증 확인용 인수 조건서)
 

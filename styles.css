@@ -1319,3 +1319,306 @@ body {
   cursor: not-allowed !important;
   pointer-events: none !important;
 }
+
+/* ==========================================================================
+   📂 Library Sub-Tabs & Premium Glassmorphism UI
+   ========================================================================== */
+.sub-tabs-container {
+  display: flex;
+  gap: 8px;
+}
+
+.sub-tab-btn {
+  border: none;
+  background: rgba(15, 23, 42, 0.03);
+  border-radius: var(--radius-card);
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+.sub-tab-btn:hover {
+  background: rgba(37, 99, 235, 0.06);
+  color: var(--brand-blue);
+  border-color: rgba(37, 99, 235, 0.15);
+}
+
+.sub-tab-btn.active {
+  background: var(--brand-blue);
+  color: var(--text-light);
+  font-weight: 600;
+  border-color: var(--brand-blue);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.sub-tab-pane {
+  display: none !important;
+}
+
+.sub-tab-pane.active-sub-pane {
+  display: block !important;
+}
+
+/* 🤖 플로팅 AI 감사 비서 (Floating AI Assistant Chat Widget) */
+.floating-assistant-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: none; /* 컨테이너 자체는 클릭 패스스루 */
+}
+
+.assistant-trigger-btn {
+  pointer-events: auto; /* 버튼만 다시 클릭 활성화 */
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand-blue), #1d4ed8);
+  color: var(--text-light);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.assistant-trigger-btn:hover {
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 6px 24px rgba(37, 99, 235, 0.45);
+}
+
+.assistant-chat-drawer {
+  pointer-events: auto; /* 서브 창 클릭 활성화 */
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+  width: 380px;
+  height: 520px;
+  border-radius: var(--radius-panel);
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: bottom right;
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.assistant-chat-drawer.hidden {
+  opacity: 0;
+  transform: scale(0.85) translateY(30px);
+  pointer-events: none;
+}
+
+.drawer-chat-header {
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.btn-close-chat {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.btn-close-chat:hover {
+  color: var(--text-light);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.drawer-chat-body {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scroll-behavior: smooth;
+}
+
+/* 스크롤바 디자인 - 어두운 다크 드로어용 */
+.drawer-chat-body::-webkit-scrollbar {
+  width: 6px;
+}
+.drawer-chat-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+.drawer-chat-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+.drawer-chat-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.chat-msg-wrapper {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  max-width: 85%;
+}
+
+.chat-msg-wrapper.bot {
+  align-self: flex-start;
+}
+
+.chat-msg-wrapper.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+  margin-left: auto;
+}
+
+.chat-msg-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.chat-msg-avatar.bot {
+  background: linear-gradient(135deg, var(--brand-blue), #1d4ed8);
+  color: var(--text-light);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chat-msg-avatar.user {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-light);
+}
+
+.chat-msg-bubble {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #f1f5f9;
+}
+
+.chat-msg-wrapper.bot .chat-msg-bubble {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top-left-radius: 2px;
+}
+
+.chat-msg-wrapper.user .chat-msg-bubble {
+  background: var(--brand-blue);
+  color: var(--text-light);
+  border-top-right-radius: 2px;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+}
+
+.drawer-chat-footer {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.chat-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-card);
+  padding: 10px 14px;
+  color: var(--text-light);
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.chat-input:focus {
+  border-color: rgba(37, 99, 235, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.chat-send-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-card);
+  background: var(--brand-blue);
+  border: none;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chat-send-btn:hover {
+  background: var(--brand-blue-hover);
+  transform: scale(1.05);
+}
+
+/* 💬 타이핑 모의 마이크로 애니메이션 */
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 6px 8px;
+  align-items: center;
+}
+
+.typing-indicator span {
+  width: 6px;
+  height: 6px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  animation: typing 1.4s infinite both;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: .2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: .4s;
+}
+
+@keyframes typing {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+

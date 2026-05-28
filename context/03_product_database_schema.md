@@ -104,7 +104,7 @@ flowchart TD
 
 ### ② `document_library` (완제품 규격서 라이브러리)
 
-*   **설명**: 규격서 원천 파일 메타정보 테이블입니다. (전사 공통 기준 데이터)
+*   **설명**: 규격서 원천 파일 메타정보 테이블입니다. (전사 공통 기준 데이터, 타이어 전문 제조공정 역해석 매퍼 탑재)
 *   **소스**: `documents/oe_requirements_list.csv`
 
 | 컬럼명 | 데이터 타입 | 설명 | 예시 |
@@ -116,7 +116,9 @@ flowchart TD
 | `doc_name` | TEXT | 규격 문서 국/영문 명칭 | `REQUALIFICATION OF PRODUCT AT SUPPLIER` |
 | `revision_date` | TEXT | 규격 제/개정 일자 | `2024-11-19` |
 | `doc_type` | TEXT | 문서 구분 | `품질 기술 표준` |
-| `review_summary` | TEXT | AI 기반 핵심 검토 요약 내용 | `이 규격은 부품 재자격 부여 주기와...` |
+| `file_size` | TEXT | 실제 물리 파일 크기 | `3.03 MB` |
+| `review_summary` | JSON/TEXT | AI 기반 핵심 검토 구조화 요약 내용 (overview, key_clauses, applicable_processes, required_evidences) | `{"overview": "...", "key_clauses": [...]}` |
+| `tire_process_translation` | JSON/TEXT | **[핵심 추가]** 범용 OEM 규격을 타이어 공정/파라미터/결함리스크 및 SOP 가이드로 일대일 역해석한 상세 데이터 | `{"focus_process": "...", "process_param_check": "..."}` |
 | `processed_at` | TEXT | 시스템 등록/분석 처리 시점 | `2026-05-26 17:45:00` |
 
 ---
