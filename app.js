@@ -1283,12 +1283,164 @@ const app = {
       });
     }
 
+    // 💡 컨트롤 패널의 공장지 선택 세팅 및 이벤트 바인딩
+    const plantSelect = document.getElementById('tab3-plant-select');
+    if (plantSelect) {
+      plantSelect.innerHTML = '';
+      const actualPlants = (this.state.commonCodes.plants || []).filter(p => p.code !== 'ALL');
+      actualPlants.forEach(plant => {
+        const opt = document.createElement('option');
+        opt.value = plant.code;
+        opt.textContent = `${plant.name} (${plant.code})`;
+        plantSelect.appendChild(opt);
+      });
+      // 현재 활성 공장 설정 동기화
+      plantSelect.value = this.state.plantRiskActivePlant || 'DP';
+      plantSelect.onchange = (e) => {
+        const val = e.target.value;
+        this.state.plantRiskActivePlant = val;
+        this.state.selectedPlant = val;
+        const globalPlantFilter = document.getElementById('filter-plant');
+        if (globalPlantFilter) globalPlantFilter.value = val;
+        this.renderPlantRiskScreen();
+      };
+    }
+
+    // 💡 완성차 고객사 셀렉터 세팅 및 이벤트 바인딩
+    const customerSelect = document.getElementById('tab3-customer-select');
+    if (customerSelect) {
+      customerSelect.innerHTML = '';
+      // audit_findings에서 고유 CAR_MAKER 추출
+      const makers = new Set();
+      (this.state.auditFindings || []).forEach(item => {
+        if (item.CAR_MAKER) {
+          makers.add(item.CAR_MAKER.trim().toUpperCase());
+        }
+      });
+      // Set에 기본 메이커가 포함되도록 보장
+      ['BMW', 'FORD', 'HYUNDAI', 'GM', 'VW', 'RENAULT', 'TOYOTA', 'VOLVO'].forEach(m => makers.add(m));
+      
+      const sortedMakers = Array.from(makers).sort();
+      
+      // 특수 옵션 강제 바인딩 (HQ, Internal)
+      const specialOpts = [
+        { value: 'HQ', text: 'HQ (본사 주관 종합감사)' },
+        { value: 'Internal', text: 'Internal (사내 보증 자가진단)' }
+      ];
+      
+      specialOpts.forEach(opt => {
+        const o = document.createElement('option');
+        o.value = opt.value;
+        o.textContent = opt.text;
+        customerSelect.appendChild(o);
+      });
+      
+      sortedMakers.forEach(m => {
+        if (m !== 'HQ' && m !== 'INTERNAL') {
+          const o = document.createElement('option');
+          o.value = m;
+          o.textContent = m;
+          customerSelect.appendChild(o);
+        }
+      });
+
+      // 기본 고객사 동기화
+      if (!this.state.tab3Customer) this.state.tab3Customer = 'BMW';
+      customerSelect.value = this.state.tab3Customer;
+      customerSelect.onchange = (e) => {
+        this.state.tab3Customer = e.target.value;
+        this.renderPlantRiskScreen();
+      };
+    }
+
+    // 💡 감사 목적 셀렉터 이벤트 바인딩
+    const purposeSelect = document.getElementById('tab3-purpose-select');
+    if (purposeSelect) {
+      if (!this.state.tab3Purpose) this.state.tab3Purpose = 'Customer audit';
+      purposeSelect.value = this.state.tab3Purpose;
+      purposeSelect.onchange = (e) => {
+        this.state.tab3Purpose = e.target.value;
+        this.renderPlantRiskScreen();
+      };
+    }
+
+    // 💡 날짜 선택 피커 기본값 세팅 및 이벤트 바인딩
+    const startDateInput = document.getElementById('tab3-start-date');
+    if (startDateInput) {
+      if (!this.state.tab3StartDate) {
+        const today = new Date();
+        this.state.tab3StartDate = today.toISOString().split('T')[0];
+      }
+      startDateInput.value = this.state.tab3StartDate;
+      startDateInput.onchange = (e) => {
+        this.state.tab3StartDate = e.target.value;
+        this.renderPlantRiskScreen();
+      };
+    }
+
+    const endDateInput = document.getElementById('tab3-end-date');
+    if (endDateInput) {
+      if (!this.state.tab3EndDate) {
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() + 14);
+        this.state.tab3EndDate = targetDate.toISOString().split('T')[0];
+      }
+      endDateInput.value = this.state.tab3EndDate;
+      endDateInput.onchange = (e) => {
+        this.state.tab3EndDate = e.target.value;
+        this.renderPlantRiskScreen();
+      };
+    }
+
+    // 💡 등록 모달 여닫기 버튼 이벤트 누적 방지용 바인딩
+    const btnTrigger = document.getElementById('btn-trigger-register-finding');
+    const modal = document.getElementById('modal-register-finding');
+    const modalClose = document.getElementById('modal-register-close');
+    
+    if (btnTrigger && modal) {
+      btnTrigger.onclick = (e) => {
+        e.preventDefault();
+        modal.style.display = 'flex';
+      };
+    }
+    if (modalClose && modal) {
+      modalClose.onclick = (e) => {
+        e.preventDefault();
+        modal.style.display = 'none';
+      };
+    }
+
     // 신규 지적사항 등록 버튼 바인딩 (이벤트 누적 방지용 onclick 오버라이트)
     const btnSaveFinding = document.getElementById('btn-save-finding');
     if (btnSaveFinding) {
       btnSaveFinding.onclick = (e) => {
         e.preventDefault();
         this.saveFinding();
+      };
+    }
+
+    // 💡 다운로드 버튼 이벤트 핸들러 바인딩
+    const btnExportCustomerAudit = document.getElementById('btn-export-customer-audit');
+    if (btnExportCustomerAudit) {
+      btnExportCustomerAudit.onclick = (e) => {
+        e.preventDefault();
+        this.exportCustomerAuditChecklist();
+      };
+    }
+
+    const btnExportPriorityPrep = document.getElementById('btn-export-priority-prep');
+    if (btnExportPriorityPrep) {
+      btnExportPriorityPrep.onclick = (e) => {
+        e.preventDefault();
+        this.exportPriorityPrepItems();
+      };
+    }
+
+    const btnExportRemaining = document.getElementById('btn-export-remaining');
+    if (btnExportRemaining) {
+      btnExportRemaining.onclick = (e) => {
+        e.preventDefault();
+        this.exportEntirePlantChecklist();
       };
     }
 
@@ -1320,266 +1472,156 @@ const app = {
     if (typeof lucide !== 'undefined') {
       lucide.createIcons();
     }
+    const activeCustomer = this.state.tab3Customer || 'BMW';
+    const activeProcess = this.state.tab3Process || 'ALL';
+
+    // 컨트롤 패널의 엘리먼트 값 동기화 유지
+    const plantSelect = document.getElementById('tab3-plant-select');
+    if (plantSelect) plantSelect.value = activePlantCode;
+
+    const customerSelect = document.getElementById('tab3-customer-select');
+    if (customerSelect) customerSelect.value = activeCustomer;
+
+    const purposeSelect = document.getElementById('tab3-purpose-select');
+    if (purposeSelect) purposeSelect.value = this.state.tab3Purpose;
+
+    const startDateInput = document.getElementById('tab3-start-date');
+    if (startDateInput) startDateInput.value = this.state.tab3StartDate;
+
+    const endDateInput = document.getElementById('tab3-end-date');
+    if (endDateInput) endDateInput.value = this.state.tab3EndDate;
+
+    // 💡 11대 공정 리본 필터 렌더링 추가
+    this.renderProcessRibbon();
+
+    // 1. 상단 테이블: 완성차 고객사 감사 지적 이력 기반 맞춤형 체크시트 렌더링
+    this.renderCustomerAuditChecklist(activePlantCode, activeCustomer, activeProcess);
+
+    // 2. 하단 실사 취약점 & 우수 조항 테이블 렌더링 (6점 이하 / 8점 이상 구조)
+    this.renderQualityAssessmentDetails(activePlantCode, activeProcess);
+
+    // 3. AI 권고 Operational Actions 피드 렌더링 (CRI 및 8D 요약본 매칭)
+    this.renderTab3AIRecommendations(activePlantCode, activeProcess);
+
+    // 4. Lucide 아이콘 다시 드로잉
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
   },
 
-  // ① 공장별 리스크 매트릭스 리스트 렌더링 함수
-  renderPlantRiskMatrix(activePlantCode) {
-    const listContainer = document.getElementById('plant-risk-matrix-list');
-    if (!listContainer) return;
+  // ① 상단 테이블: 완성차 고객사 감사 지적 이력 기반 맞춤형 체크시트 렌더링
+  renderCustomerAuditChecklist(activePlantCode, activeCustomer, activeProcess) {
+    const customerTableBox = document.getElementById('tab3-customer-audit-table-box');
+    const noticeBanner = document.getElementById('tab3-fallback-notice');
+    if (!customerTableBox) return;
 
-    listContainer.innerHTML = '';
-    const actualPlants = (this.state.commonCodes.plants || []).filter(p => p.code !== 'ALL');
+    customerTableBox.innerHTML = '';
 
-    actualPlants.forEach(plant => {
-      const scoreDetails = this.calculatePlantRiskScore(plant.code, 'ALL', 'ALL');
-      const totalUnresolved = scoreDetails.qiCount + scoreDetails.m4Count + scoreDetails.findingsCount;
-      const isSelected = plant.code === activePlantCode;
+    let fallbackLevel = 1; // 1순위: 지정 공장 지정 고객사, 2순위: 타공장 해당 고객사, 3순위: 글로벌 대표 3대사 표준
+    let targetFindings = [];
 
-      // 점수별 프리미엄 HSL 테마 매칭
-      let barColor = 'var(--brand-blue)';
-      let shadowGlow = 'none';
-
-      if (scoreDetails.score >= 3.5) {
-        barColor = 'var(--accent-red)';
-        shadowGlow = '0 0 12px rgba(239, 68, 68, 0.2)';
-      } else if (scoreDetails.score >= 2.0) {
-        barColor = 'var(--accent-orange)';
-        shadowGlow = '0 0 8px rgba(249, 115, 22, 0.15)';
+    // 💡 1순위: 선택한 공장 + 지정 고객사
+    targetFindings = (this.state.auditFindings || []).filter(item => {
+      const isPlantMatch = item.PLANT === activePlantCode;
+      const isCustomerMatch = (item.CAR_MAKER || '').toLowerCase() === activeCustomer.toLowerCase();
+      
+      let isProcMatch = true;
+      if (activeProcess !== 'ALL') {
+        const procCode = item._mappedProcess || this.getFindingProcess(item);
+        isProcMatch = (procCode === activeProcess);
       }
+      return isPlantMatch && isCustomerMatch && isProcMatch;
+    });
 
-      const card = document.createElement('div');
-      card.className = `card-clickable flex-row ${isSelected ? 'active-card' : ''}`;
-      card.style.cssText = `
-        padding: 12px 16px;
-        border-radius: 8px;
-        background: ${isSelected ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)'};
-        border: 1px solid ${isSelected ? 'var(--accent-red)' : 'var(--border-card)'};
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
-        box-shadow: ${isSelected ? shadowGlow : 'none'};
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-      `;
-
-      const barPercent = Math.min(100, Math.round(scoreDetails.score * 20));
-
-      card.innerHTML = `
-        <div style="display: flex; flex-direction: column; gap: 4px; flex-grow: 1;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 14px; font-weight: 700; color: var(--text-primary);">${plant.name}</span>
-              <span style="font-size: 10px; font-weight: 700; color: var(--text-secondary); background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">${plant.code}</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <span style="font-size: 11px; color: var(--text-secondary);">미결 리스크: <strong style="color: ${totalUnresolved > 0 ? '#ef4444' : 'var(--text-secondary)'}; font-weight: 700;">${totalUnresolved}</strong>건</span>
-            </div>
-          </div>
-          <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; margin-top: 4px;">
-            <div style="width: ${barPercent}%; height: 100%; background: ${barColor}; border-radius: 3px; transition: width 0.4s ease;"></div>
-          </div>
-        </div>
-        <div style="text-align: right; min-width: 65px; display: flex; flex-direction: column; align-items: flex-end; justify-content: center;">
-          <span style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Risk Score</span>
-          <span style="font-size: 20px; font-weight: 800; color: ${barColor}; font-family: monospace; line-height: 1.1;">${scoreDetails.score.toFixed(1)}</span>
-        </div>
-      `;
-
-      card.onclick = () => {
-        this.state.plantRiskActivePlant = plant.code;
-        this.state.selectedPlant = plant.code;
-
-        // 글로벌 드롭다운 필터 요소에도 값 매핑
-        const filterPlant = document.getElementById('filter-plant');
-        if (filterPlant) {
-          filterPlant.value = plant.code;
+    // 💡 2순위 (대안 참조): 1순위 전무할 시, 타 공장 전수 조사 후 해당 고객사 실제 감사 지적 이력 로드
+    if (targetFindings.length === 0) {
+      fallbackLevel = 2;
+      targetFindings = (this.state.auditFindings || []).filter(item => {
+        const isCustomerMatch = (item.CAR_MAKER || '').toLowerCase() === activeCustomer.toLowerCase();
+        
+        let isProcMatch = true;
+        if (activeProcess !== 'ALL') {
+          const procCode = item._mappedProcess || this.getFindingProcess(item);
+          isProcMatch = (procCode === activeProcess);
         }
-
-        this.showToast(`활성 공장이 ${plant.name}(으)로 전환되었습니다.`, 'info');
-        this.onGlobalFilterChange();
-      };
-
-      listContainer.appendChild(card);
-    });
-  },
-
-  // ② 공장 과거 3개년 감사 이력 연대기 렌더링 함수
-  renderPlantAuditHistory(activePlantCode) {
-    const timelineBox = document.getElementById('plant-history-timeline-box');
-    const titleNode = document.getElementById('plant-history-title');
-    if (!timelineBox) return;
-
-    const plantName = (this.state.commonCodes.plants || []).find(p => p.code === activePlantCode)?.name || activePlantCode;
-    if (titleNode) {
-      titleNode.textContent = `${plantName} 과거 감사 이력 (Plant Audit History)`;
+        return isCustomerMatch && isProcMatch;
+      });
     }
 
-    timelineBox.innerHTML = '';
+    // 💡 3순위 (표준 오딧): 2순위 데이터마저 부재 시, 글로벌 대표 3대사 (Ford, BMW, Hyundai) 종합 지적 이력 결합
+    if (targetFindings.length === 0) {
+      fallbackLevel = 3;
+      const globalBig3 = ['bmw', 'ford', 'hyundai'];
+      targetFindings = (this.state.auditFindings || []).filter(item => {
+        const isCustomerMatch = globalBig3.includes((item.CAR_MAKER || '').toLowerCase());
+        
+        let isProcMatch = true;
+        if (activeProcess !== 'ALL') {
+          const procCode = item._mappedProcess || this.getFindingProcess(item);
+          isProcMatch = (procCode === activeProcess);
+        }
+        return isCustomerMatch && isProcMatch;
+      });
+    }
 
-    const histories = {
-      "DP": [
-        { year: "2025", grade: "A Grade", score: "94점", title: "BMW VDA 6.3 정기 양산 수검 통과", desc: "배합 및 가류 특수 공정 관리 상태 실사 우수 판정. 벤트핀 세정 지침 우수 가동 확인." },
-        { year: "2024", grade: "B Grade", score: "86점", title: "Audi 신차 인증 프로세스 감사 수검", desc: "2건의 미결 시정조치 조건부 통과. 그린타이어 드럼 정밀 세정 주기 누락 지적 후 종결." },
-        { year: "2023", grade: "A Grade", score: "92점", title: "Mercedes-Benz 공급선 특별 실사", desc: "혼련 공정 원재료 선입선출 자동 모니터링 시스템 최고 등급 부여 합격." }
-      ],
-      "KP": [
-        { year: "2025", grade: "B Grade", score: "88점", title: "Porsche 초고성능 타이어 공급선 수검", desc: "비드 권취 와이어 장력 관리 오차 개선 권고 수령. 1건 미결 상태로 보완 진행 중." },
-        { year: "2024", grade: "A Grade", score: "95점", title: "Hyundai/Kia 전사 품질 정기 평가 수검", desc: "성형 공정 이설 관련 4M 변경 관리 절차 완벽 준수 통과 및 벤치마킹 우수 사례 선정." },
-        { year: "2023", grade: "B Grade", score: "84점", title: "제3자 IATF 16949 사후 프로세스 수검", desc: "검사 공정 불합격 타이어 물리 격리 및 라벨 누락 지적 사항 수령 후 보완 완료." }
-      ],
-      "JP": [
-        { year: "2025", grade: "A Grade", score: "91점", title: "Tesla 아시아 서플라이어 품질 실사", desc: "실란트 도포 공정 두께 제어 모니터링 및 실시간 비전 검사 정합성 우수 판정 통과." },
-        { year: "2024", grade: "A Grade", score: "93점", title: "BMW 중국 내수 합작사 현장 프로세스 감사", desc: "재작업(Re-work) 표준 게시 및 오퍼레이터 이력 이관 절차 승인 획득 통과." },
-        { year: "2023", grade: "B Grade", score: "87점", title: "Hyundai 중국 생산공장 합동 점검", desc: "재단 공정 반제품 보존 온도 센서 관리 미흡 지적 수령 후 SOP 긴급 보완 종결." }
-      ],
-      "HP": [
-        { year: "2025", grade: "A Grade", score: "92점", title: "Volkswagen 친환경 전용 타이어 프로세스 감사", desc: "가류기 블래더 가열 압력 기록 자동화 정밀 관리 상태 우수 합격." },
-        { year: "2024", grade: "B Grade", score: "85점", title: "Kia 아시아 공장 정기 프로세스 수검", desc: "배합 컴파운드 보관 습도 센서 오차 보정 지연 지적에 따라 검교정 성적서 이관 후 보완 통과." },
-        { year: "2023", grade: "A Grade", score: "90점", title: "제3자 VDA 6.3 정기 인증 획득 수검", desc: "인장 강도 정밀 시험실 온습도 자동 통제 시스템 신규 장착으로 최고 등급 달성." }
-      ],
-      "CP": [
-        { year: "2025", grade: "B Grade", score: "86점", title: "Ford 중국 공업지구 정기 사후 감사", desc: "원재료 수입검사 실물 COA 이관 정합성 확인. 1건 미결 지적사항 대응 조치 가동 중." },
-        { year: "2024", grade: "A Grade", score: "90점", title: "Hyundai 중경 합작사 신차 수검 통과", desc: "트레드 압출 온도 자동 로깅 프로파일 장치 수검 우수 판정." },
-        { year: "2023", grade: "B Grade", score: "83점", title: "중국 내수 유통 공급 품질 정기 심사", desc: "완제품 물류창고 선입선출 바코드 리더 오동작 지적 수령 후 시스템 일제 교체 종결." }
-      ],
-      "MP": [
-        { year: "2025", grade: "A Grade", score: "96점", title: "BMW 헝가리공장 신규 EV 납품 수검", desc: "폼(Foam) 흡음재 접착 공정 자동 모니터링 및 실시간 비전 정밀 매칭 우수 사례 선정 최고 등급 통과." },
-        { year: "2024", grade: "A Grade", score: "94점", title: "Audi 유럽 본사 특별 공정 프로세스 감사", desc: "가류 벤트핀 정밀 점검 및 금형 주간 세정 자동 일지 연동 최고 등급 통과." },
-        { year: "2023", grade: "B Grade", score: "89점", title: "Mercedes-Benz 유럽공장 프로세스 심사", desc: "배합 평량실 투입 오일 필터 막힘 모니터링 가이드 지적 수령 후 영구 개선안 종결." }
-      ],
-      "IP": [
-        { year: "2025", grade: "B Grade", score: "87점", title: "Toyota 아시아 공장 정기 종합 감사", desc: "수입검사 자재 샘플링 검증 프로세스 이관 누락 지적 수령 후 OCAP 보완 조치 조건부 통과." },
-        { year: "2024", grade: "A Grade", score: "91점", title: "제3자 ISO 9001 정기 갱신 프로세스 심사", desc: "품질 보증 교육 훈련 일지 및 사내 오디터 R&R 자격 정합성 우수 판정 통과." },
-        { year: "2023", grade: "B Grade", score: "85점", title: "동남아 현지 완성차 정기 감사 수검", desc: "압출 반제품 표면 이물질 블로어 센서 오작동 지적 수령 후 설비 보전 완료." }
-      ],
-      "TP": [
-        { year: "2025", grade: "A Grade", score: "93점", title: "Tesla 북미향 전기차 전용 타이어 실사", desc: "폼(Foam) 흡음재 자동 정밀 도포 공정 및 인장 강도 접착 정밀 센서 모니터링 우수 판정 통과." },
-        { year: "2024", grade: "B Grade", score: "88점", title: "GM 북미 본사 정기 공급선 실사 수검", desc: "Mixing 공정 투입 오일 레벨 센서 오차 지적 수령 후 자동 체크리스트 보완으로 통과." },
-        { year: "2023", grade: "A Grade", score: "92점", title: "제3자 VDA 6.3 정기 심사 통과", desc: "검사 공정 균일도(Uniformity) 시험 장비 일일 정밀 검교정 프로세스 우수 판정." }
-      ]
-    };
+    // ⚠️ 교차 참조 폴백 지능형 노티스 배너 노출 상태 동적 제어
+    if (noticeBanner) {
+      if (fallbackLevel === 1) {
+        noticeBanner.style.display = 'none';
+      } else if (fallbackLevel === 2) {
+        noticeBanner.style.display = 'flex';
+        noticeBanner.style.background = 'rgba(255, 184, 0, 0.08)';
+        noticeBanner.style.borderColor = 'rgba(255, 184, 0, 0.25)';
+        noticeBanner.style.color = '#ffb800';
+        noticeBanner.innerHTML = `
+          <i data-lucide="alert-triangle" style="width: 18px; height: 18px; flex-shrink: 0; color: #ffb800;"></i>
+          <span>⚠️ <strong>[폴백 대안 참조]</strong> <u>${activePlantCode}</u> 공장에는 <strong>${activeCustomer}</strong>의 과거 오딧 이력이 부재하여, <strong>타 공장에서 발생했던 ${activeCustomer} 실제 감사 부적합 데이터</strong>를 동적으로 교차 매핑하여 벤치마킹 대책으로 노출 중입니다.</span>
+        `;
+      } else {
+        noticeBanner.style.display = 'flex';
+        noticeBanner.style.background = 'rgba(239, 68, 68, 0.08)';
+        noticeBanner.style.borderColor = 'rgba(239, 68, 68, 0.25)';
+        noticeBanner.style.color = '#ef4444';
+        noticeBanner.innerHTML = `
+          <i data-lucide="alert-circle" style="width: 18px; height: 18px; flex-shrink: 0; color: #ef4444;"></i>
+          <span>⚠️ <strong>[글로벌 표준 참조]</strong> 당사 공장 전반에 <strong>${activeCustomer}</strong> 관련 과거 오딧 지적 이력이 완전히 부재하여, <strong>글로벌 대표 3대 완성차(BMW, Ford, Hyundai)</strong>의 종합 부적합 이력을 표준 체크시트로 안전 탑재하여 대조 표출 중입니다.</span>
+        `;
+      }
+    }
 
-    const data = histories[activePlantCode] || [];
-
-    if (data.length === 0) {
-      timelineBox.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary); font-size: 13px;">
-          <i data-lucide="calendar-off" style="width: 28px; height: 28px; margin-bottom: 8px;"></i>
-          <span>선택한 공장의 과거 감사 데이터가 존재하지 않습니다.</span>
+    if (targetFindings.length === 0) {
+      customerTableBox.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; color: var(--text-secondary); font-size: 13px; border: 1px dashed rgba(255,255,255,0.05); border-radius: 8px;">
+          <i data-lucide="shield-check" style="width: 32px; height: 32px; color: #00ff66; margin-bottom: 8px;"></i>
+          <span style="font-weight: 700; color: var(--text-primary);">조회 조건에 해당하는 감사 지적사항이 전혀 없습니다.</span>
+          <span style="font-size: 11px; margin-top: 4px;">지정 공장 및 공정 품질 표준 준수율이 완벽히 안정적 상태입니다.</span>
         </div>
       `;
       return;
     }
-
-    const timelineList = document.createElement('div');
-    timelineList.style.cssText = `
-      position: relative;
-      padding-left: 20px;
-      margin-left: 8px;
-      border-left: 1.5px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      padding-top: 10px;
-      padding-bottom: 10px;
-    `;
-
-    data.forEach((item, index) => {
-      const node = document.createElement('div');
-      node.style.cssText = `position: relative;`;
-
-      const dotColor = index === 0 ? 'var(--brand-blue)' : 'rgba(255,255,255,0.2)';
-      const dotGlow = index === 0 ? 'box-shadow: 0 0 10px var(--brand-blue); border: 2px solid var(--text-primary);' : 'border: 2px solid rgba(255,255,255,0.1);';
-
-      node.innerHTML = `
-        <div style="
-          position: absolute;
-          left: -27px;
-          top: 3px;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          background: ${dotColor};
-          ${dotGlow}
-          z-index: 2;
-        "></div>
-        <div style="display: flex; flex-direction: column; gap: 4px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 15px; font-weight: 800; color: var(--text-primary); font-family: monospace;">${item.year}</span>
-              <span style="font-size: 12.5px; font-weight: 700; color: var(--brand-blue);">${item.title}</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <span style="font-size: 10px; font-weight: 700; background: rgba(0, 200, 255, 0.08); color: var(--brand-blue); border: 1px solid rgba(0, 200, 255, 0.2); padding: 1px 6px; border-radius: 4px;">${item.score}</span>
-              <span style="font-size: 10px; font-weight: 700; background: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 1px 6px; border-radius: 4px;">${item.grade}</span>
-            </div>
-          </div>
-          <p style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.5; margin: 2px 0 0 0;">${item.desc}</p>
-        </div>
-      `;
-      timelineList.appendChild(node);
-    });
-
-    timelineBox.appendChild(timelineList);
-  },
-
-  // ③ 활성 공장 지적사항 테이블 렌더링 함수
-  renderCorrectiveActionBoard(activePlantCode) {
-    const tableBox = document.getElementById('action-board-table-box');
-    const badgeNode = document.getElementById('action-board-plant-badge');
-    if (!tableBox) return;
-
-    const plantName = (this.state.commonCodes.plants || []).find(p => p.code === activePlantCode)?.name || activePlantCode;
-    if (badgeNode) {
-      badgeNode.textContent = `활성 공장: ${plantName} (${activePlantCode})`;
-    }
-
-    tableBox.innerHTML = '';
-
-    const filteredFindings = (this.state.auditFindings || []).filter(item => item.PLANT === activePlantCode);
-
-    if (filteredFindings.length === 0) {
-      tableBox.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; color: var(--text-secondary); font-size: 13px; border: 1px dashed var(--border-card); border-radius: 8px; margin: 15px; background: rgba(255,255,255,0.01);">
-          <i data-lucide="shield-check" style="width: 32px; height: 32px; color: var(--brand-blue); margin-bottom: 8px;"></i>
-          <span style="font-weight: 700; color: var(--text-primary);">지적사항 및 부적합 사항이 존재하지 않습니다.</span>
-          <span style="font-size: 11px; margin-top: 4px;">해당 공장은 완벽히 안전 등급의 수검 상태를 유지하고 있습니다.</span>
-        </div>
-      `;
-      return;
-    }
-
-    const tableWrapper = document.createElement('div');
-    tableWrapper.className = 'table-responsive';
-    tableWrapper.style.cssText = 'overflow-y: auto; max-height: 400px; padding: 2px;';
 
     const table = document.createElement('table');
     table.className = 'data-table';
     table.style.cssText = 'width: 100%; border-collapse: collapse; font-size: 12px;';
-
     table.innerHTML = `
       <thead>
-        <tr style="border-bottom: 1px solid var(--border-card); background: rgba(255,255,255,0.02); position: sticky; top: 0; z-index: 10;">
-          <th style="padding: 10px; font-weight: 600; color: var(--text-secondary); width: 140px;">관리번호</th>
-          <th style="padding: 10px; font-weight: 600; color: var(--text-secondary); width: 85px;">고객사</th>
-          <th style="padding: 10px; font-weight: 600; color: var(--text-secondary); width: 110px;">감사 구분</th>
-          <th style="padding: 10px; font-weight: 600; color: var(--text-secondary); width: 110px;">연계 공정</th>
-          <th style="padding: 10px; font-weight: 600; color: var(--text-secondary);">지적사항 제목 & 코멘트</th>
-          <th style="padding: 10px; font-weight: 600; color: var(--text-secondary); width: 105px;">담당자</th>
-          <th style="padding: 10px; font-weight: 600; color: var(--text-secondary); width: 95px; text-align: center;">조치 상태</th>
-          <th style="padding: 10px; font-weight: 600; color: var(--text-secondary); width: 100px; text-align: center;">수동 제어</th>
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.015); position: sticky; top: 0; z-index: 10;">
+          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 130px;">관리번호</th>
+          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 80px;">고객사</th>
+          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 100px;">감사 구분</th>
+          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 110px;">연계 공정</th>
+          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary);">지적사항 제목 & 코멘트</th>
+          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 90px;">조치 담당</th>
+          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 90px; text-align: center;">조치 상태</th>
+          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 90px; text-align: center;">수동 제어</th>
         </tr>
       </thead>
-      <tbody id="action-board-tbody"></tbody>
+      <tbody></tbody>
     `;
 
-    tableWrapper.appendChild(table);
-    tableBox.appendChild(tableWrapper);
+    const tbody = table.querySelector('tbody');
 
-    const tbody = table.querySelector('#action-board-tbody');
-
-    filteredFindings.forEach((item, index) => {
+    targetFindings.forEach((item, index) => {
       const isOngoing = item.STATUS === 'On-going';
       const tr = document.createElement('tr');
       tr.style.cssText = `
@@ -1595,7 +1637,7 @@ const app = {
       let statusBadge = '';
       if (isOngoing) {
         statusBadge = `
-          <span class="badge badge-danger text-center animate-pulse" style="
+          <span class="badge badge-danger text-center" style="
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -1870,12 +1912,702 @@ const app = {
     rootcauseNode.value = '';
     countermeasureNode.value = '';
 
+    // 입력 모달 닫기
+    const modal = document.getElementById('modal-register-finding');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+
     this.showToast(`[${newDocNo}] 신규 지적사항이 기입되었으며, ${plant} 공장의 리스크가 즉시 상승 주입되었습니다!`, "success");
     
     const pName = (this.state.commonCodes?.plants || []).find(p => p.code === plant)?.name || plant;
     this.logAction(null, `신규 지적사항 등록: [${pName}] [${newDocNo}] ${subject} (담당: ${owner})`, 'action');
 
     this.onGlobalFilterChange();
+  },
+
+  // 💡 ⑤ 11대 공정 리본 필터 렌더러
+  renderProcessRibbon() {
+    const ribbon = document.getElementById('tab3-process-ribbon');
+    if (!ribbon) return;
+
+    const processes = [
+      { code: 'ALL', name: 'All Process (전체 공정)' },
+      { code: 'Incoming', name: 'Incoming (수입 검사)' },
+      { code: 'Mixing', name: 'Mixing (정련)' },
+      { code: 'Extruding', name: 'Extruding (압출)' },
+      { code: 'Calendering', name: 'Calendering (압연)' },
+      { code: 'Cutting', name: 'Cutting (재단)' },
+      { code: 'Bead', name: 'Bead (비드)' },
+      { code: 'Building', name: 'Building (성형)' },
+      { code: 'Curing', name: 'Curing (가류)' },
+      { code: 'Inspection', name: 'Inspection (완성검사)' },
+      { code: 'Shipping', name: 'Shipping (물류 출하)' }
+    ];
+
+    const activeProcess = this.state.tab3Process || 'ALL';
+    ribbon.innerHTML = '';
+
+    processes.forEach(proc => {
+      const btn = document.createElement('button');
+      btn.className = 'btn';
+      const isActive = proc.code === activeProcess;
+      
+      btn.style.cssText = `
+        padding: 8px 16px;
+        font-size: 11.5px;
+        font-weight: 700;
+        border-radius: 6px;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        border: 1px solid ${isActive ? 'rgba(0, 242, 254, 0.4)' : 'rgba(255, 255, 255, 0.05)'};
+        background: ${isActive ? 'linear-gradient(135deg, rgba(0, 242, 254, 0.15), rgba(0, 242, 254, 0.05))' : 'rgba(255, 255, 255, 0.02)'};
+        color: ${isActive ? '#00f2fe' : 'var(--text-secondary)'};
+        box-shadow: ${isActive ? '0 0 8px rgba(0, 242, 254, 0.2)' : 'none'};
+      `;
+
+      btn.onmouseover = () => {
+        if (!isActive) {
+          btn.style.background = 'rgba(255, 255, 255, 0.05)';
+          btn.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+          btn.style.color = 'var(--text-primary)';
+        }
+      };
+      btn.onmouseout = () => {
+        if (!isActive) {
+          btn.style.background = 'rgba(255, 255, 255, 0.02)';
+          btn.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+          btn.style.color = 'var(--text-secondary)';
+        }
+      };
+
+      btn.onclick = () => {
+        this.state.tab3Process = proc.code;
+        this.renderPlantRiskScreen();
+      };
+
+      btn.textContent = proc.name;
+      ribbon.appendChild(btn);
+    });
+  },
+
+  // 💡 ⑥ 하단 실사 취약점 및 우수 조항 테이블 렌더링
+  renderQualityAssessmentDetails(activePlantCode, activeProcess) {
+    const prepTableBox = document.getElementById('tab3-priority-prep-table-box');
+    const excellentTableBox = document.getElementById('tab3-excellent-items-table-box');
+    if (!prepTableBox || !excellentTableBox) return;
+
+    prepTableBox.innerHTML = '';
+    excellentTableBox.innerHTML = '';
+
+    const allAssessmentItems = this.state.oeQualityAssessmentDetails || [];
+
+    // 활성 공장의 데이터만 필터링
+    const plantItems = allAssessmentItems.filter(item => item.plant === activePlantCode);
+
+    // 공정 필터링
+    let filteredItems = plantItems;
+    if (activeProcess !== 'ALL') {
+      filteredItems = plantItems.filter(item => {
+        const procCode = item.process || '';
+        return procCode.toLowerCase() === activeProcess.toLowerCase();
+      });
+    }
+
+    // N/A 제외 대상만 점수 숫자로 파싱
+    const validItems = filteredItems.filter(item => {
+      if (!item.score || item.score.toString().trim().toUpperCase() === 'N/A') return false;
+      return true;
+    });
+
+    // 🚨 A. 최우선 준비 아이템 (Score <= 6)
+    const prepItems = validItems.filter(item => parseFloat(item.score) <= 6);
+
+    // 공정 순서 및 점수 낮은 순(Worst Score)으로 정렬
+    const processOrder = ['Incoming', 'Mixing', 'Extruding', 'Calendering', 'Cutting', 'Bead', 'Building', 'Curing', 'Inspection', 'Shipping'];
+    prepItems.sort((a, b) => {
+      const orderA = processOrder.indexOf(a.process);
+      const orderB = processOrder.indexOf(b.process);
+      if (orderA !== orderB) return orderA - orderB;
+      return parseFloat(a.score) - parseFloat(b.score); // 오름차순 (Worst Score 최상단)
+    });
+
+    // 🌟 B. 표준 우수 관리 항목 (Score >= 8)
+    const excellentItems = validItems.filter(item => parseFloat(item.score) >= 8);
+
+    // A. 최우선 준비 아이템 테이블 채우기
+    if (prepItems.length === 0) {
+      prepTableBox.innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px; color:var(--text-secondary); border:1px dashed rgba(255,255,255,0.05); border-radius:6px; font-size:12px;">
+          <i data-lucide="shield-check" style="width:24px; height:24px; color:#00ff66; margin-bottom:6px;"></i>
+          <span style="font-weight:700; color:var(--text-primary);">6점 이하 취약 항목이 없습니다.</span>
+          <span>현장 공정이 안정적인 안전 제어 영역에 도달했습니다.</span>
+        </div>
+      `;
+    } else {
+      const table = document.createElement('table');
+      table.className = 'data-table';
+      table.style.cssText = 'width: 100%; border-collapse: collapse; font-size: 12px;';
+      table.innerHTML = `
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.015); position: sticky; top: 0; z-index: 10;">
+            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 100px;">공정</th>
+            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 150px;">체크 요건 (항목)</th>
+            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 60px; text-align: center;">점수</th>
+            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary);">현장 실사 지적</th>
+            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 220px;">💡 우수 공장 Peer 벤치마킹</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+      const tbody = table.querySelector('tbody');
+
+      prepItems.forEach((item, index) => {
+        // Peer Benchmarking: 타 공장 중 해당 check_item에 대해 10점 득점한 공장 검색
+        const peers = allAssessmentItems.filter(pItem => 
+          pItem.check_item === item.check_item && 
+          parseFloat(pItem.score) === 10 && 
+          pItem.plant !== activePlantCode
+        );
+
+        let peerHtml = '';
+        if (peers.length > 0) {
+          const plantList = peers.map(p => p.plant).join(', ');
+          const bestPractice = peers[0].findings || peers[0].guidance || 'SOP 정량 준수 및 디지털 실시간 모니터링 적용';
+          peerHtml = `
+            <div style="background: rgba(0, 242, 254, 0.04); border: 1px solid rgba(0, 242, 254, 0.15); border-radius: 4px; padding: 6px 10px; font-size: 11px; color: #00f2fe; line-height: 1.4;">
+              <div style="font-weight:800; display:flex; align-items:center; gap:4px; margin-bottom:2px;">
+                <span style="display:inline-block; width:4px; height:4px; background:#00f2fe; border-radius:50%;"></span>
+                모범: ${plantList}공장 (10점 만점)
+              </div>
+              <div style="color:var(--text-primary); text-overflow:ellipsis; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">
+                ${bestPractice}
+              </div>
+            </div>
+          `;
+        } else {
+          peerHtml = `
+            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 4px; padding: 6px 10px; font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+              <div style="font-weight:700;">글로벌 대표 3대사 표준</div>
+              <div>Standard SOP 지침 준수 및 계측기 이상 한계 관리 적용</div>
+            </div>
+          `;
+        }
+
+        const tr = document.createElement('tr');
+        tr.style.cssText = `
+          border-bottom: 1px solid rgba(255,255,255,0.03);
+          transition: background 0.15s;
+          background: ${index % 2 === 1 ? 'rgba(255,255,255,0.005)' : 'none'};
+        `;
+        tr.onmouseenter = () => { tr.style.background = 'rgba(255,255,255,0.02)'; };
+        tr.onmouseleave = () => { tr.style.background = index % 2 === 1 ? 'rgba(255,255,255,0.005)' : 'none'; };
+
+        tr.innerHTML = `
+          <td style="padding: 10px;"><span style="font-size:11px; font-weight:700; background:rgba(255,0,85,0.05); border:1px solid rgba(255,0,85,0.1); padding:2px 6px; border-radius:4px; color:#ff0055;">${item.process}</span></td>
+          <td style="padding: 10px; font-weight:600; color:var(--text-primary); max-width:180px; word-break:break-all;">${item.check_item}</td>
+          <td style="padding: 10px; text-align:center;"><span style="font-size:11.5px; font-weight:800; color:#ff0055; background:rgba(255,0,85,0.12); padding:3px 8px; border-radius:4px; border:1px solid rgba(255,0,85,0.2);">${item.score}</span></td>
+          <td style="padding: 10px; line-height:1.4; color:var(--text-secondary); max-width:200px; word-break:break-all;">
+            <div style="font-weight:700; color:var(--text-primary); font-size:11.5px; margin-bottom:2px;">[현장 실사 피드백]</div>
+            ${item.findings || '-'}
+            <div style="font-size:11px; color:#ffb800; font-weight:700; margin-top:4px;">
+              [SOP 개량권고] ${item.guidance || '정량적 점검 기준서 재정립'}
+            </div>
+          </td>
+          <td style="padding: 10px;">${peerHtml}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      prepTableBox.appendChild(table);
+    }
+
+    // B. 표준 우수 관리 항목 테이블 채우기
+    if (excellentItems.length === 0) {
+      excellentTableBox.innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px; color:var(--text-secondary); border:1px dashed rgba(255,255,255,0.05); border-radius:6px; font-size:12px;">
+          <i data-lucide="shield-alert" style="width:24px; height:24px; color:#ffb800; margin-bottom:6px;"></i>
+          <span>8점 이상 우수 관리 항목이 없습니다.</span>
+        </div>
+      `;
+    } else {
+      const table = document.createElement('table');
+      table.className = 'data-table';
+      table.style.cssText = 'width: 100%; border-collapse: collapse; font-size: 12px;';
+      table.innerHTML = `
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.015); position: sticky; top: 0; z-index: 10;">
+            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 80px;">공정</th>
+            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary);">안정 관리 항목</th>
+            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 60px; text-align: center;">점수</th>
+            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 100px; text-align: center;">안정 상태</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+      const tbody = table.querySelector('tbody');
+
+      excellentItems.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.style.cssText = `
+          border-bottom: 1px solid rgba(255,255,255,0.03);
+          transition: background 0.15s;
+          background: ${index % 2 === 1 ? 'rgba(255,255,255,0.005)' : 'none'};
+        `;
+        tr.onmouseenter = () => { tr.style.background = 'rgba(255,255,255,0.02)'; };
+        tr.onmouseleave = () => { tr.style.background = index % 2 === 1 ? 'rgba(255,255,255,0.005)' : 'none'; };
+
+        tr.innerHTML = `
+          <td style="padding: 10px;"><span style="font-size:11px; font-weight:700; background:rgba(16,185,129,0.05); border:1px solid rgba(16,185,129,0.1); padding:2px 6px; border-radius:4px; color:#10b981;">${item.process}</span></td>
+          <td style="padding: 10px;">
+            <div style="font-weight:700; color:var(--text-primary);">${item.check_item}</div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">실적: ${item.findings || 'SOP 완벽 준수 및 이력 확인 만족'}</div>
+          </td>
+          <td style="padding: 10px; text-align:center;"><span style="font-size:11px; font-weight:800; color:#10b981; background:rgba(16,185,129,0.1); padding:2px 6px; border-radius:4px;">${item.score}</span></td>
+          <td style="padding: 10px; text-align:center;">
+            <span style="display:inline-flex; align-items:center; gap:3px; font-size:10.5px; font-weight:700; background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.2); padding:2px 6px; border-radius:4px;">
+              <span style="width:5px; height:5px; background:#10b981; border-radius:50%;"></span>
+              만족 (Excellent)
+            </span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      excellentTableBox.appendChild(table);
+    }
+
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+  },
+
+  // 💡 ⑦ AI 권고 Operational Actions 피드 렌더링 (CRI 및 8D 요약본 매칭)
+  renderTab3AIRecommendations(activePlantCode, activeProcess) {
+    const recBox = document.getElementById('tab3-top20-recommendations');
+    const aiActionBox = document.getElementById('tab3-ai-recommended-actions');
+    if (!recBox || !aiActionBox) return;
+
+    recBox.innerHTML = '';
+    aiActionBox.innerHTML = '';
+
+    const allAssessmentItems = this.state.oeQualityAssessmentDetails || [];
+    const plantItems = allAssessmentItems.filter(item => item.plant === activePlantCode);
+
+    // 1. 공장 종합 등급 (CRI) 연산
+    const validItems = plantItems.filter(item => item.score && item.score.toString().trim().toUpperCase() !== 'N/A');
+    let criScore = 100.0;
+    let averageScore = 10.0;
+    if (validItems.length > 0) {
+      const sumScores = validItems.reduce((sum, item) => sum + parseFloat(item.score), 0);
+      averageScore = sumScores / validItems.length;
+      criScore = averageScore * 10;
+    }
+    
+    // On-going findings가 있을 시 CRI 차감 패널티 적용
+    const ongoingFindingsCount = (this.state.auditFindings || []).filter(item => item.PLANT === activePlantCode && item.STATUS === 'On-going').length;
+    criScore = Math.max(0, Math.min(100, criScore - ongoingFindingsCount * 1.5));
+    const formattedCri = criScore.toFixed(1);
+
+    let criGrade = 'A';
+    let criColor = '#00ff66';
+    let criBg = 'rgba(0, 255, 102, 0.1)';
+    let criDesc = '최고 수준의 안전 공정 표준 상태입니다. 완성차 고객 수검 시 최상위 등급(VDA 6.3 A등급) 확보가 기대됩니다.';
+    
+    if (criScore < 60) {
+      criGrade = 'E';
+      criColor = '#ef4444';
+      criBg = 'rgba(239, 68, 68, 0.15)';
+      criDesc = '🚨 초고위험 취약 공정 단계입니다. 즉시 비상대책 위원회(TF)를 가동하고 수검 조치 사항 전반을 긴급 보강해야 합니다.';
+    } else if (criScore < 70) {
+      criGrade = 'D';
+      criColor = '#f97316';
+      criBg = 'rgba(249, 115, 22, 0.15)';
+      criDesc = '⚠️ 고위험 공정 단계입니다. 다수의 지적사항이 방치되어 있어 OEM 실사 통과가 불투명합니다. 최우선 조치가 강력 권고됩니다.';
+    } else if (criScore < 80) {
+      criGrade = 'C';
+      criColor = '#ffb800';
+      criBg = 'rgba(255, 184, 0, 0.12)';
+      criDesc = '보통 수준의 공정 상태입니다. 일부 취약 공정의 SOP 정량 수치 미준수가 관측되므로 벤치마킹 개량이 필요합니다.';
+    } else if (criScore < 90) {
+      criGrade = 'B';
+      criColor = '#00f2fe';
+      criBg = 'rgba(0, 242, 254, 0.12)';
+      criDesc = '양호하고 안정적인 상태입니다. 상시 보완과 4M 변경 관리 프로세스 보더라인 점검을 통해 안정율을 유지하고 있습니다.';
+    }
+
+    // Top 20 개선 권고 과제 (Score <= 6인 항목)
+    let prepItems = validItems.filter(item => parseFloat(item.score) <= 6);
+    if (activeProcess !== 'ALL') {
+      prepItems = prepItems.filter(item => item.process.toLowerCase() === activeProcess.toLowerCase());
+    }
+
+    const processOrder = ['Incoming', 'Mixing', 'Extruding', 'Calendering', 'Cutting', 'Bead', 'Building', 'Curing', 'Inspection', 'Shipping'];
+    prepItems.sort((a, b) => {
+      const orderA = processOrder.indexOf(a.process);
+      const orderB = processOrder.indexOf(b.process);
+      if (orderA !== orderB) return orderA - orderB;
+      return parseFloat(a.score) - parseFloat(b.score);
+    });
+
+    const top20Items = prepItems.slice(0, 20);
+
+    if (top20Items.length === 0) {
+      recBox.innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; color:var(--text-secondary); height:100%; border:1px dashed rgba(255,255,255,0.05); border-radius:6px; font-size:12.5px;">
+          <i data-lucide="shield-check" style="width:32px; height:32px; color:#00ff66; margin-bottom:8px;"></i>
+          <span style="font-weight:700; color:var(--text-primary);">선결 요건 및 개선 과제 0건</span>
+          <span style="font-size:11px; margin-top:2px;">모든 품질 지표가 최상의 합격 등급을 충족하고 있습니다.</span>
+        </div>
+      `;
+    } else {
+      top20Items.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.style.cssText = `
+          background: rgba(16, 21, 38, 0.4);
+          border: 1px solid rgba(255, 255, 255, 0.03);
+          border-left: 3px solid #ffb800;
+          border-radius: 6px;
+          padding: 10px 12px;
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          transition: all 0.2s;
+        `;
+        card.onmouseenter = () => {
+          card.style.borderColor = 'rgba(255, 184, 0, 0.25)';
+          card.style.background = 'rgba(16, 21, 38, 0.6)';
+        };
+        card.onmouseout = () => {
+          card.style.borderColor = 'rgba(255, 255, 255, 0.03)';
+          card.style.background = 'rgba(16, 21, 38, 0.4)';
+        };
+
+        card.innerHTML = `
+          <i data-lucide="alert-triangle" style="width:16px; height:16px; color:#ffb800; flex-shrink:0; margin-top:2px;"></i>
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+              <span style="font-size:11px; font-weight:800; color:#ffb800; background:rgba(255, 184, 0, 0.08); padding:2px 6px; border-radius:4px;">
+                #${idx + 1} 과제 - ${item.process}
+              </span>
+              <span style="font-size:11px; font-weight:800; color:#ff0055;">진단 점수: ${item.score}/10</span>
+            </div>
+            <div style="font-size:12px; font-weight:700; color:var(--text-primary); margin-bottom:4px;">${item.check_item}</div>
+            <div style="font-size:11px; color:var(--text-secondary); line-height:1.4;">
+              <strong>지적 요약:</strong> ${item.findings || '-'}
+            </div>
+            <div style="font-size:11.5px; color:#00f2fe; font-weight:700; margin-top:5px; display:flex; align-items:center; gap:4px;">
+              <i data-lucide="arrow-right" style="width:12px; height:12px;"></i>
+              대책: ${item.guidance || 'SOP 수립 및 계측 신뢰성 인터락 보완 고도화'}
+            </div>
+          </div>
+        `;
+        recBox.appendChild(card);
+      });
+    }
+
+    // AI Recommended Operational Actions 피드 조립
+    const pName = (this.state.commonCodes.plants || []).find(p => p.code === activePlantCode)?.name || activePlantCode;
+    
+    const processesScores = {};
+    validItems.forEach(item => {
+      if (!processesScores[item.process]) {
+        processesScores[item.process] = { sum: 0, count: 0 };
+      }
+      processesScores[item.process].sum += parseFloat(item.score);
+      processesScores[item.process].count++;
+    });
+
+    let worstProcess = 'Building (성형)';
+    let lowestAvg = 10.0;
+    Object.keys(processesScores).forEach(proc => {
+      const avg = processesScores[proc].sum / processesScores[proc].count;
+      if (avg < lowestAvg) {
+        lowestAvg = avg;
+        worstProcess = proc;
+      }
+    });
+
+    const aiActionHtml = `
+      <div style="display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+        <div style="width: 55px; height: 55px; border-radius: 50%; background: ${criBg}; border: 2px solid ${criColor}; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: ${criColor}; box-shadow: 0 0 15px ${criColor}30; font-family: 'Orbitron', sans-serif; flex-shrink: 0;">
+          ${criGrade}
+        </div>
+        <div style="flex:1;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
+            <span style="font-size:14px; font-weight:800; color:var(--text-primary); font-family: 'Orbitron', sans-serif;">
+              ${pName} 공장 CRI (Compliance Risk Index)
+            </span>
+            <span style="font-size:16px; font-weight:900; color:${criColor}; font-family: 'Orbitron', sans-serif;">
+              ${formattedCri}%
+            </span>
+          </div>
+          <div style="font-size:11.5px; color:var(--text-secondary); line-height:1.4;">
+            ${criDesc}
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:6px; color:#00f2fe; font-size:13px; font-weight:800; margin-bottom:12px; font-family: 'Orbitron', sans-serif;">
+        <i data-lucide="sparkles" style="width:16px; height:16px;"></i>
+        <span>AI REAL-TIME AUDIT ADVISORY FEED</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 15px; line-height: 1.6; font-size:12px;">
+        <div>
+          <div style="font-weight: 800; color: #ff0055; font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
+            <span style="display:inline-block; width:6px; height:6px; background:#ff0055; border-radius:50%;"></span>
+            1. Risk Summary (종합 취약점 진단)
+          </div>
+          <div style="color: var(--text-primary); padding-left: 10px; border-left: 1px solid rgba(255,255,255,0.06);">
+            현재 ${pName} 공장의 실시간 데이터 분석 결과, 과거 OEM 오딧 지적 이력 및 사내 진단 데이터 상 
+            <strong>${worstProcess}</strong> 공정이 품질 관리 실사 측면에서 가장 높은 재발방지 취약 노드(점수 ${lowestAvg.toFixed(1)}/10)로 탐지되었습니다. 
+            CRI 지수 수준은 <strong>${formattedCri}% (${criGrade} 등급)</strong>으로 수검 오딧 이전에 즉각적인 시정 조치(Corrective Actions) 및 SOP 개정이 강력히 요구됩니다.
+          </div>
+        </div>
+
+        <div>
+          <div style="font-weight: 800; color: #ffb800; font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
+            <span style="display:inline-block; width:6px; height:6px; background:#ffb800; border-radius:50%;"></span>
+            2. Root Cause Hypothesis (원천 원인 분석 가설)
+          </div>
+          <div style="color: var(--text-primary); padding-left: 10px; border-left: 1px solid rgba(255,255,255,0.06);">
+            - <strong>4M 변경 관리 절차 불이행 가설</strong>: ${worstProcess} 공정 내의 핵심 금형 및 자재 규격 대체 적용 시 품질 부서의 사전 승인(FMEA) 및 검증(MSA) 워크플로우 통제 인터락 부재.<br>
+            - <strong>정량적 모니터링 주기 한계 가설</strong>: 생산 작업자 가상 인터뷰 결과, 온도/가압 프로파일 한계 관리선 이탈 시 이상 조치 가이드(OCAP) 작동 유효성 검증 체계 미흡.
+          </div>
+        </div>
+
+        <div>
+          <div style="font-weight: 800; color: #00ff66; font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
+            <span style="display:inline-block; width:6px; height:6px; background:#00ff66; border-radius:50%;"></span>
+            3. Corrective Action (현장 즉각 8D 대책안)
+          </div>
+          <div style="color: var(--text-primary); padding-left: 10px; border-left: 1px solid rgba(255,255,255,0.06);">
+            - <strong>D3 (임시 대책)</strong>: 취약 공정 작업자 대상 온도 제어 표준 및 금형 클리닝 주기 가이드라인 긴급 직무 교육 시행 및 교대조별 100% 점검 보증.<br>
+            - <strong>D4 (근본 원인 조치)</strong>: 생산 작업 단계에서 SOP 외 조건 투입 시 생산 가동이 자동 차단(Poka-Yoke)되는 전산 제어 코드 긴급 업그레이드 적용.<br>
+            - <strong>D5 (영구 대책 검증)</strong>: 8D 조치 담당자 지정 하에 3개 배치 연속 품질 안정성(Cpk 1.67 이상) 데이터 수집 및 실증 데이터 수립.
+          </div>
+        </div>
+
+        <div>
+          <div style="font-weight: 800; color: #00f2fe; font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
+            <span style="display:inline-block; width:6px; height:6px; background:#00f2fe; border-radius:50%;"></span>
+            4. Required Evidence (수검 필수 현장 증적)
+          </div>
+          <div style="color: var(--text-primary); padding-left: 10px; border-left: 1px solid rgba(255,255,255,0.06);">
+            - ${worstProcess} 공정 온도 조절기 계측기 교정 검교정 성적서 원본 공유 폴더(Evidences) 동기화 보존.<br>
+            - D3 교육 이행 확인을 위한 작업자 자필 서명 서약 교육 일지 확보.<br>
+            - 공정 제어 한계(UCL/LCL) 개정 검증을 입증하는 최신 한계 관리 스탯 일지 보관.
+          </div>
+        </div>
+
+        <div>
+          <div style="font-weight: 800; color: #3b82f6; font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
+            <span style="display:inline-block; width:6px; height:6px; background:#3b82f6; border-radius:50%;"></span>
+            5. SOP Revision Guide (표준 작업 지침서 개정안)
+          </div>
+          <div style="color: var(--text-primary); padding-left: 10px; border-left: 1px solid rgba(255,255,255,0.06);">
+            - <strong>문서번호 SOP-${activePlantCode}-${worstProcess.substring(0,3).toUpperCase()}-2026 개정</strong>: '가압 온도 이상 3분 이상 지속 시 부적합 격리창고(MR Zone) 전산 강제 이송 및 4M 특별 변경 이력 즉시 보고' 제6항 조항 신설 개정 추진.<br>
+            - 현장 오퍼레이팅 보드에 실사 대조용 한글/영문 개정판 SOP 코멘트 명시 부착.
+          </div>
+        </div>
+      </div>
+    `;
+    aiActionBox.innerHTML = aiActionHtml;
+
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+  },
+
+  // 💡 ⑧ CSV 다운로드 통합 보조 엔진
+  downloadCSV(filename, csvContent) {
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    this.showToast(`Excel 한글 깨짐 방지 BOM이 포함된 CSV 다운로드가 완료되었습니다. (${filename})`, "success");
+  },
+
+  // 💡 ⑨ 고객사 감사 지적 이력 내보내기 (Customer Audit Checklist Export)
+  exportCustomerAuditChecklist() {
+    const activePlantCode = this.state.plantRiskActivePlant || 'DP';
+    const activeCustomer = this.state.tab3Customer || 'BMW';
+    const activeProcess = this.state.tab3Process || 'ALL';
+
+    console.log(`🏭 Exporting Customer Audit Checklist CSV: Plant=${activePlantCode}, Cust=${activeCustomer}, Proc=${activeProcess}`);
+
+    let fallbackLevel = 1;
+    let targetFindings = (this.state.auditFindings || []).filter(item => {
+      const isPlantMatch = item.PLANT === activePlantCode;
+      const isCustomerMatch = (item.CAR_MAKER || '').toLowerCase() === activeCustomer.toLowerCase();
+      let isProcMatch = true;
+      if (activeProcess !== 'ALL') {
+        const procCode = item._mappedProcess || this.getFindingProcess(item);
+        isProcMatch = (procCode === activeProcess);
+      }
+      return isPlantMatch && isCustomerMatch && isProcMatch;
+    });
+
+    if (targetFindings.length === 0) {
+      fallbackLevel = 2;
+      targetFindings = (this.state.auditFindings || []).filter(item => {
+        const isCustomerMatch = (item.CAR_MAKER || '').toLowerCase() === activeCustomer.toLowerCase();
+        let isProcMatch = true;
+        if (activeProcess !== 'ALL') {
+          const procCode = item._mappedProcess || this.getFindingProcess(item);
+          isProcMatch = (procCode === activeProcess);
+        }
+        return isCustomerMatch && isProcMatch;
+      });
+    }
+
+    if (targetFindings.length === 0) {
+      fallbackLevel = 3;
+      const globalBig3 = ['bmw', 'ford', 'hyundai'];
+      targetFindings = (this.state.auditFindings || []).filter(item => {
+        const isCustomerMatch = globalBig3.includes((item.CAR_MAKER || '').toLowerCase());
+        let isProcMatch = true;
+        if (activeProcess !== 'ALL') {
+          const procCode = item._mappedProcess || this.getFindingProcess(item);
+          isProcMatch = (procCode === activeProcess);
+        }
+        return isCustomerMatch && isProcMatch;
+      });
+    }
+
+    if (targetFindings.length === 0) {
+      this.showToast("다운로드할 감사 지적 이력 데이터가 없습니다.", "warning");
+      return;
+    }
+
+    let csv = '관리번호,고객사,감사 구분,연계 공정,지적사항 제목,오디터 지적 코멘트 (Point Out),근본원인 분석,시정 조치 계획,조치 담당자,조치 상태,등록일,완료일\n';
+    
+    targetFindings.forEach(item => {
+      const docNo = item.DOC_NO || '';
+      const maker = item.CAR_MAKER || '';
+      const type = item.TYPE || '';
+      const proc = item._mappedProcess || this.getFindingProcess(item) || '';
+      const subject = (item.SUBJECT || '').replace(/"/g, '""');
+      const pointout = (item.POINT_OUT || '').replace(/"/g, '""');
+      const rootcause = (item.ROOT_CAUSE_ANALYSIS || '').replace(/"/g, '""');
+      const countermeasure = (item.COUNTER_MEASURE || '').replace(/"/g, '""');
+      const owner = item.OWNER_ID || '';
+      const status = item.STATUS || '';
+      const regDt = item.REG_DT || '';
+      const compDt = item.COMP_DT || '';
+
+      csv += `"${docNo}","${maker}","${type}","${proc}","${subject}","${pointout}","${rootcause}","${countermeasure}","${owner}","${status}","${regDt}","${compDt}"\n`;
+    });
+
+    const filename = `Customer_Audit_Checklist_${activePlantCode}_${activeCustomer}_${activeProcess}.csv`;
+    this.downloadCSV(filename, csv);
+  },
+
+  // 💡 ⑩ 최우선 준비 항목 내보내기 (Priority Prep Items Export)
+  exportPriorityPrepItems() {
+    const activePlantCode = this.state.plantRiskActivePlant || 'DP';
+    const activeProcess = this.state.tab3Process || 'ALL';
+
+    console.log(`🏭 Exporting Priority Prep Items CSV: Plant=${activePlantCode}, Proc=${activeProcess}`);
+
+    const allAssessmentItems = this.state.oeQualityAssessmentDetails || [];
+    const plantItems = allAssessmentItems.filter(item => item.plant === activePlantCode);
+
+    let filteredItems = plantItems;
+    if (activeProcess !== 'ALL') {
+      filteredItems = plantItems.filter(item => (item.process || '').toLowerCase() === activeProcess.toLowerCase());
+    }
+
+    const validItems = filteredItems.filter(item => item.score && item.score.toString().trim().toUpperCase() !== 'N/A');
+    const prepItems = validItems.filter(item => parseFloat(item.score) <= 6);
+
+    const processOrder = ['Incoming', 'Mixing', 'Extruding', 'Calendering', 'Cutting', 'Bead', 'Building', 'Curing', 'Inspection', 'Shipping'];
+    prepItems.sort((a, b) => {
+      const orderA = processOrder.indexOf(a.process);
+      const orderB = processOrder.indexOf(b.process);
+      if (orderA !== orderB) return orderA - orderB;
+      return parseFloat(a.score) - parseFloat(b.score);
+    });
+
+    if (prepItems.length === 0) {
+      this.showToast("다운로드할 최우선 준비 항목이 없습니다.", "warning");
+      return;
+    }
+
+    let csv = '공정,체크 영역,점검 요건 (체크 항목),진단 점수,현장 실사 피드백,SOP 개량권고,💡 우수 공장 Peer 벤치마킹\n';
+
+    prepItems.forEach(item => {
+      const proc = item.process || '';
+      const area = item.area || '';
+      const checkItem = (item.check_item || '').replace(/"/g, '""');
+      const score = item.score || '';
+      const findings = (item.findings || '').replace(/"/g, '""');
+      const guidance = (item.guidance || '').replace(/"/g, '""');
+
+      const peers = allAssessmentItems.filter(pItem => 
+        pItem.check_item === item.check_item && 
+        parseFloat(pItem.score) === 10 && 
+        pItem.plant !== activePlantCode
+      );
+      let peerText = 'HQ Standard SOP 지침 준수';
+      if (peers.length > 0) {
+        const plantList = peers.map(p => p.plant).join(', ');
+        const bp = peers[0].findings || peers[0].guidance || '';
+        peerText = `모범공장 [${plantList}] : ${bp}`;
+      }
+      peerText = peerText.replace(/"/g, '""');
+
+      csv += `"${proc}","${area}","${checkItem}","${score}","${findings}","${guidance}","${peerText}"\n`;
+    });
+
+    const filename = `Priority_Prep_Items_${activePlantCode}_${activeProcess}.csv`;
+    this.downloadCSV(filename, csv);
+  },
+
+  // 💡 ⑪ 공장 전체 체크리스트 내보내기 (Entire Plant Checklist Export)
+  exportEntirePlantChecklist() {
+    const activePlantCode = this.state.plantRiskActivePlant || 'DP';
+    const activeProcess = this.state.tab3Process || 'ALL';
+
+    console.log(`🏭 Exporting Entire Plant Checklist CSV: Plant=${activePlantCode}, Proc=${activeProcess}`);
+
+    const allAssessmentItems = this.state.oeQualityAssessmentDetails || [];
+    const plantItems = allAssessmentItems.filter(item => item.plant === activePlantCode);
+
+    let filteredItems = plantItems;
+    if (activeProcess !== 'ALL') {
+      filteredItems = plantItems.filter(item => (item.process || '').toLowerCase() === activeProcess.toLowerCase());
+    }
+
+    const validItems = filteredItems.filter(item => item.score && item.score.toString().trim().toUpperCase() !== 'N/A');
+
+    if (validItems.length === 0) {
+      this.showToast("다운로드할 전체 체크시트 데이터가 없습니다.", "warning");
+      return;
+    }
+
+    let csv = 'ID,공장 코드,공정,분류,체크 요건 (체크 항목),진단 영역,진단 점수,현장 실사 피드백,개량 권고 표준 (Guidance)\n';
+
+    validItems.forEach(item => {
+      const id = item.id || '';
+      const plant = item.plant || '';
+      const proc = item.process || '';
+      const cat = item.category || '';
+      const checkItem = (item.check_item || '').replace(/"/g, '""');
+      const area = item.area || '';
+      const score = item.score || '';
+      const findings = (item.findings || '').replace(/"/g, '""');
+      const guidance = (item.guidance || '').replace(/"/g, '""');
+
+      csv += `"${id}","${plant}","${proc}","${cat}","${checkItem}","${area}","${score}","${findings}","${guidance}"\n`;
+    });
+
+    const filename = `Entire_Plant_Checklist_${activePlantCode}_${activeProcess}.csv`;
+    this.downloadCSV(filename, csv);
   },
 
   // ==========================================================================
