@@ -756,7 +756,7 @@ const app = {
     const ddaySubNode = document.getElementById('planning-kpi-dday-sub');
     if (ddayValNode && ddaySubNode) {
       ddayValNode.innerHTML = `<span class="kpi-val ${dDayClass}" style="font-size: 32px; font-weight: 800; font-family: monospace;">${dDayText}</span>`;
-      ddaySubNode.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted);">수검 확정일: <strong>${audit.date}</strong></span>`;
+      ddaySubNode.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted-light);">수검 확정일: <strong>${audit.date}</strong></span>`;
     }
 
     const totalValNode = document.getElementById('planning-kpi-total');
@@ -768,21 +768,21 @@ const app = {
     const completedSubNode = document.getElementById('planning-kpi-completed-sub');
     if (completedValNode && completedSubNode) {
       completedValNode.innerHTML = `<span class="kpi-val" style="font-size: 32px; font-weight: 800; color: #10b981; font-family: monospace;">${completedCount}</span><span style="font-size: 13px; color: var(--text-secondary); margin-left: 4px;">개</span>`;
-      completedSubNode.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted);">대비 달성율: <strong style="color: #10b981;">${completionRate.toFixed(0)}%</strong></span>`;
+      completedSubNode.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted-light);">대비 달성율: <strong style="color: #10b981;">${completionRate.toFixed(0)}%</strong></span>`;
     }
 
     const progressValNode = document.getElementById('planning-kpi-progress');
     const progressSubNode = document.getElementById('planning-kpi-progress-sub');
     if (progressValNode && progressSubNode) {
       progressValNode.innerHTML = `<span class="kpi-val" style="font-size: 32px; font-weight: 800; color: #3b82f6; font-family: monospace;">${inProgressCount}</span><span style="font-size: 13px; color: var(--text-secondary); margin-left: 4px;">개</span>`;
-      progressSubNode.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted);">부서 조치 및 검토 단계</span>`;
+      progressSubNode.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted-light);">부서 조치 및 검토 단계</span>`;
     }
 
     const delayedValNode = document.getElementById('planning-kpi-delayed');
     const delayedSubNode = document.getElementById('planning-kpi-delayed-sub');
     if (delayedValNode && delayedSubNode) {
-      delayedValNode.innerHTML = `<span class="kpi-val" style="font-size: 32px; font-weight: 800; color: ${delayedCount > 0 ? '#ef4444' : 'var(--text-muted)'}; font-family: monospace;">${delayedCount}</span><span style="font-size: 13px; color: var(--text-secondary); margin-left: 4px;">개</span>`;
-      delayedSubNode.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted);">${delayedCount > 0 ? '<strong style="color: #ef4444;">조치 지연 리스크 감지</strong>' : '일정 지연 없음 (양호)'}</span>`;
+      delayedValNode.innerHTML = `<span class="kpi-val" style="font-size: 32px; font-weight: 800; color: ${delayedCount > 0 ? '#ef4444' : 'var(--text-muted-light)'}; font-family: monospace;">${delayedCount}</span><span style="font-size: 13px; color: var(--text-secondary); margin-left: 4px;">개</span>`;
+      delayedSubNode.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted-light);">${delayedCount > 0 ? '<strong style="color: #ef4444;">조치 지연 리스크 감지</strong>' : '일정 지연 없음 (양호)'}</span>`;
     }
 
     // [4] 타겟 정보 뱃지 및 카드 헤더 동기화
