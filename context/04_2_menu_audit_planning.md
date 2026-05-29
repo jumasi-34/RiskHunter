@@ -120,11 +120,10 @@ renderCalendarTab() {
   const audit = this.state.audits.find(a => a.id === this.state.selectedAuditId);
   if (!audit) return;
 
-  const customTasks = this.state.customPlanningTasks[audit.id] || [];
-
-  // 1. 실시간 완료 통계 집계 연산
-  const totalT = customTasks.length;
-  const completedT = customTasks.filter(t => t.status === 'completed').length;
+  // 1. 실시간 완료 통계 집계 연산 (10대 마일스톤 태스크 기준)
+  const taskStates = this.state.planningChecklistStates[audit.id] || {};
+  const totalT = this.state.planningTasks.length;
+  const completedT = this.state.planningTasks.filter(t => taskStates[t.id] === 'completed').length;
   const completionRate = totalT > 0 ? (completedT / totalT) * 100 : 0;
 
   // 2. 고정 기준일(2026-05-29) 기반 D-Day 실시간 환산 연산
@@ -170,11 +169,29 @@ renderCalendarTab() {
 과제 세부 정보를 수정하여 완료 상태로 바꾼 순간, 복잡한 트리거 수동 지연 없이 메모리 데이터 업데이트와 동시에 달력 진척도 뷰도 일치 갱신되도록 파이프라인을 유도합니다:
 
 ```javascript
-saveCustomPlanningTasks() {
-  // 1. 브라우저 로컬 저장소 영속화 저장
-  localStorage.setItem('riskhunter_custom_planning_tasks', JSON.stringify(this.state.customPlanningTasks));
-  
-  // 2. 통합 리렌더러를 관통 호출하여 대시보드 KPI 및 달력 미니 배너 데이터 실시간 갱신 보장
+toggleTaskState(taskId) {
+  const auditId = this.state.selectedAuditId;
+  if (!auditId) return;
+
+  if (!this.state.planningChecklistStates[auditId]) {
+    this.state.planningChecklistStates[auditId] = {};
+  }
+
+  const currentState = this.state.planningChecklistStates[auditId][taskId] || "pending";
+  let nextState = "pending";
+
+  if (currentState === "pending") {
+    nextState = "in_progress";
+  } else if (currentState === "in_progress") {
+    nextState = "completed";
+  } else {
+    nextState = "pending";
+  }
+
+  this.state.planningChecklistStates[auditId][taskId] = nextState;
+  localStorage.setItem('riskhunter_checklist_states', JSON.stringify(this.state.planningChecklistStates));
+
+  // 화면 즉각 리렌더링
   this.renderPlanningScreen();
 }
 ```

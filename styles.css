@@ -2003,4 +2003,194 @@ body {
   }
 }
 
+/* ==========================================================================
+   📅 Audit Calendar & White Modal (Phase 3)
+   ========================================================================== */
+.calendar-container {
+  display: flex;
+  flex-direction: column;
+  background: rgba(16, 21, 38, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-panel, 8px);
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.calendar-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.calendar-title-text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.calendar-day-header {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.calendar-day-header.sunday {
+  color: #ef4444;
+}
+
+.calendar-day-header.saturday {
+  color: #3b82f6;
+}
+
+.calendar-cell {
+  min-height: 110px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.calendar-cell:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(0, 200, 255, 0.2);
+}
+
+.calendar-cell.other-month {
+  opacity: 0.3;
+}
+
+.calendar-cell.today {
+  border-color: #00c8ff;
+  box-shadow: inset 0 0 6px rgba(0, 200, 255, 0.15);
+}
+
+.calendar-cell-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-family: monospace;
+}
+
+.calendar-cell-events {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.calendar-event-item {
+  font-size: 10px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.calendar-event-item.audit {
+  background: rgba(37, 99, 235, 0.15);
+  border: 1px solid rgba(37, 99, 235, 0.3);
+  color: #3b82f6;
+}
+
+.calendar-event-item.milestone {
+  background: rgba(0, 200, 255, 0.1);
+  border: 1px solid rgba(0, 200, 255, 0.25);
+  color: #00c8ff;
+}
+
+.calendar-event-item.completed {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  text-decoration: line-through;
+}
+
+/* White Modal (고대비 규칙 준수 - Phase 3) */
+.white-modal .modal-content {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15) !important;
+  border-radius: var(--radius-panel, 8px) !important;
+  color: #0f172a !important;
+}
+
+.white-modal .modal-header {
+  border-bottom: 1px solid #cbd5e1 !important;
+}
+
+.white-modal .modal-title {
+  color: #0f172a !important;
+}
+
+.white-modal .modal-body {
+  color: #0f172a !important;
+}
+
+.white-modal .modal-body label {
+  color: #334155 !important;
+  font-weight: 700 !important;
+}
+
+.white-modal input, 
+.white-modal select, 
+.white-modal textarea {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.white-modal input::placeholder, 
+.white-modal textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.white-modal .btn-outline {
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+  background: #f8fafc !important;
+}
+
+.white-modal .btn-outline:hover {
+  background: #f1f5f9 !important;
+}
+
+.blink {
+  animation: blink-animation 1.5s steps(5, start) infinite;
+}
+
+@keyframes blink-animation {
+  50% {
+    opacity: 0.4;
+  }
+}
+
+
 

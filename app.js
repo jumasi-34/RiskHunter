@@ -90,6 +90,14 @@ const app = {
     audits: [],
     selectedAuditId: null,
     planningChecklistStates: {}, // {[auditId]: {[taskId]: 'pending'|'in_progress'|'completed'}}
+    checklistManagerStates: {},  // {[checklistItemId]: boolean} - Checklist Manager 체크 상태
+    activePlanningSubtab: 'planning-timeline', // 현재 활성화된 서브탭
+    calendarYear: undefined,     // 달력 표시 연도
+    calendarMonth: undefined,    // 달력 표시 월 (0-indexed)
+    activeChecklistType: 'Project', // Checklist Manager 감사 유형
+    activeChecklistScope: 'ALL',    // Checklist Manager 세부 공정/영역
+    activeChecklistPriority: 'ALL', // Checklist Manager 중요도
+    activeChecklistSearch: '',      // Checklist Manager 검색어
     planningTasks: [
       { id: "task_1", milestone: "D-30", title: "OEM 고객 요구 규격서(CSR) 개정판 확보 및 내부 대조", desc: "고객사 최신 품질 요구사항과 당사 SOP 매핑 정합성 확인" },
       { id: "task_2", milestone: "D-30", title: "감사 TF 조직 구성 및 오디터 자격 검증", desc: "내부 VDA 6.3 오디터 자격 보유자 중심 TF 배치 및 R&R 지정" },
@@ -277,7 +285,10 @@ const app = {
       
     } catch (err) {
       console.error("❌ Failed to load static resources:", err);
-      this.showToast("정적 리소스를 로딩할 수 없습니다. 로컬 data/ 폴더 및 파일명을 확인해 주십시오.", "warning");
+      this.showToast("정적 리소스를 로딩할 수 없습니다. 모의 데이터셋으로 대체 구동합니다.", "warning");
+      
+      // 스켈레톤 상태에 갇히지 않도록 즉시 모의 데이터셋 로드 및 렌더링 실행
+      this.loadMockFallbacks();
       
       // 에러 바운더리 오버레이 표출 (Glassmorphism Error Overlay)
       const errorBoundary = document.getElementById('error-boundary');
@@ -289,7 +300,7 @@ const app = {
         }
       }
 
-      // 모의 데이터 강제 구동 버튼 이벤트 바인딩
+      // 모의 데이터 강제 구동 버튼 이벤트 바인딩 (클릭 시 오버레이 닫고 렌더링 최종 보장)
       const btnMockFallback = document.getElementById('btn-run-mock-fallback');
       if (btnMockFallback) {
         btnMockFallback.onclick = (e) => {
@@ -884,6 +895,19 @@ const app = {
       };
       localStorage.setItem('riskhunter_checklist_states', JSON.stringify(this.state.planningChecklistStates));
     }
+
+    // Checklist Manager 체크 상태 복구
+    const storedChecklistManagerStates = localStorage.getItem('riskhunter_checklist_manager_states');
+    if (storedChecklistManagerStates) {
+      try {
+        this.state.checklistManagerStates = JSON.parse(storedChecklistManagerStates);
+      } catch (e) {
+        console.error("Failed to parse checklist manager states", e);
+        this.state.checklistManagerStates = {};
+      }
+    } else {
+      this.state.checklistManagerStates = {};
+    }
   },
 
   // 2) Audit Planning 탭 구동 시 초기화 및 리스너 등록
@@ -908,6 +932,15 @@ const app = {
       selectNode.onchange = (e) => {
         this.state.selectedAuditId = e.target.value;
         localStorage.setItem('riskhunter_selected_audit_id', e.target.value);
+        
+        // 활성 감사 일정이 변경되었을 때, 달력 연/월을 해당 감사일 기준으로 자동 전환
+        const audit = this.state.audits.find(a => a.id === e.target.value);
+        if (audit) {
+          const aDate = new Date(audit.date);
+          this.state.calendarYear = aDate.getFullYear();
+          this.state.calendarMonth = aDate.getMonth();
+        }
+
         this.renderPlanningScreen();
         this.showToast("활성 감사 일정이 전환되었습니다.");
       };
@@ -936,6 +969,124 @@ const app = {
     const btnSaveModal = document.getElementById('btn-save-audit-modal');
     if (btnSaveModal) {
       btnSaveModal.onclick = () => this.saveSchedule();
+    }
+
+    // 3개 서브탭 버튼 (.sub-tab-btn) 바인딩
+    const subTabButtons = document.querySelectorAll('#tab-audit-planning .sub-tab-btn');
+    subTabButtons.forEach(btn => {
+      btn.onclick = (e) => {
+        const targetTab = btn.getAttribute('data-subtab');
+        this.state.activePlanningSubtab = targetTab;
+        
+        // 버튼 active 클래스 토글
+        subTabButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Pane 보이기/숨기기
+        const panes = document.querySelectorAll('#tab-audit-planning .sub-tab-pane');
+        panes.forEach(pane => {
+          pane.style.display = 'none';
+          pane.classList.remove('active-sub-pane');
+        });
+
+        const targetPane = document.getElementById(`subtab-${targetTab}`);
+        if (targetPane) {
+          targetPane.style.display = 'block';
+          targetPane.classList.add('active-sub-pane');
+        }
+
+        this.renderPlanningScreen();
+      };
+    });
+
+    // 달력 제어 버튼 (btn-calendar-prev, btn-calendar-next, btn-calendar-today) 바인딩
+    const btnCalPrev = document.getElementById('btn-calendar-prev');
+    if (btnCalPrev) {
+      btnCalPrev.onclick = () => {
+        if (this.state.calendarMonth === 0) {
+          this.state.calendarMonth = 11;
+          this.state.calendarYear -= 1;
+        } else {
+          this.state.calendarMonth -= 1;
+        }
+        this.renderCalendarTab();
+      };
+    }
+
+    const btnCalNext = document.getElementById('btn-calendar-next');
+    if (btnCalNext) {
+      btnCalNext.onclick = () => {
+        if (this.state.calendarMonth === 11) {
+          this.state.calendarMonth = 0;
+          this.state.calendarYear += 1;
+        } else {
+          this.state.calendarMonth += 1;
+        }
+        this.renderCalendarTab();
+      };
+    }
+
+    const btnCalToday = document.getElementById('btn-calendar-today');
+    if (btnCalToday) {
+      btnCalToday.onclick = () => {
+        const today = new Date("2026-05-29");
+        this.state.calendarYear = today.getFullYear();
+        this.state.calendarMonth = today.getMonth();
+        this.renderCalendarTab();
+      };
+    }
+
+    // Checklist Manager 4-Way 필터 엘리먼트들 바인딩
+    const typeSelect = document.getElementById('checklist-type-select');
+    if (typeSelect) {
+      typeSelect.value = this.state.activeChecklistType || "Project";
+      this.populateChecklistScopeOptions(typeSelect.value);
+
+      typeSelect.onchange = (e) => {
+        const val = e.target.value;
+        this.state.activeChecklistType = val;
+        this.populateChecklistScopeOptions(val);
+        this.state.activeChecklistScope = 'ALL';
+        this.renderChecklistTab();
+      };
+    }
+
+    const scopeSelect = document.getElementById('checklist-scope-select');
+    if (scopeSelect) {
+      scopeSelect.value = this.state.activeChecklistScope || "ALL";
+      scopeSelect.onchange = (e) => {
+        this.state.activeChecklistScope = e.target.value;
+        this.renderChecklistTab();
+      };
+    }
+
+    const priSelect = document.getElementById('checklist-priority-select');
+    if (priSelect) {
+      priSelect.value = this.state.activeChecklistPriority || "ALL";
+      priSelect.onchange = (e) => {
+        this.state.activeChecklistPriority = e.target.value;
+        this.renderChecklistTab();
+      };
+    }
+
+    const searchInput = document.getElementById('checklist-search-input');
+    if (searchInput) {
+      searchInput.value = this.state.activeChecklistSearch || "";
+      searchInput.oninput = (e) => {
+        this.state.activeChecklistSearch = e.target.value;
+        this.renderChecklistTab();
+      };
+    }
+
+    // CSV 내보내기/가져오기 버튼 바인딩
+    const btnExport = document.getElementById('btn-planning-checklist-export');
+    if (btnExport) {
+      btnExport.onclick = () => this.exportChecklistToCSV();
+    }
+
+    const fileImport = document.getElementById('file-planning-checklist-import');
+    if (fileImport) {
+      fileImport.onchange = (e) => this.importChecklistFromCSV(e);
     }
 
     // 화면 렌더링 기동
@@ -1051,6 +1202,34 @@ const app = {
         </div>
       `;
     }
+
+    // 서브탭 상태에 따른 화면 보이기/숨기기 및 분기 렌더링
+    const tabTimeline = document.getElementById('subtab-planning-timeline');
+    const tabCalendar = document.getElementById('subtab-planning-calendar');
+    const tabChecklist = document.getElementById('subtab-planning-checklist');
+
+    const activeTab = this.state.activePlanningSubtab || 'planning-timeline';
+
+    if (activeTab === 'planning-calendar') {
+      if (tabTimeline) tabTimeline.style.display = 'none';
+      if (tabCalendar) tabCalendar.style.display = 'block';
+      if (tabChecklist) tabChecklist.style.display = 'none';
+      this.renderCalendarTab();
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      return; // 캘린더 렌더링 완료 후 조기 리턴
+    } else if (activeTab === 'planning-checklist') {
+      if (tabTimeline) tabTimeline.style.display = 'none';
+      if (tabCalendar) tabCalendar.style.display = 'none';
+      if (tabChecklist) tabChecklist.style.display = 'block';
+      this.renderChecklistTab();
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      return; // 체크리스트 렌더링 완료 후 조기 리턴
+    }
+
+    // 기본 Timeline 탭 활성화 상태
+    if (tabTimeline) tabTimeline.style.display = 'block';
+    if (tabCalendar) tabCalendar.style.display = 'none';
+    if (tabChecklist) tabChecklist.style.display = 'none';
 
     // [5] Milestone Timeline 렌더링
     const milestoneTrackerNode = document.getElementById('planning-milestone-tracker');
@@ -1391,6 +1570,678 @@ const app = {
   },
 
   // ==========================================================================
+  // 📅 Audit Planning 3대 서브탭 전용 핵심 렌더러 및 헬퍼 모듈 (Phase 3)
+  // ==========================================================================
+
+  // [1] 달력 서브탭 렌더러
+  renderCalendarTab() {
+    const audit = this.state.audits.find(a => a.id === this.state.selectedAuditId);
+    if (!audit) return;
+
+    // 1. 실시간 완료 통계 집계 연산 (10대 마일스톤 태스크 기준)
+    const taskStates = this.state.planningChecklistStates[audit.id] || {};
+    const totalT = this.state.planningTasks.length;
+    const completedT = this.state.planningTasks.filter(t => taskStates[t.id] === 'completed').length;
+    const completionRate = totalT > 0 ? (completedT / totalT) * 100 : 0;
+
+    // 2. 고정 기준일(2026-05-29) 기반 D-Day 실시간 환산 연산
+    const todayStr = "2026-05-29";
+    const today = new Date(todayStr);
+    const auditDate = new Date(audit.date);
+    const diffTime = auditDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    let dDayText = diffDays > 0 ? `D-${diffDays}` : (diffDays === 0 ? "D-DAY" : `D+${Math.abs(diffDays)}`);
+
+    // 3. UI DOM 요소 갱신 및 고대비 동적 색상 매퍼 적용
+    const calProgressBar = document.getElementById('calendar-progress-bar');
+    const calProgressPercent = document.getElementById('calendar-progress-percent');
+    const calPrepDday = document.getElementById('calendar-prep-dday');
+    const calPrepSummary = document.getElementById('calendar-prep-summary');
+
+    if (calProgressBar) calProgressBar.style.width = `${completionRate}%`;
+    if (calProgressPercent) calProgressPercent.textContent = `${completionRate.toFixed(0)}%`;
+    
+    if (calPrepDday) {
+      calPrepDday.textContent = dDayText;
+      if (diffDays <= 7 && diffDays >= 0) {
+        calPrepDday.style.color = '#ef4444'; // 위험 일수 점멸
+        calPrepDday.classList.add('blink');
+      } else if (diffDays < 0) {
+        calPrepDday.style.color = 'var(--text-muted-light)'; // 과거 감사
+        calPrepDday.classList.remove('blink');
+      } else {
+        calPrepDday.style.color = '#2563eb'; // 안전 권역
+        calPrepDday.classList.remove('blink');
+      }
+    }
+    
+    if (calPrepSummary) {
+      calPrepSummary.innerHTML = `총 <strong>${totalT}</strong>건 중 <strong>${completedT}</strong>건 완료`;
+    }
+
+    // 4. 년/월 타이틀 바인딩 및 달력 날짜 7x6 그리드 그리기
+    if (this.state.calendarYear === undefined || this.state.calendarMonth === undefined) {
+      const aDate = new Date(audit.date);
+      this.state.calendarYear = aDate.getFullYear();
+      this.state.calendarMonth = aDate.getMonth();
+    }
+
+    const monthTitle = document.getElementById('calendar-month-title');
+    if (monthTitle) {
+      monthTitle.innerHTML = `
+        <i data-lucide="calendar" style="width: 20px; height: 20px; color: #00c8ff; vertical-align: middle;"></i>
+        <span style="vertical-align: middle; margin-left: 6px;">${this.state.calendarYear}년 ${this.state.calendarMonth + 1}월</span>
+      `;
+    }
+
+    const gridBox = document.getElementById('calendar-grid-box');
+    if (!gridBox) return;
+    gridBox.innerHTML = '';
+
+    const year = this.state.calendarYear;
+    const month = this.state.calendarMonth;
+
+    // 1일의 요일과 이번 달 총 일수
+    const firstDay = new Date(year, month, 1).getDay();
+    const lastDate = new Date(year, month + 1, 0).getDate();
+    // 이전 달의 마지막 일수
+    const prevLastDate = new Date(year, month, 0).getDate();
+
+    // 42셀 그리기
+    let html = '';
+
+    // 이전 달 날짜 채우기
+    for (let i = firstDay - 1; i >= 0; i--) {
+      const d = prevLastDate - i;
+      const prevMonth = month === 0 ? 11 : month - 1;
+      const prevYear = month === 0 ? year - 1 : year;
+      html += this.renderCalendarCellHTML(prevYear, prevMonth, d, true, audit, today, taskStates);
+    }
+
+    // 이번 달 날짜 채우기
+    for (let d = 1; d <= lastDate; d++) {
+      html += this.renderCalendarCellHTML(year, month, d, false, audit, today, taskStates);
+    }
+
+    // 다음 달 날짜 채우기
+    const totalFilled = firstDay + lastDate;
+    const remaining = 42 - totalFilled;
+    for (let d = 1; d <= remaining; d++) {
+      const nextMonth = month === 11 ? 0 : month + 1;
+      const nextYear = month === 11 ? year + 1 : year;
+      html += this.renderCalendarCellHTML(nextYear, nextMonth, d, true, audit, today, taskStates);
+    }
+
+    gridBox.innerHTML = html;
+
+    // Lucide Icons 리프레시
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    // 달력 셀 내 인터랙티브 요소 (클릭 시 상태전환) 이벤트 바인딩
+    gridBox.querySelectorAll('.calendar-task-badge').forEach(badge => {
+      badge.onclick = (e) => {
+        e.stopPropagation();
+        const taskId = badge.getAttribute('data-task-id');
+        if (taskId) {
+          this.toggleTaskState(taskId);
+        }
+      };
+    });
+  },
+
+  // [2] 달력 셀 렌더러 HTML 생성 헬퍼
+  renderCalendarCellHTML(year, month, day, isOtherMonth, activeAudit, today, taskStates) {
+    const cellDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+    let classes = ['calendar-cell'];
+    if (isOtherMonth) {
+      classes.push('other-month');
+    }
+
+    // 오늘 날짜 대조 (2026-05-29)
+    const isToday = cellDateStr === "2026-05-29";
+    if (isToday) {
+      classes.push('today');
+    }
+
+    // 감사 예정일 대조
+    const isAuditDay = cellDateStr === activeAudit.date;
+    if (isAuditDay) {
+      classes.push('audit-day');
+    }
+
+    // 오늘과 감사예정일 테두리 및 효과 다이내믹 주입
+    let inlineStyle = "";
+    if (isToday) {
+      inlineStyle = "border: 1.5px solid #ffd700 !important; box-shadow: inset 0 0 8px rgba(255,215,0,0.15); background: rgba(255,215,0,0.02);";
+    } else if (isAuditDay) {
+      inlineStyle = "border: 1.5px solid #2563eb !important; background: rgba(37, 99, 235, 0.05); box-shadow: inset 0 0 8px rgba(37,99,235,0.1);";
+    }
+
+    let cellHTML = `
+      <div class="${classes.join(' ')}" style="position: relative; min-height: 105px; padding: 8px; border: 1px solid rgba(255,255,255,0.03); background: ${isOtherMonth ? 'rgba(255,255,255,0.01)' : 'rgba(255,255,255,0.02)'}; display: flex; flex-direction: column; gap: 4px; ${inlineStyle}">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 11px; font-weight: ${isToday || isAuditDay ? '900' : '600'}; color: ${isOtherMonth ? 'var(--text-muted-light)' : (isToday ? '#ffd700' : (isAuditDay ? '#3b82f6' : 'var(--text-primary)'))};">${day}</span>
+          ${isToday ? '<span style="font-size: 8.5px; font-weight: 800; color: #ffd700; background: rgba(255,215,0,0.08); padding: 1px 4px; border-radius: 3px; font-family: \'Orbitron\', sans-serif;">TODAY</span>' : ''}
+          ${isAuditDay ? '<span style="font-size: 8.5px; font-weight: 800; color: #3b82f6; background: rgba(59,130,246,0.08); padding: 1px 4px; border-radius: 3px; font-family: \'Orbitron\', sans-serif;">AUDIT</span>' : ''}
+        </div>
+        <div class="calendar-events-container" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 3.5px; max-height: 75px; padding-top: 2px;">
+    `;
+
+    // 감사 당일이면 화려한 고객 감사 일정 배지 추가
+    if (isAuditDay) {
+      cellHTML += `
+        <div class="calendar-event-badge" style="font-size: 9.5px; font-weight: 800; background: linear-gradient(135deg, #00c8ff, #3b82f6); color: white; padding: 2px 5px; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 3px;" title="${activeAudit.title}">
+          <i data-lucide="shield" style="width: 10px; height: 10px;"></i>
+          <span>[${activeAudit.customer}] Audit 수검일</span>
+        </div>
+      `;
+    }
+
+    // 10대 마일스톤 태스크들의 Due Date 체크 및 뱃지 그리기
+    const auditDateObj = new Date(activeAudit.date);
+    this.state.planningTasks.forEach(task => {
+      let subtractDays = 0;
+      if (task.milestone === "D-30") subtractDays = 30;
+      else if (task.milestone === "D-15") subtractDays = 15;
+      else if (task.milestone === "D-7") subtractDays = 7;
+      else if (task.milestone === "D-3") subtractDays = 3;
+      else if (task.milestone === "D-Day") subtractDays = 0;
+
+      const dueD = new Date(auditDateObj);
+      dueD.setDate(dueD.getDate() - subtractDays);
+      const dueDStr = `${dueD.getFullYear()}-${String(dueD.getMonth() + 1).padStart(2, '0')}-${String(dueD.getDate()).padStart(2, '0')}`;
+
+      if (cellDateStr === dueDStr) {
+        // 이 날이 해당 준비 태스크의 마감 기한이다
+        const state = taskStates[task.id] || "pending";
+        
+        let bg = 'rgba(255,255,255,0.03)';
+        let border = 'rgba(255,255,255,0.08)';
+        let text = 'var(--text-secondary)';
+        let isDelayed = false;
+
+        if (state === "completed") {
+          bg = '#f0fdf4';
+          border = '#bbf7d0';
+          text = '#15803d';
+        } else if (state === "in_progress") {
+          bg = '#eff6ff';
+          border = '#bfdbfe';
+          text = '#1d4ed8';
+        } else {
+          // pending 상태일 때, 실시간 기준일 2026-05-29 가 마감일을 넘었으면 '지연 위험' 자동 판정
+          const todayDateObj = new Date("2026-05-29");
+          if (todayDateObj >= dueD) {
+            bg = '#fef2f2';
+            border = '#fca5a5';
+            text = '#ef4444';
+            isDelayed = true;
+          } else {
+            bg = '#f8fafc';
+            border = '#e2e8f0';
+            text = '#475569';
+          }
+        }
+
+        cellHTML += `
+          <div class="calendar-task-badge ${isDelayed ? 'blink' : ''}" data-task-id="${task.id}" style="font-size: 9px; font-weight: 700; background: ${bg}; border: 1px solid ${border}; color: ${text}; padding: 2px 4px; border-radius: 3px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 3px; max-width: 100%; transition: all 0.15s;" title="[${task.milestone}] ${task.title} (클릭 시 토글)">
+            <span style="font-size: 8px; font-weight: 900; background: ${text}; color: white; border-radius: 2px; padding: 0px 2.5px; font-family: monospace;">${task.milestone}</span>
+            <span style="overflow: hidden; text-overflow: ellipsis;">${task.title}</span>
+          </div>
+        `;
+      }
+    });
+
+    cellHTML += `
+        </div>
+      </div>
+    `;
+    return cellHTML;
+  },
+
+  // [3] 체크리스트 매니저 서브탭 렌더러 (4-Way Data Mapper 연동)
+  renderChecklistTab() {
+    console.log("📋 Rendering Checklist Manager...");
+    
+    const tableBox = document.getElementById('planning-checklist-table-box');
+    if (!tableBox) return;
+
+    // 필터링 변수 확보
+    const type = this.state.activeChecklistType || "Project";
+    const scope = this.state.activeChecklistScope || "ALL";
+    const priority = this.state.activeChecklistPriority || "ALL";
+    const search = (this.state.activeChecklistSearch || "").trim().toLowerCase();
+
+    // 4-Way 데이터 매퍼 매핑 조건
+    const projectProcesses = ['incoming', 'mixing', 'extrusion', 'calendaring', 'cutting', 'bead', 'building', 'curing', 're-work', 'inspection', 'form', 'sealant'];
+    const systemScopes = ['design', 'test', 'system', 'logistics'];
+
+    const filteredItems = this.state.auditChecklists.filter(item => {
+      const itemCat = (item.process_category || "").trim().toLowerCase();
+      
+      // 1. Audit Type 에 따른 1차 필터링
+      if (type === "Project") {
+        if (!projectProcesses.includes(itemCat)) return false;
+      } else {
+        if (!systemScopes.includes(itemCat)) return false;
+      }
+
+      // 2. 세부 공정/영역에 따른 2차 필터링
+      if (scope !== "ALL") {
+        if (itemCat !== scope.toLowerCase()) return false;
+      }
+
+      // 3. 중요도에 따른 3차 필터링
+      if (priority !== "ALL") {
+        if ((item.priority || "").trim().toLowerCase() !== priority.toLowerCase()) return false;
+      }
+
+      // 4. 키워드 검색에 따른 4차 필터링 (다차원 탐색)
+      if (search) {
+        const req = (item.requirement || "").toLowerCase();
+        const question = (item.audit_question || "").toLowerCase();
+        const evidence = (item.evidence_compliance || "").toLowerCase();
+        const docName = (item.doc_name || "").toLowerCase();
+        const section = (item.section || "").toLowerCase();
+
+        const match = req.includes(search) || 
+                      question.includes(search) || 
+                      evidence.includes(search) || 
+                      docName.includes(search) || 
+                      section.includes(search);
+        if (!match) return false;
+      }
+
+      return true;
+    });
+
+    // 결과 수량 동기화
+    const countNode = document.getElementById('planning-checklist-count');
+    if (countNode) {
+      countNode.innerHTML = `조회 결과: <strong>${filteredItems.length}</strong>건`;
+    }
+
+    // 테이블 헤더 및 골격 렌더링
+    let tableHTML = `
+      <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12.5px;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--border-card); background: rgba(255,255,255,0.01);">
+            <th style="padding: 10px 12px; text-align: center; width: 45px;"><input type="checkbox" id="planning-checklist-all-check" style="cursor: pointer;"></th>
+            <th style="padding: 10px 12px; text-align: left; width: 60px; color: var(--text-secondary); font-weight: 700;">ID</th>
+            <th style="padding: 10px 12px; text-align: left; width: 120px; color: var(--text-secondary); font-weight: 700;">공정 / 영역</th>
+            <th style="padding: 10px 12px; text-align: left; width: 110px; color: var(--text-secondary); font-weight: 700;">완성차 OEM</th>
+            <th style="padding: 10px 12px; text-align: left; color: var(--text-secondary); font-weight: 700;">검증 요구사항 (Requirement)</th>
+            <th style="padding: 10px 12px; text-align: left; color: var(--text-secondary); font-weight: 700; width: 25%;">감사 질문 (Question)</th>
+            <th style="padding: 10px 12px; text-align: left; color: var(--text-secondary); font-weight: 700; width: 25%;">대응 합치 증적 (Evidence)</th>
+            <th style="padding: 10px 12px; text-align: center; width: 80px; color: var(--text-secondary); font-weight: 700;">중요도</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    if (filteredItems.length === 0) {
+      tableHTML += `
+        <tr>
+          <td colspan="8" style="padding: 40px; text-align: center; color: var(--text-muted-light); font-weight: 500;">
+            <i data-lucide="info" style="width: 24px; height: 24px; display: block; margin: 0 auto 10px auto; color: var(--text-muted-light);"></i>
+            설정된 필터 및 키워드 조합에 부합하는 마스터 요구사항 데이터가 없습니다.
+          </td>
+        </tr>
+      `;
+    } else {
+      // 렌더링 성능 유지를 위한 상위 150개 슬라이싱 (그 외 데이터는 엑셀 내보내기 권장)
+      const renderLimit = filteredItems.slice(0, 150);
+
+      renderLimit.forEach(item => {
+        const isChecked = this.state.checklistManagerStates[item.id] === true;
+        
+        let priBadge = '';
+        if (item.priority === 'High') {
+          priBadge = `<span class="badge" style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; font-weight: 700; font-size: 10.5px; padding: 2px 6px; border-radius: 4px;">High</span>`;
+        } else if (item.priority === 'Medium') {
+          priBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); color: #f59e0b; font-weight: 700; font-size: 10.5px; padding: 2px 6px; border-radius: 4px;">Medium</span>`;
+        } else {
+          priBadge = `<span class="badge" style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); color: #3b82f6; font-weight: 600; font-size: 10.5px; padding: 2px 6px; border-radius: 4px;">Low</span>`;
+        }
+
+        const categoryFormatted = (item.process_category || "").toUpperCase();
+        
+        tableHTML += `
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.03); background: ${isChecked ? 'rgba(16, 185, 129, 0.02)' : 'transparent'}; opacity: ${isChecked ? '0.85' : '1'}; transition: background 0.15s;">
+            <td style="padding: 12px; text-align: center;"><input type="checkbox" class="checklist-row-check" data-id="${item.id}" ${isChecked ? 'checked' : ''} style="cursor: pointer;"></td>
+            <td style="padding: 12px; font-family: monospace; font-weight: 700; color: var(--text-muted-light);">${item.id}</td>
+            <td style="padding: 12px; font-weight: 700; color: #00c8ff;">${categoryFormatted}</td>
+            <td style="padding: 12px; font-weight: 700; color: var(--text-primary);">${item.customer || 'ALL'}</td>
+            <td style="padding: 12px; color: var(--text-secondary); font-weight: 500; line-height: 1.4;">
+              <div style="font-weight: 700; color: var(--text-light); margin-bottom: 4px; font-size: 11.5px;">${item.doc_code || 'OEM Req'}</div>
+              <div>${item.requirement}</div>
+            </td>
+            <td style="padding: 12px; font-weight: 600; color: var(--text-light); line-height: 1.4;">${item.audit_question}</td>
+            <td style="padding: 12px; color: var(--text-secondary); font-weight: 500; line-height: 1.4;">${item.evidence_compliance}</td>
+            <td style="padding: 12px; text-align: center;">${priBadge}</td>
+          </tr>
+        `;
+      });
+
+      if (filteredItems.length > 150) {
+        tableHTML += `
+          <tr>
+            <td colspan="8" style="padding: 15px; text-align: center; color: var(--text-muted-light); font-weight: 600; background: rgba(255,255,255,0.01);">
+              ⚠️ 가독성 확보 및 렌더링 부하 보존을 위해 검색 결과 ${filteredItems.length}개 중 상위 150개 조항만 선제적으로 렌더링되었습니다. (전체 목록은 상단의 엑셀 내보내기로 확보 가능)
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    tableHTML += `
+        </tbody>
+      </table>
+    `;
+
+    tableBox.innerHTML = tableHTML;
+
+    // 전체 아이콘 리리프레시
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    // 단일 행 체크박스 클릭 이벤트 리스너 바인딩
+    tableBox.querySelectorAll('.checklist-row-check').forEach(checkbox => {
+      checkbox.onchange = (e) => {
+        const id = checkbox.getAttribute('data-id');
+        this.state.checklistManagerStates[id] = checkbox.checked;
+        localStorage.setItem('riskhunter_checklist_manager_states', JSON.stringify(this.state.checklistManagerStates));
+        
+        // 실시간 뷰 전환 피드백
+        const tr = checkbox.closest('tr');
+        if (tr) {
+          if (checkbox.checked) {
+            tr.style.background = 'rgba(16, 185, 129, 0.02)';
+            tr.style.opacity = '0.85';
+          } else {
+            tr.style.background = 'transparent';
+            tr.style.opacity = '1';
+          }
+        }
+
+        // 전체선택 상태 실시간 동조 연산
+        const allChecks = tableBox.querySelectorAll('.checklist-row-check');
+        const checkedCount = Array.from(allChecks).filter(cb => cb.checked).length;
+        const allHeaderCheck = document.getElementById('planning-checklist-all-check');
+        if (allHeaderCheck) {
+          allHeaderCheck.checked = (checkedCount === allChecks.length && allChecks.length > 0);
+        }
+      };
+    });
+
+    // 전체선택 체크박스 클릭 이벤트 리스너 바인딩
+    const allHeaderCheck = document.getElementById('planning-checklist-all-check');
+    if (allHeaderCheck) {
+      allHeaderCheck.onchange = (e) => {
+        const isChecked = allHeaderCheck.checked;
+        const rowChecks = tableBox.querySelectorAll('.checklist-row-check');
+        
+        rowChecks.forEach(checkbox => {
+          checkbox.checked = isChecked;
+          const id = checkbox.getAttribute('data-id');
+          this.state.checklistManagerStates[id] = isChecked;
+
+          const tr = checkbox.closest('tr');
+          if (tr) {
+            if (isChecked) {
+              tr.style.background = 'rgba(16, 185, 129, 0.02)';
+              tr.style.opacity = '0.85';
+            } else {
+              tr.style.background = 'transparent';
+              tr.style.opacity = '1';
+            }
+          }
+        });
+
+        localStorage.setItem('riskhunter_checklist_manager_states', JSON.stringify(this.state.checklistManagerStates));
+      };
+    }
+  },
+
+  // [4] Checklist Manager용 4-Way 드롭다운 2차 연계 옵션 동적 채우기 헬퍼
+  populateChecklistScopeOptions(type) {
+    const scopeSelect = document.getElementById('checklist-scope-select');
+    if (!scopeSelect) return;
+
+    scopeSelect.innerHTML = '';
+
+    // 'ALL' 옵션은 항상 최상단에 고정
+    const allOpt = document.createElement('option');
+    allOpt.value = 'ALL';
+    allOpt.textContent = '전체 공정/영역 (ALL)';
+    scopeSelect.appendChild(allOpt);
+
+    if (type === 'Project') {
+      const processes = [
+        { code: 'incoming', name: '수입검사 (Incoming)' },
+        { code: 'mixing', name: '정련공정 (Mixing)' },
+        { code: 'extrusion', name: '압출공정 (Extrusion)' },
+        { code: 'calendaring', name: '압연공정 (Calendaring)' },
+        { code: 'cutting', name: '재단공정 (Cutting)' },
+        { code: 'bead', name: '비드공정 (Bead)' },
+        { code: 'building', name: '성형공정 (Building)' },
+        { code: 'curing', name: '가류공정 (Curing)' },
+        { code: 're-work', name: '재작업 (Re-work)' },
+        { code: 'inspection', name: '최종검사 (Inspection)' },
+        { code: 'form', name: '흡음재부착 (Form)' },
+        { code: 'sealant', name: '실란트도포 (Sealant)' }
+      ];
+      processes.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.code;
+        opt.textContent = p.name;
+        scopeSelect.appendChild(opt);
+      });
+    } else {
+      const scopes = [
+        { code: 'design', name: '개발설계 (Design)' },
+        { code: 'test', name: '품질평가 및 실험 (Test)' },
+        { code: 'system', name: '시스템/행정 (System)' },
+        { code: 'logistics', name: '물류 및 포장 (Logistics)' }
+      ];
+      scopes.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.code;
+        opt.textContent = s.name;
+        scopeSelect.appendChild(opt);
+      });
+    }
+  },
+
+  // [5] 엑셀(CSV) 내보내기 구현 (UTF-8 BOM 준수 한글 보존)
+  exportChecklistToCSV() {
+    console.log("📥 Exporting checklist to CSV...");
+
+    const type = this.state.activeChecklistType || "Project";
+    const scope = this.state.activeChecklistScope || "ALL";
+    const priority = this.state.activeChecklistPriority || "ALL";
+    const search = (this.state.activeChecklistSearch || "").trim().toLowerCase();
+
+    const projectProcesses = ['incoming', 'mixing', 'extrusion', 'calendaring', 'cutting', 'bead', 'building', 'curing', 're-work', 'inspection', 'form', 'sealant'];
+    const systemScopes = ['design', 'test', 'system', 'logistics'];
+
+    const filteredItems = this.state.auditChecklists.filter(item => {
+      const itemCat = (item.process_category || "").trim().toLowerCase();
+      if (type === "Project") {
+        if (!projectProcesses.includes(itemCat)) return false;
+      } else {
+        if (!systemScopes.includes(itemCat)) return false;
+      }
+      if (scope !== "ALL") {
+        if (itemCat !== scope.toLowerCase()) return false;
+      }
+      if (priority !== "ALL") {
+        if ((item.priority || "").trim().toLowerCase() !== priority.toLowerCase()) return false;
+      }
+      if (search) {
+        const req = (item.requirement || "").toLowerCase();
+        const question = (item.audit_question || "").toLowerCase();
+        const evidence = (item.evidence_compliance || "").toLowerCase();
+        const docName = (item.doc_name || "").toLowerCase();
+        const section = (item.section || "").toLowerCase();
+
+        if (!req.includes(search) && !question.includes(search) && !evidence.includes(search) && !docName.includes(search) && !section.includes(search)) {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    if (filteredItems.length === 0) {
+      this.showToast("내보낼 수 있는 필터링된 체크리스트가 존재하지 않습니다.", "warning");
+      return;
+    }
+
+    // CSV 파일 헤더 정의
+    const headers = ["ID", "공정/영역(Category)", "완성차 OEM(Customer)", "요구 규격코드(Doc Code)", "검증 요구사항(Requirement)", "감사 질문(Audit Question)", "대응 합치 증적(Evidence)", "중요도(Priority)", "준비 상태(Status)"];
+    
+    let csvContent = "\ufeff"; // MS Excel 한글 인코딩 보호 UTF-8 BOM
+    csvContent += headers.map(h => `"${h.replace(/"/g, '""')}"`).join(",") + "\n";
+
+    filteredItems.forEach(item => {
+      const isChecked = this.state.checklistManagerStates[item.id] === true;
+      const statusLabel = isChecked ? "완료(Completed)" : "대기(Pending)";
+
+      const row = [
+        item.id,
+        (item.process_category || "").toUpperCase(),
+        item.customer || "ALL",
+        item.doc_code || "",
+        item.requirement || "",
+        item.audit_question || "",
+        item.evidence_compliance || "",
+        item.priority || "Medium",
+        statusLabel
+      ];
+
+      csvContent += row.map(cell => {
+        const str = String(cell);
+        return `"${str.replace(/"/g, '""')}"`;
+      }).join(",") + "\n";
+    });
+
+    // 안전 Blob 기법을 통한 로컬 가상 다운로드 기동
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    
+    const dateStr = "2026-05-29";
+    link.setAttribute("href", url);
+    link.setAttribute("download", `RiskHunter_Checklist_${type}_${scope}_${dateStr}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    this.showToast(`체크리스트 ${filteredItems.length}건이 엑셀(CSV)로 정상 추출되어 내려받아졌습니다!`, "success");
+    this.logAction(null, `체크리스트 엑셀 다운로드: ${filteredItems.length}건 (타입: ${type}, 영역: ${scope})`, 'action');
+  },
+
+  // [6] 엑셀(CSV) 가져오기 및 준비 상태 동적 복원 구현
+  importChecklistFromCSV(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    console.log("📤 Importing checklist CSV:", file.name);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target.result;
+      const lines = text.split(/\r?\n/);
+      if (lines.length < 2) {
+        this.showToast("업로드한 CSV 파일에 유효한 정보 조항이 존재하지 않습니다.", "warning");
+        return;
+      }
+
+      const headerLine = lines[0];
+      const headers = this.parseCSVLine(headerLine);
+      const idIdx = headers.findIndex(h => h.trim().toUpperCase() === "ID");
+      const statusIdx = headers.findIndex(h => h.trim().includes("상태") || h.trim().toUpperCase().includes("STATUS"));
+
+      if (idIdx === -1 || statusIdx === -1) {
+        this.showToast("올바른 양식이 아닙니다. 필수 칼럼(ID, 준비 상태)을 보유한 CSV 양식을 활용하십시오.", "warning");
+        return;
+      }
+
+      let importCount = 0;
+      let updateCount = 0;
+
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+
+        const cells = this.parseCSVLine(line);
+        if (cells.length <= Math.max(idIdx, statusIdx)) continue;
+
+        const rawId = cells[idIdx].trim();
+        const id = parseInt(rawId) || rawId; // 고유 ID 파싱
+        const statusVal = cells[statusIdx].trim().toUpperCase();
+
+        if (!id) continue;
+
+        // "완료(Completed)", "Completed" 등 판정
+        const isCompleted = statusVal.includes("완료") || statusVal.includes("COMPLETED") || statusVal.includes("CHECK") || statusVal === "TRUE";
+
+        // 시스템 내 마스터 체크리스트 데이터셋 내 ID와 교차 매칭 확인
+        const exists = this.state.auditChecklists.some(item => String(item.id) === String(id));
+        if (exists) {
+          this.state.checklistManagerStates[id] = isCompleted;
+          updateCount++;
+        }
+        importCount++;
+      }
+
+      if (updateCount > 0) {
+        // 영속 보존 동기화
+        localStorage.setItem('riskhunter_checklist_manager_states', JSON.stringify(this.state.checklistManagerStates));
+        this.renderChecklistTab();
+        this.showToast(`CSV 파싱 무결성 통과! 총 ${updateCount}개 요구사양 조항의 현장 준비 상태가 완벽 동기화되었습니다.`, "success");
+        this.logAction(null, `체크리스트 CSV 상태 수입: 파일명 ${file.name} (성공 반영: ${updateCount}건)`, 'action');
+      } else {
+        this.showToast("가져온 파일 내용 중 시스템 내 마스터 ID와 부합하는 유효 조항이 감지되지 않았습니다.", "warning");
+      }
+
+      e.target.value = ''; // 파일 인풋 캐시 리셋
+    };
+
+    reader.onerror = () => {
+      this.showToast("파일을 해석하여 읽는 도중 디코딩 에러가 감지되었습니다.", "warning");
+    };
+
+    reader.readAsText(file, "UTF-8");
+  },
+
+  // [7] 견고한 CSV 토큰화 해석 헬퍼 (따옴표 및 내부 컴마 파싱 완벽 보장)
+  parseCSVLine(line) {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          current += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (char === ',' && !inQuotes) {
+        result.push(current);
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    result.push(current);
+    return result;
+  },
+
+  // ==========================================================================
   // 🏭 3. Plant Risk & Action (공장별 Risk 및 사후 조치 입력 핵심 구현 - Phase 4)
   // ==========================================================================
 
@@ -1727,30 +2578,34 @@ const app = {
     if (criIssuesNode) criIssuesNode.textContent = issuesPenalty.toFixed(0) + '점';
 
     let statusText = 'LOW RISK';
-    let themeColor = '#00ff66'; // Neon Green
-    let glowStyle = '0 0 15px rgba(0, 255, 102, 0.35)';
+    let textColor = 'var(--text-status-low)';
+    let borderColor = 'var(--border-status-low)';
+    let bgColor = 'var(--bg-status-low)';
 
     if (cri >= 41.1) {
       statusText = 'CRITICAL HIGH RISK';
-      themeColor = '#ff0055'; // Neon Pink
-      glowStyle = '0 0 15px rgba(255, 0, 85, 0.35)';
+      textColor = 'var(--text-status-high)';
+      borderColor = 'var(--border-status-high)';
+      bgColor = 'var(--bg-status-high)';
     } else if (cri >= 38.1) {
       statusText = 'MODERATE RISK';
-      themeColor = '#ffb800'; // Neon Yellow
-      glowStyle = '0 0 15px rgba(255, 184, 0, 0.35)';
+      textColor = 'var(--text-status-medium)';
+      borderColor = 'var(--border-status-medium)';
+      bgColor = 'var(--bg-status-medium)';
     }
 
     if (criStatusNode) {
       criStatusNode.textContent = statusText;
-      criStatusNode.style.color = themeColor;
+      criStatusNode.style.color = textColor;
     }
     if (criValueNode) {
-      criValueNode.style.color = themeColor;
-      criValueNode.style.textShadow = `0 0 10px ${themeColor}80`;
+      criValueNode.style.color = textColor;
+      criValueNode.style.textShadow = 'none';
     }
     if (criLcdCard) {
-      criLcdCard.style.borderColor = themeColor;
-      criLcdCard.style.boxShadow = glowStyle;
+      criLcdCard.style.borderColor = borderColor;
+      criLcdCard.style.backgroundColor = bgColor;
+      criLcdCard.style.boxShadow = 'var(--shadow-base)';
     }
 
     // ⑤ 10대 공정 진단 레이더 차트 렌더링
@@ -1817,24 +2672,24 @@ const app = {
               label: `${plantName} 공장 수준`,
               data: plantData,
               fill: true,
-              backgroundColor: 'rgba(0, 242, 254, 0.15)',
-              borderColor: '#00f2fe',
-              pointBackgroundColor: '#00f2fe',
+              backgroundColor: 'rgba(37, 99, 235, 0.15)',
+              borderColor: '#2563eb',
+              pointBackgroundColor: '#2563eb',
               pointBorderColor: '#fff',
               pointHoverBackgroundColor: '#fff',
-              pointHoverBorderColor: '#00f2fe',
+              pointHoverBorderColor: '#2563eb',
               borderWidth: 2
             },
             {
               label: '글로벌 8대 공장 평균',
               data: globalData,
               fill: true,
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              borderColor: 'rgba(255, 255, 255, 0.4)',
-              pointBackgroundColor: 'rgba(255, 255, 255, 0.6)',
+              backgroundColor: 'rgba(148, 163, 184, 0.10)',
+              borderColor: '#94a3b8',
+              pointBackgroundColor: '#94a3b8',
               pointBorderColor: '#fff',
               pointHoverBackgroundColor: '#fff',
-              pointHoverBorderColor: 'rgba(255, 255, 255, 0.4)',
+              pointHoverBorderColor: '#94a3b8',
               borderWidth: 1.5,
               borderDash: [4, 4]
             }
@@ -1847,8 +2702,8 @@ const app = {
             legend: {
               position: 'bottom',
               labels: {
-                color: '#94a3b8',
-                font: { family: 'Rajdhani, Inter', size: 11, weight: '600' }
+                color: '#475569',
+                font: { family: 'Inter', size: 11, weight: '600' }
               }
             },
             tooltip: {
@@ -1862,19 +2717,19 @@ const app = {
           scales: {
             r: {
               angleLines: {
-                color: 'rgba(255, 255, 255, 0.08)'
+                color: 'rgba(15, 23, 42, 0.08)'
               },
               grid: {
-                color: 'rgba(255, 255, 255, 0.08)'
+                color: 'rgba(15, 23, 42, 0.08)'
               },
               pointLabels: {
-                color: '#94a3b8',
+                color: '#475569',
                 font: { family: 'Inter', size: 10, weight: '600' }
               },
               ticks: {
-                color: '#64748b',
+                color: '#475569',
                 backdropColor: 'transparent',
-                font: { family: 'Rajdhani', size: 9 },
+                font: { family: 'Inter', size: 9 },
                 stepSize: 20
               },
               min: 0,
@@ -1911,12 +2766,12 @@ const app = {
         <table class="data-table" style="width: 100%; border-collapse: separate; border-spacing: 4px; font-size: 11.5px; text-align: center;">
           <thead>
             <tr>
-              <th style="padding: 8px; text-align: left; color: var(--text-secondary); background: rgba(255,255,255,0.01); border-radius: 4px;">제조 공정</th>
+              <th style="padding: 8px; text-align: left; color: var(--text-secondary); background: #f8fafc; border-radius: 4px; border: 1px solid var(--border-card);">제조 공정</th>
       `;
       
       plantCodes.forEach(plt => {
         const isSelected = plt === activePlantCode;
-        const highlightStyle = isSelected ? 'border: 1px solid #00f2fe; color: #00f2fe; background: rgba(0, 242, 254, 0.1); font-weight: 800;' : 'color: var(--text-secondary);';
+        const highlightStyle = isSelected ? 'border: 1px solid var(--brand-blue); color: var(--brand-blue); background: var(--bg-status-info); font-weight: 800;' : 'color: var(--text-secondary); border: 1px solid var(--border-card);';
         html += `<th style="padding: 8px; ${highlightStyle} border-radius: 4px;">${plt}</th>`;
       });
       html += `</tr></thead><tbody>`;
@@ -1937,7 +2792,7 @@ const app = {
         
         html += `
           <tr>
-            <td style="padding: 8px; text-align: left; font-weight: 700; color: var(--text-primary); background: rgba(255,255,255,0.02); border-radius: 4px; width: 120px;">
+            <td style="padding: 8px; text-align: left; font-weight: 700; color: var(--text-primary); background: #f8fafc; border: 1px solid var(--border-card); border-radius: 4px; width: 120px;">
               ${koName} <span style="font-size: 9px; color: var(--text-muted-light); font-weight: 400; display: block;">${proc}</span>
             </td>
         `;
@@ -1950,23 +2805,23 @@ const app = {
           let cellText = '';
           
           if (val === 'N/A') {
-            cellStyle = 'background: rgba(255,255,255,0.03); color: var(--text-muted-light); border: 1px solid rgba(255,255,255,0.05);';
+            cellStyle = 'background: #f1f5f9; color: var(--text-muted); border: 1px solid var(--border-card);';
             cellText = 'N/A';
           } else {
             cellText = val.toFixed(0) + '%';
             if (val >= 95) {
-              cellStyle = 'background: rgba(0, 255, 102, 0.15); color: #00ff66; border: 1px solid rgba(0, 255, 102, 0.3);';
+              cellStyle = 'background: var(--bg-status-low); color: var(--text-status-low); border: 1px solid var(--border-status-low);';
             } else if (val >= 90) {
-              cellStyle = 'background: rgba(0, 191, 255, 0.15); color: #00bfff; border: 1px solid rgba(0, 191, 255, 0.3);';
+              cellStyle = 'background: var(--bg-status-info); color: var(--text-status-info); border: 1px solid var(--border-status-info);';
             } else if (val >= 85) {
-              cellStyle = 'background: rgba(255, 184, 0, 0.15); color: #ffb800; border: 1px solid rgba(255, 184, 0, 0.3);';
+              cellStyle = 'background: var(--bg-status-medium); color: var(--text-status-medium); border: 1px solid var(--border-status-medium);';
             } else {
-              cellStyle = 'background: rgba(255, 0, 85, 0.18); color: #ff0055; border: 1px solid rgba(255, 0, 85, 0.3);';
+              cellStyle = 'background: var(--bg-status-high); color: var(--text-status-high); border: 1px solid var(--border-status-high);';
             }
           }
           
           if (isSelected) {
-            cellStyle += ' box-shadow: 0 0 8px rgba(0, 242, 254, 0.5); border-color: #00f2fe !important; font-weight: 800;';
+            cellStyle += ' outline: 2px solid var(--brand-blue); outline-offset: -2px; border-color: var(--brand-blue) !important; font-weight: 800;';
           }
           
           html += `<td style="padding: 8px; ${cellStyle} border-radius: 4px;">${cellText}</td>`;
@@ -2074,14 +2929,14 @@ const app = {
               const tx = px + dx;
               const ty = py + dy;
               
-              ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+              ctx.strokeStyle = 'rgba(15, 23, 42, 0.15)';
               ctx.lineWidth = 1;
               ctx.beginPath();
               ctx.moveTo(px, py);
               ctx.lineTo(tx, ty);
               ctx.stroke();
               
-              ctx.fillStyle = '#f8fafc';
+              ctx.fillStyle = '#334155';
               ctx.font = 'bold 10px Inter, "맑은 고딕"';
               ctx.textAlign = isLeftHemisphere ? 'left' : 'right';
               ctx.textBaseline = 'middle';
@@ -2100,24 +2955,24 @@ const app = {
             {
               label: 'Perfect (안정 우수)',
               data: perfectData,
-              backgroundColor: '#00ff66',
-              borderColor: '#00ff66',
+              backgroundColor: '#10b981',
+              borderColor: '#10b981',
               pointRadius: 6,
               pointHoverRadius: 8
             },
             {
               label: 'Warning (보완 필요)',
               data: warningData,
-              backgroundColor: '#ffb800',
-              borderColor: '#ffb800',
+              backgroundColor: '#f59e0b',
+              borderColor: '#f59e0b',
               pointRadius: 6,
               pointHoverRadius: 8
             },
             {
               label: 'Critical (고위험 취약)',
               data: criticalData,
-              backgroundColor: '#ff0055',
-              borderColor: '#ff0055',
+              backgroundColor: '#ef4444',
+              borderColor: '#ef4444',
               pointRadius: 6,
               pointHoverRadius: 8
             }
@@ -2130,8 +2985,8 @@ const app = {
             legend: {
               position: 'bottom',
               labels: {
-                color: '#94a3b8',
-                font: { family: 'Rajdhani, Inter', size: 11, weight: '600' }
+                color: '#475569',
+                font: { family: 'Inter', size: 11, weight: '600' }
               }
             },
             tooltip: {
@@ -2146,10 +3001,10 @@ const app = {
             x: {
               min: 30,
               max: 110,
-              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              grid: { color: 'rgba(15, 23, 42, 0.05)' },
               ticks: {
-                color: '#94a3b8',
-                font: { family: 'Rajdhani', size: 10 },
+                color: '#475569',
+                font: { family: 'Inter', size: 10 },
                 callback: function(value) {
                   return value > 100 ? '' : value + '%';
                 }
@@ -2157,17 +3012,17 @@ const app = {
               title: {
                 display: true,
                 text: 'Infrastructure Score (%)',
-                color: '#94a3b8',
-                font: { family: 'Rajdhani', size: 11, weight: 'bold' }
+                color: '#475569',
+                font: { family: 'Inter', size: 11, weight: 'bold' }
               }
             },
             y: {
               min: 30,
               max: 110,
-              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              grid: { color: 'rgba(15, 23, 42, 0.05)' },
               ticks: {
-                color: '#94a3b8',
-                font: { family: 'Rajdhani', size: 10 },
+                color: '#475569',
+                font: { family: 'Inter', size: 10 },
                 callback: function(value) {
                   return value > 100 ? '' : value + '%';
                 }
@@ -2175,8 +3030,8 @@ const app = {
               title: {
                 display: true,
                 text: 'Process Compliance (%)',
-                color: '#94a3b8',
-                font: { family: 'Rajdhani', size: 11, weight: 'bold' }
+                color: '#475569',
+                font: { family: 'Inter', size: 11, weight: 'bold' }
               }
             }
           }
@@ -2186,15 +3041,15 @@ const app = {
 
     // 2. Bar Chart (Process Compliance)
     const barColors = complianceData.map(val => {
-      if (val >= 95) return 'rgba(0, 255, 102, 0.7)'; // Perfect Neon Green
-      if (val >= 85) return 'rgba(255, 184, 0, 0.7)'; // Warning Neon Yellow
-      return 'rgba(255, 0, 85, 0.7)'; // Critical Neon Pink
+      if (val >= 95) return 'rgba(16, 185, 129, 0.7)'; // Perfect HSL Low
+      if (val >= 85) return 'rgba(245, 158, 11, 0.7)'; // Warning HSL Medium
+      return 'rgba(239, 68, 68, 0.7)'; // Critical HSL High
     });
     
     const barBorders = complianceData.map(val => {
-      if (val >= 95) return '#00ff66';
-      if (val >= 85) return '#ffb800';
-      return '#ff0055';
+      if (val >= 95) return '#10b981';
+      if (val >= 85) return '#f59e0b';
+      return '#ef4444';
     });
 
     const ctxBar = document.getElementById('chart-bar-compliance');
@@ -2247,17 +3102,17 @@ const app = {
             x: {
               grid: { display: false },
               ticks: {
-                color: '#94a3b8',
+                color: '#475569',
                 font: { family: 'Inter', size: 10, weight: '600' }
               }
             },
             y: {
               min: 30,
               max: 100,
-              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              grid: { color: 'rgba(15, 23, 42, 0.05)' },
               ticks: {
-                color: '#94a3b8',
-                font: { family: 'Rajdhani', size: 10 },
+                color: '#475569',
+                font: { family: 'Inter', size: 10 },
                 stepSize: 10,
                 callback: function(value) { return value + '%'; }
               }
@@ -2386,8 +3241,8 @@ const app = {
 
     if (targetFindings.length === 0) {
       customerTableBox.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; color: var(--text-secondary); font-size: 13px; border: 1px dashed rgba(255,255,255,0.05); border-radius: 8px;">
-          <i data-lucide="shield-check" style="width: 32px; height: 32px; color: #00ff66; margin-bottom: 8px;"></i>
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; color: var(--text-secondary); font-size: 13px; border: 1px dashed var(--border-card); border-radius: 8px;">
+          <i data-lucide="shield-check" style="width: 32px; height: 32px; color: var(--color-status-low); margin-bottom: 8px;"></i>
           <span style="font-weight: 700; color: var(--text-primary);">조회 조건에 해당하는 감사 지적사항이 전혀 없습니다.</span>
           <span style="font-size: 11px; margin-top: 4px;">지정 공장 및 공정 품질 표준 준수율이 완벽히 안정적 상태입니다.</span>
         </div>
@@ -2400,7 +3255,7 @@ const app = {
     table.style.cssText = 'width: 100%; border-collapse: collapse; font-size: 12px;';
     table.innerHTML = `
       <thead>
-        <tr style="border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.015); position: sticky; top: 0; z-index: 10;">
+        <tr style="border-bottom: 1px solid var(--border-card); background: #f8fafc; position: sticky; top: 0; z-index: 10;">
           <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 130px;">관리번호</th>
           <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 80px;">고객사</th>
           <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 100px;">감사 구분</th>
@@ -2420,12 +3275,12 @@ const app = {
       const isOngoing = item.STATUS === 'On-going';
       const tr = document.createElement('tr');
       tr.style.cssText = `
-        border-bottom: 1px solid rgba(255,255,255,0.03);
+        border-bottom: 1px solid var(--border-card);
         transition: background 0.15s;
-        background: ${index % 2 === 1 ? 'rgba(255,255,255,0.005)' : 'none'};
+        background: ${index % 2 === 1 ? '#f8fafc' : '#ffffff'};
       `;
-      tr.onmouseenter = () => { tr.style.background = 'rgba(255,255,255,0.02)'; };
-      tr.onmouseleave = () => { tr.style.background = index % 2 === 1 ? 'rgba(255,255,255,0.005)' : 'none'; };
+      tr.onmouseenter = () => { tr.style.background = '#f1f5f9'; };
+      tr.onmouseleave = () => { tr.style.background = index % 2 === 1 ? '#f8fafc' : '#ffffff'; };
 
       const fNo = item.DOC_NO || `FINDING-${index + 1}`;
 
@@ -2440,12 +3295,12 @@ const app = {
             padding: 3px 8px;
             border-radius: 4px;
             font-weight: 700;
-            background: rgba(239, 68, 68, 0.12);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.2);
+            background: var(--bg-status-high);
+            color: var(--text-status-high);
+            border: 1px solid var(--border-status-high);
             font-size: 11px;
           ">
-            <span style="width: 6px; height: 6px; background: #ef4444; border-radius: 50%; display: inline-block;"></span>
+            <span style="width: 6px; height: 6px; background: var(--color-status-high); border-radius: 50%; display: inline-block;"></span>
             On-going
           </span>
         `;
@@ -2459,12 +3314,12 @@ const app = {
             padding: 3px 8px;
             border-radius: 4px;
             font-weight: 700;
-            background: rgba(16, 185, 129, 0.12);
-            color: #10b981;
-            border: 1px solid rgba(16, 185, 129, 0.2);
+            background: var(--bg-status-low);
+            color: var(--text-status-low);
+            border: 1px solid var(--border-status-low);
             font-size: 11px;
           ">
-            <span style="width: 6px; height: 6px; background: #10b981; border-radius: 50%; display: inline-block;"></span>
+            <span style="width: 6px; height: 6px; background: var(--color-status-low); border-radius: 50%; display: inline-block;"></span>
             Closed
           </span>
         `;
@@ -2550,7 +3405,7 @@ const app = {
         <td style="padding: 10px; font-weight: 700; color: var(--text-primary); font-family: monospace;">${fNo}</td>
         <td style="padding: 10px; font-weight: 600; color: var(--text-primary);">${item.CAR_MAKER || '-'}</td>
         <td style="padding: 10px; color: var(--text-secondary);">${item.TYPE || '-'}</td>
-        <td style="padding: 10px;"><span style="font-size:11px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); padding:2px 6px; border-radius:4px; color:var(--text-primary);">${procName}</span></td>
+        <td style="padding: 10px;"><span style="font-size:11px; background:#f1f5f9; border:1px solid var(--border-card); padding:2px 6px; border-radius:4px; color:var(--text-primary);">${procName}</span></td>
         <td style="padding: 10px; line-height: 1.4;">
           <div style="font-weight: 700; color: var(--text-primary);">${item.SUBJECT || '-'}</div>
           <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">${pointOutText}</div>
@@ -2757,23 +3612,23 @@ const app = {
         white-space: nowrap;
         cursor: pointer;
         transition: all 0.2s ease-in-out;
-        border: 1px solid ${isActive ? 'rgba(0, 242, 254, 0.4)' : 'rgba(255, 255, 255, 0.05)'};
-        background: ${isActive ? 'linear-gradient(135deg, rgba(0, 242, 254, 0.15), rgba(0, 242, 254, 0.05))' : 'rgba(255, 255, 255, 0.02)'};
-        color: ${isActive ? '#00f2fe' : 'var(--text-secondary)'};
-        box-shadow: ${isActive ? '0 0 8px rgba(0, 242, 254, 0.2)' : 'none'};
+        border: 1px solid ${isActive ? 'var(--brand-blue)' : 'var(--border-input)'};
+        background: ${isActive ? 'var(--bg-status-info)' : 'var(--bg-card)'};
+        color: ${isActive ? 'var(--brand-blue)' : 'var(--text-secondary)'};
+        box-shadow: var(--shadow-sm);
       `;
 
       btn.onmouseover = () => {
         if (!isActive) {
-          btn.style.background = 'rgba(255, 255, 255, 0.05)';
-          btn.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+          btn.style.background = '#f1f5f9';
+          btn.style.borderColor = 'var(--border-input)';
           btn.style.color = 'var(--text-primary)';
         }
       };
       btn.onmouseout = () => {
         if (!isActive) {
-          btn.style.background = 'rgba(255, 255, 255, 0.02)';
-          btn.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+          btn.style.background = 'var(--bg-card)';
+          btn.style.borderColor = 'var(--border-input)';
           btn.style.color = 'var(--text-secondary)';
         }
       };
@@ -2872,9 +3727,9 @@ const app = {
           const plantList = peers.map(p => p.plant).join(', ');
           const bestPractice = peers[0].findings || peers[0].guidance || 'SOP 정량 준수 및 디지털 실시간 모니터링 적용';
           peerHtml = `
-            <div style="background: rgba(0, 242, 254, 0.04); border: 1px solid rgba(0, 242, 254, 0.15); border-radius: 4px; padding: 6px 10px; font-size: 11px; color: #00f2fe; line-height: 1.4;">
+            <div style="background: var(--bg-status-info); border: 1px solid var(--border-status-info); border-radius: 4px; padding: 6px 10px; font-size: 11px; color: var(--text-status-info); line-height: 1.4;">
               <div style="font-weight:800; display:flex; align-items:center; gap:4px; margin-bottom:2px;">
-                <span style="display:inline-block; width:4px; height:4px; background:#00f2fe; border-radius:50%;"></span>
+                <span style="display:inline-block; width:4px; height:4px; background:var(--color-status-info); border-radius:50%;"></span>
                 모범: ${plantList}공장 (10점 만점)
               </div>
               <div style="color:var(--text-primary); text-overflow:ellipsis; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">
@@ -2884,8 +3739,8 @@ const app = {
           `;
         } else {
           peerHtml = `
-            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 4px; padding: 6px 10px; font-size: 11px; color: var(--text-muted); line-height: 1.4;">
-              <div style="font-weight:700;">글로벌 대표 3대사 표준</div>
+            <div style="background: var(--bg-app); border: 1px solid var(--border-card); border-radius: 4px; padding: 6px 10px; font-size: 11px; color: var(--text-muted-light); line-height: 1.4;">
+              <div style="font-weight:700; color:var(--text-secondary);">글로벌 대표 3대사 표준</div>
               <div>Standard SOP 지침 준수 및 계측기 이상 한계 관리 적용</div>
             </div>
           `;
@@ -2893,21 +3748,21 @@ const app = {
 
         const tr = document.createElement('tr');
         tr.style.cssText = `
-          border-bottom: 1px solid rgba(255,255,255,0.03);
+          border-bottom: 1px solid var(--border-card);
           transition: background 0.15s;
-          background: ${index % 2 === 1 ? 'rgba(255,255,255,0.005)' : 'none'};
+          background: ${index % 2 === 1 ? '#f8fafc' : '#ffffff'};
         `;
-        tr.onmouseenter = () => { tr.style.background = 'rgba(255,255,255,0.02)'; };
-        tr.onmouseleave = () => { tr.style.background = index % 2 === 1 ? 'rgba(255,255,255,0.005)' : 'none'; };
+        tr.onmouseenter = () => { tr.style.background = '#f1f5f9'; };
+        tr.onmouseleave = () => { tr.style.background = index % 2 === 1 ? '#f8fafc' : '#ffffff'; };
 
         tr.innerHTML = `
-          <td style="padding: 10px;"><span style="font-size:11px; font-weight:700; background:rgba(255,0,85,0.05); border:1px solid rgba(255,0,85,0.1); padding:2px 6px; border-radius:4px; color:#ff0055;">${item.process}</span></td>
+          <td style="padding: 10px;"><span style="font-size:11px; font-weight:700; background:var(--bg-status-high); border:1px solid var(--border-status-high); padding:2px 6px; border-radius:4px; color:var(--text-status-high);">${item.process}</span></td>
           <td style="padding: 10px; font-weight:600; color:var(--text-primary); max-width:180px; word-break:break-all;">${item.check_item}</td>
-          <td style="padding: 10px; text-align:center;"><span style="font-size:11.5px; font-weight:800; color:#ff0055; background:rgba(255,0,85,0.12); padding:3px 8px; border-radius:4px; border:1px solid rgba(255,0,85,0.2);">${item.score}</span></td>
+          <td style="padding: 10px; text-align:center;"><span style="font-size:11.5px; font-weight:800; color:var(--text-status-high); background:var(--bg-status-high); padding:3px 8px; border-radius:4px; border:1px solid var(--border-status-high);">${item.score}</span></td>
           <td style="padding: 10px; line-height:1.4; color:var(--text-secondary); max-width:200px; word-break:break-all;">
             <div style="font-weight:700; color:var(--text-primary); font-size:11.5px; margin-bottom:2px;">[현장 실사 피드백]</div>
             ${item.findings || '-'}
-            <div style="font-size:11px; color:#ffb800; font-weight:700; margin-top:4px;">
+            <div style="font-size:11px; color:var(--text-status-medium); font-weight:700; margin-top:4px;">
               [SOP 개량권고] ${item.guidance || '정량적 점검 기준서 재정립'}
             </div>
           </td>
@@ -2921,8 +3776,8 @@ const app = {
     // B. 표준 우수 관리 항목 테이블 채우기
     if (excellentItems.length === 0) {
       excellentTableBox.innerHTML = `
-        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px; color:var(--text-secondary); border:1px dashed rgba(255,255,255,0.05); border-radius:6px; font-size:12px;">
-          <i data-lucide="shield-alert" style="width:24px; height:24px; color:#ffb800; margin-bottom:6px;"></i>
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px; color:var(--text-secondary); border:1px dashed var(--border-card); border-radius:6px; font-size:12px;">
+          <i data-lucide="shield-alert" style="width:24px; height:24px; color:var(--color-status-medium); margin-bottom:6px;"></i>
           <span>8점 이상 우수 관리 항목이 없습니다.</span>
         </div>
       `;
@@ -2932,7 +3787,7 @@ const app = {
       table.style.cssText = 'width: 100%; border-collapse: collapse; font-size: 12px;';
       table.innerHTML = `
         <thead>
-          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.015); position: sticky; top: 0; z-index: 10;">
+          <tr style="border-bottom: 1px solid var(--border-card); background: #f8fafc; position: sticky; top: 0; z-index: 10;">
             <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 80px;">공정</th>
             <th style="padding: 10px; font-weight: 700; color: var(--text-secondary);">안정 관리 항목</th>
             <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 60px; text-align: center;">점수</th>
@@ -2946,23 +3801,23 @@ const app = {
       excellentItems.forEach((item, index) => {
         const tr = document.createElement('tr');
         tr.style.cssText = `
-          border-bottom: 1px solid rgba(255,255,255,0.03);
+          border-bottom: 1px solid var(--border-card);
           transition: background 0.15s;
-          background: ${index % 2 === 1 ? 'rgba(255,255,255,0.005)' : 'none'};
+          background: ${index % 2 === 1 ? '#f8fafc' : '#ffffff'};
         `;
-        tr.onmouseenter = () => { tr.style.background = 'rgba(255,255,255,0.02)'; };
-        tr.onmouseleave = () => { tr.style.background = index % 2 === 1 ? 'rgba(255,255,255,0.005)' : 'none'; };
+        tr.onmouseenter = () => { tr.style.background = '#f1f5f9'; };
+        tr.onmouseleave = () => { tr.style.background = index % 2 === 1 ? '#f8fafc' : '#ffffff'; };
 
         tr.innerHTML = `
-          <td style="padding: 10px;"><span style="font-size:11px; font-weight:700; background:rgba(16,185,129,0.05); border:1px solid rgba(16,185,129,0.1); padding:2px 6px; border-radius:4px; color:#10b981;">${item.process}</span></td>
+          <td style="padding: 10px;"><span style="font-size:11px; font-weight:700; background:var(--bg-status-low); border:1px solid var(--border-status-low); padding:2px 6px; border-radius:4px; color:var(--text-status-low);">${item.process}</span></td>
           <td style="padding: 10px;">
             <div style="font-weight:700; color:var(--text-primary);">${item.check_item}</div>
-            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">실적: ${item.findings || 'SOP 완벽 준수 및 이력 확인 만족'}</div>
+            <div style="font-size:11px; color:var(--text-muted-light); margin-top:2px;">실적: ${item.findings || 'SOP 완벽 준수 및 이력 확인 만족'}</div>
           </td>
-          <td style="padding: 10px; text-align:center;"><span style="font-size:11px; font-weight:800; color:#10b981; background:rgba(16,185,129,0.1); padding:2px 6px; border-radius:4px;">${item.score}</span></td>
+          <td style="padding: 10px; text-align:center;"><span style="font-size:11px; font-weight:800; color:var(--text-status-low); background:var(--bg-status-low); padding:2px 6px; border-radius:4px; border:1px solid var(--border-status-low);">${item.score}</span></td>
           <td style="padding: 10px; text-align:center;">
-            <span style="display:inline-flex; align-items:center; gap:3px; font-size:10.5px; font-weight:700; background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.2); padding:2px 6px; border-radius:4px;">
-              <span style="width:5px; height:5px; background:#10b981; border-radius:50%;"></span>
+            <span style="display:inline-flex; align-items:center; gap:3px; font-size:10.5px; font-weight:700; background:var(--bg-status-low); color:var(--text-status-low); border:1px solid var(--border-status-low); padding:2px 6px; border-radius:4px;">
+              <span style="width:5px; height:5px; background:var(--color-status-low); border-radius:50%;"></span>
               만족 (Excellent)
             </span>
           </td>
@@ -3005,29 +3860,29 @@ const app = {
     const formattedCri = criScore.toFixed(1);
 
     let criGrade = 'A';
-    let criColor = '#00ff66';
-    let criBg = 'rgba(0, 255, 102, 0.1)';
+    let criColor = 'var(--color-status-low)';
+    let criBg = 'var(--bg-status-low)';
     let criDesc = '최고 수준의 안전 공정 표준 상태입니다. 완성차 고객 수검 시 최상위 등급(VDA 6.3 A등급) 확보가 기대됩니다.';
     
     if (criScore < 60) {
       criGrade = 'E';
-      criColor = '#ef4444';
-      criBg = 'rgba(239, 68, 68, 0.15)';
+      criColor = 'var(--color-status-high)';
+      criBg = 'var(--bg-status-high)';
       criDesc = '🚨 초고위험 취약 공정 단계입니다. 즉시 비상대책 위원회(TF)를 가동하고 수검 조치 사항 전반을 긴급 보강해야 합니다.';
     } else if (criScore < 70) {
       criGrade = 'D';
-      criColor = '#f97316';
-      criBg = 'rgba(249, 115, 22, 0.15)';
+      criColor = 'var(--color-status-medium)';
+      criBg = 'var(--bg-status-medium)';
       criDesc = '⚠️ 고위험 공정 단계입니다. 다수의 지적사항이 방치되어 있어 OEM 실사 통과가 불투명합니다. 최우선 조치가 강력 권고됩니다.';
     } else if (criScore < 80) {
       criGrade = 'C';
-      criColor = '#ffb800';
-      criBg = 'rgba(255, 184, 0, 0.12)';
+      criColor = 'var(--color-status-medium)';
+      criBg = 'var(--bg-status-medium)';
       criDesc = '보통 수준의 공정 상태입니다. 일부 취약 공정의 SOP 정량 수치 미준수가 관측되므로 벤치마킹 개량이 필요합니다.';
     } else if (criScore < 90) {
       criGrade = 'B';
-      criColor = '#00f2fe';
-      criBg = 'rgba(0, 242, 254, 0.12)';
+      criColor = 'var(--color-status-info)';
+      criBg = 'var(--bg-status-info)';
       criDesc = '양호하고 안정적인 상태입니다. 상시 보완과 4M 변경 관리 프로세스 보더라인 점검을 통해 안정율을 유지하고 있습니다.';
     }
 
@@ -3059,9 +3914,9 @@ const app = {
       top20Items.forEach((item, idx) => {
         const card = document.createElement('div');
         card.style.cssText = `
-          background: rgba(16, 21, 38, 0.4);
-          border: 1px solid rgba(255, 255, 255, 0.03);
-          border-left: 3px solid #ffb800;
+          background: #f8fafc;
+          border: 1px solid var(--border-card);
+          border-left: 3px solid var(--color-status-medium);
           border-radius: 6px;
           padding: 10px 12px;
           display: flex;
@@ -3070,28 +3925,28 @@ const app = {
           transition: all 0.2s;
         `;
         card.onmouseenter = () => {
-          card.style.borderColor = 'rgba(255, 184, 0, 0.25)';
-          card.style.background = 'rgba(16, 21, 38, 0.6)';
+          card.style.borderColor = 'var(--border-input)';
+          card.style.background = '#f1f5f9';
         };
         card.onmouseout = () => {
-          card.style.borderColor = 'rgba(255, 255, 255, 0.03)';
-          card.style.background = 'rgba(16, 21, 38, 0.4)';
+          card.style.borderColor = 'var(--border-card)';
+          card.style.background = '#f8fafc';
         };
 
         card.innerHTML = `
-          <i data-lucide="alert-triangle" style="width:16px; height:16px; color:#ffb800; flex-shrink:0; margin-top:2px;"></i>
+          <i data-lucide="alert-triangle" style="width:16px; height:16px; color:var(--color-status-medium); flex-shrink:0; margin-top:2px;"></i>
           <div style="flex:1;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
-              <span style="font-size:11px; font-weight:800; color:#ffb800; background:rgba(255, 184, 0, 0.08); padding:2px 6px; border-radius:4px;">
+              <span style="font-size:11px; font-weight:800; color:var(--text-status-medium); background:var(--bg-status-medium); padding:2px 6px; border-radius:4px;">
                 #${idx + 1} 과제 - ${item.process}
               </span>
-              <span style="font-size:11px; font-weight:800; color:#ff0055;">진단 점수: ${item.score}/10</span>
+              <span style="font-size:11px; font-weight:800; color:var(--text-status-high);">진단 점수: ${item.score}/10</span>
             </div>
             <div style="font-size:12px; font-weight:700; color:var(--text-primary); margin-bottom:4px;">${item.check_item}</div>
             <div style="font-size:11px; color:var(--text-secondary); line-height:1.4;">
               <strong>지적 요약:</strong> ${item.findings || '-'}
             </div>
-            <div style="font-size:11.5px; color:#00f2fe; font-weight:700; margin-top:5px; display:flex; align-items:center; gap:4px;">
+            <div style="font-size:11.5px; color:var(--brand-blue); font-weight:700; margin-top:5px; display:flex; align-items:center; gap:4px;">
               <i data-lucide="arrow-right" style="width:12px; height:12px;"></i>
               대책: ${item.guidance || 'SOP 수립 및 계측 신뢰성 인터락 보완 고도화'}
             </div>
@@ -3124,16 +3979,16 @@ const app = {
     });
 
     const aiActionHtml = `
-      <div style="display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-        <div style="width: 55px; height: 55px; border-radius: 50%; background: ${criBg}; border: 2px solid ${criColor}; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: ${criColor}; box-shadow: 0 0 15px ${criColor}30; font-family: 'Orbitron', sans-serif; flex-shrink: 0;">
+      <div style="display: flex; align-items: center; gap: 15px; background: #f8fafc; border: 1px solid var(--border-card); border-radius: 8px; padding: 15px; margin-bottom: 20px; box-shadow: var(--shadow-sm);">
+        <div style="width: 55px; height: 55px; border-radius: 50%; background: ${criBg}; border: 2px solid ${criColor}; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: ${criColor}; flex-shrink: 0; font-family: 'Inter', sans-serif;">
           ${criGrade}
         </div>
         <div style="flex:1;">
           <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
-            <span style="font-size:14px; font-weight:800; color:var(--text-primary); font-family: 'Orbitron', sans-serif;">
+            <span style="font-size:14px; font-weight:800; color:var(--text-primary); font-family: 'Inter', sans-serif;">
               ${pName} 공장 CRI (Compliance Risk Index)
             </span>
-            <span style="font-size:16px; font-weight:900; color:${criColor}; font-family: 'Orbitron', sans-serif;">
+            <span style="font-size:16px; font-weight:900; color:${criColor}; font-family: 'Inter', sans-serif;">
               ${formattedCri}%
             </span>
           </div>
@@ -3143,18 +3998,18 @@ const app = {
         </div>
       </div>
 
-      <div style="display:flex; align-items:center; gap:6px; color:#00f2fe; font-size:13px; font-weight:800; margin-bottom:12px; font-family: 'Orbitron', sans-serif;">
+      <div style="display:flex; align-items:center; gap:6px; color:var(--brand-blue); font-size:13px; font-weight:800; margin-bottom:12px; font-family: 'Inter', sans-serif;">
         <i data-lucide="sparkles" style="width:16px; height:16px;"></i>
         <span>AI REAL-TIME AUDIT ADVISORY FEED</span>
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 15px; line-height: 1.6; font-size:12px;">
         <div>
-          <div style="font-weight: 800; color: #ff0055; font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
-            <span style="display:inline-block; width:6px; height:6px; background:#ff0055; border-radius:50%;"></span>
+          <div style="font-weight: 800; color: var(--text-status-high); font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
+            <span style="display:inline-block; width:6px; height:6px; background:var(--color-status-high); border-radius:50%;"></span>
             1. Risk Summary (종합 취약점 진단)
           </div>
-          <div style="color: var(--text-primary); padding-left: 10px; border-left: 1px solid rgba(255,255,255,0.06);">
+          <div style="color: var(--text-primary); padding-left: 10px; border-left: 2px solid var(--border-card);">
             현재 ${pName} 공장의 실시간 데이터 분석 결과, 과거 OEM 오딧 지적 이력 및 사내 진단 데이터 상 
             <strong>${worstProcess}</strong> 공정이 품질 관리 실사 측면에서 가장 높은 재발방지 취약 노드(점수 ${lowestAvg.toFixed(1)}/10)로 탐지되었습니다. 
             CRI 지수 수준은 <strong>${formattedCri}% (${criGrade} 등급)</strong>으로 수검 오딧 이전에 즉각적인 시정 조치(Corrective Actions) 및 SOP 개정이 강력히 요구됩니다.
@@ -3162,22 +4017,22 @@ const app = {
         </div>
 
         <div>
-          <div style="font-weight: 800; color: #ffb800; font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
-            <span style="display:inline-block; width:6px; height:6px; background:#ffb800; border-radius:50%;"></span>
+          <div style="font-weight: 800; color: var(--text-status-medium); font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
+            <span style="display:inline-block; width:6px; height:6px; background:var(--color-status-medium); border-radius:50%;"></span>
             2. Root Cause Hypothesis (원천 원인 분석 가설)
           </div>
-          <div style="color: var(--text-primary); padding-left: 10px; border-left: 1px solid rgba(255,255,255,0.06);">
+          <div style="color: var(--text-primary); padding-left: 10px; border-left: 2px solid var(--border-card);">
             - <strong>4M 변경 관리 절차 불이행 가설</strong>: ${worstProcess} 공정 내의 핵심 금형 및 자재 규격 대체 적용 시 품질 부서의 사전 승인(FMEA) 및 검증(MSA) 워크플로우 통제 인터락 부재.<br>
-            - <strong>정량적 모니터링 주기 한계 가설</strong>: 생산 작업자 가상 인터뷰 결과, 온도/가압 프로파일 한계 관리선 이탈 시 이상 조치 가이드(OCAP) 작동 유효성 검증 체계 미흡.
+            - <strong>정량적 모니링 주기 한계 가설</strong>: 생산 작업자 가상 인터뷰 결과, 온도/가압 프로파일 한계 관리선 이탈 시 이상 조치 가이드(OCAP) 작동 유효성 검증 체계 미흡.
           </div>
         </div>
 
         <div>
-          <div style="font-weight: 800; color: #00ff66; font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
-            <span style="display:inline-block; width:6px; height:6px; background:#00ff66; border-radius:50%;"></span>
+          <div style="font-weight: 800; color: var(--text-status-low); font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
+            <span style="display:inline-block; width:6px; height:6px; background:var(--color-status-low); border-radius:50%;"></span>
             3. Corrective Action (현장 즉각 8D 대책안)
           </div>
-          <div style="color: var(--text-primary); padding-left: 10px; border-left: 1px solid rgba(255,255,255,0.06);">
+          <div style="color: var(--text-primary); padding-left: 10px; border-left: 2px solid var(--border-card);">
             - <strong>D3 (임시 대책)</strong>: 취약 공정 작업자 대상 온도 제어 표준 및 금형 클리닝 주기 가이드라인 긴급 직무 교육 시행 및 교대조별 100% 점검 보증.<br>
             - <strong>D4 (근본 원인 조치)</strong>: 생산 작업 단계에서 SOP 외 조건 투입 시 생산 가동이 자동 차단(Poka-Yoke)되는 전산 제어 코드 긴급 업그레이드 적용.<br>
             - <strong>D5 (영구 대책 검증)</strong>: 8D 조치 담당자 지정 하에 3개 배치 연속 품질 안정성(Cpk 1.67 이상) 데이터 수집 및 실증 데이터 수립.
@@ -3185,11 +4040,11 @@ const app = {
         </div>
 
         <div>
-          <div style="font-weight: 800; color: #00f2fe; font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
-            <span style="display:inline-block; width:6px; height:6px; background:#00f2fe; border-radius:50%;"></span>
+          <div style="font-weight: 800; color: var(--brand-blue); font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
+            <span style="display:inline-block; width:6px; height:6px; background:var(--brand-blue); border-radius:50%;"></span>
             4. Required Evidence (수검 필수 현장 증적)
           </div>
-          <div style="color: var(--text-primary); padding-left: 10px; border-left: 1px solid rgba(255,255,255,0.06);">
+          <div style="color: var(--text-primary); padding-left: 10px; border-left: 2px solid var(--border-card);">
             - ${worstProcess} 공정 온도 조절기 계측기 교정 검교정 성적서 원본 공유 폴더(Evidences) 동기화 보존.<br>
             - D3 교육 이행 확인을 위한 작업자 자필 서명 서약 교육 일지 확보.<br>
             - 공정 제어 한계(UCL/LCL) 개정 검증을 입증하는 최신 한계 관리 스탯 일지 보관.
@@ -3197,11 +4052,11 @@ const app = {
         </div>
 
         <div>
-          <div style="font-weight: 800; color: #3b82f6; font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
-            <span style="display:inline-block; width:6px; height:6px; background:#3b82f6; border-radius:50%;"></span>
+          <div style="font-weight: 800; color: var(--text-status-info); font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
+            <span style="display:inline-block; width:6px; height:6px; background:var(--color-status-info); border-radius:50%;"></span>
             5. SOP Revision Guide (표준 작업 지침서 개정안)
           </div>
-          <div style="color: var(--text-primary); padding-left: 10px; border-left: 1px solid rgba(255,255,255,0.06);">
+          <div style="color: var(--text-primary); padding-left: 10px; border-left: 2px solid var(--border-card);">
             - <strong>문서번호 SOP-${activePlantCode}-${worstProcess.substring(0,3).toUpperCase()}-2026 개정</strong>: '가압 온도 이상 3분 이상 지속 시 부적합 격리창고(MR Zone) 전산 강제 이송 및 4M 특별 변경 이력 즉시 보고' 제6항 조항 신설 개정 추진.<br>
             - 현장 오퍼레이팅 보드에 실사 대조용 한글/영문 개정판 SOP 코멘트 명시 부착.
           </div>

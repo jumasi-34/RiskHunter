@@ -234,18 +234,19 @@ $$\text{CRI} = 0.4 \times (100 - \text{System Level}) + 0.3 \times (100 - \text{
 *   **주요 위젯 타이틀 및 영문 레이블**: 사이버네틱 무드를 고양시키는 고해상도 테크 폰트 **`Orbitron`** (Bold)을 선별 채택하였습니다.
 *   **본문 및 설명 텍스트**: 정적이고 정합성 높은 한글/영문 고딕 서체인 **`Inter`** 및 시스템 기본 폰트(Segoe UI, "맑은 고딕")를 계층형 안티앨리어싱 설계하여 최상의 가독성을 보증합니다.
 
-### ② 다이내믹 네온 인디케이터 컬러 맵 (Color Tokens & Glow Effects)
-대시보드에 사용되는 광원 지표는 위기 수준 및 등급에 연동되어 동적인 CSS 글로우 박스 필터와 보더 아웃라인으로 렌더링됩니다.
+### ② 플랫 파스텔 상태 인디케이터 컬러 맵 (Color Tokens & Semantic Styles)
+대시보드에 사용되는 지표는 빛을 내는 글로우 효과를 완전히 제거하고, 가독성과 명도 대비가 우수한 파스텔 톤 연한 배경, 짙은 텍스트 및 경계 외곽선 조합으로 구성됩니다.
 
-| 디자인 지표명 | 대표 헥사코드 (HEX) | 대표 RGB 수치 | CSS 박스 글로우 필터 (Box Glow Style) | 시각적 적용 대상 및 컴포넌트 |
+| 디자인 지표명 | 대표 헥사코드 (HEX) | 파스텔 배경색 (BG) | 파스텔 테두리 (Border) | 시각적 적용 대상 및 컴포넌트 |
 | :--- | :---: | :--- | :--- | :--- |
-| <span style="color:#ff0055">**Neon Pink**</span> (위험) | `#ff0055` | `rgb(255, 0, 85)` | `box-shadow: 0 0 10px rgba(255, 0, 85, 0.4)` | CRI 고위험 경보 보더, 히트맵 임계값 미달 쉘, 6점 이하 최우선 개선 항목 등 점수 표출 영역 |
-| <span style="color:#ffb800">**Neon Yellow**</span> (경고) | `#ffb800` | `rgb(255, 184, 0)` | `box-shadow: 0 0 10px rgba(255, 184, 0, 0.4)` | CRI 중위험 경보 보더, 히트맵 보완 경고 쉘, 7~8점대 차트 막대 및 산점도 주의 Dot |
-| <span style="color:#00ff66">**Neon Green**</span> (안정) | `#00ff66` | `rgb(0, 255, 102)` | `box-shadow: 0 0 10px rgba(0, 255, 102, 0.4)` | CRI 저위험 안전 보더, 히트맵 모범 쉘, 9~10점대 합격점 막대 및 우수 항목 만족 뱃지 |
-| <span style="color:#00f2fe">**Neon Cyan**</span> (주요 포커스) | `#00f2fe` | `rgb(0, 242, 254)` | `box-shadow: 0 0 10px rgba(0, 242, 254, 0.4)` | 글로벌 공장 리본 선택 아웃라인, 인터랙티브 매칭 뱃지, 히트맵 하이라이트 경계 보더 |
+| <span style="color:#ef4444">**Brand Red**</span> (위험) | `#ef4444` | `#fef2f2` (`var(--bg-status-high)`) | `#fca5a5` (`var(--border-status-high)`) | CRI 고위험 경보 보더, 히트맵 임계값 미달 쉘, 6점 이하 최우선 개선 항목 등 점수 표출 영역 |
+| <span style="color:#f59e0b">**Brand Amber**</span> (경고) | `#f59e0b` | `#fffbeb` (`var(--bg-status-medium)`) | `#fcd34d` (`var(--border-status-medium)`) | CRI 중위험 경보 보더, 히트맵 보완 경고 쉘, 7~8점대 차트 막대 및 산점도 주의 Dot |
+| <span style="color:#10b981">**Brand Green**</span> (안정) | `#10b981` | `#f0fdf4` (`var(--bg-status-low)`) | `#86efac` (`var(--border-status-low)`) | CRI 저위험 안전 보더, 히트맵 모범 쉘, 9~10점대 합격점 막대 및 우수 항목 만족 뱃지 |
+| <span style="color:#2563eb">**Brand Blue**</span> (주요 포커스) | `#2563eb` | `#eff6ff` (`var(--bg-status-info)`) | `#bfdbfe` (`var(--border-status-info)`) | 글로벌 공장 리본 선택 아웃라인, 인터랙티브 매칭 뱃지, 히트맵 하이라이트 경계 보더 |
 
-### ③ 글래스모피즘 아크릴 보드 구현 상세 (Glassmorphism Specifications)
-모든 카테고리 카드 패널과 다이어그램 컨테이너는 심해의 깊은 다크 배경 위에 투명 유리를 얹어 놓은 듯한 프리미엄 글래스모피즘 효과가 적용되어 있습니다:
-*   **백그라운드 블러 효과**: `backdrop-filter: blur(12px) saturate(180%)`
-*   **반투명 카드 배경**: `background: rgba(16, 21, 38, 0.65)` 또는 `rgba(10, 14, 28, 0.8)`
-*   **입체형 베벨 엣지 보더**: `border: 1px solid rgba(255, 255, 255, 0.04)` 및 `border-top: 1px solid rgba(255, 255, 255, 0.08)`를 혼합하여 물리적 두께감을 극적으로 암시합니다.
+### ③ 솔리드 표면 카드 및 입체 섀도우 규격 (Solid Surface & Natural Shadow Specs)
+모든 서브 탭 화면의 콘텐츠 영역은 어두운 배경의 글래스모피즘 대신, 맑은 라이트 캔버스 위에 묵직하고 구조적인 안정감을 주는 순백색 카드 규격을 엄격히 유지합니다:
+*   **솔리드 표면 카드**: `background-color: var(--bg-card)` (`#ffffff`) 및 `border: 1px solid var(--border-card)` (`#e2e8f0`)
+*   **자연스러운 내추럴 섀도우**: `box-shadow: var(--shadow-base)` (Glow 효과 전면 배제)
+*   **입력 폼 표준**: `background: var(--bg-card)`, `border: 1px solid var(--border-input)`, `color: var(--text-primary)`를 활용해 라이트 테마 가독성 극대화.
+
