@@ -1708,3 +1708,106 @@ body {
   animation: pulse-glow 2s infinite ease-in-out;
 }
 
+/* ==========================================================================
+   🏭 Phase 4 Plant Risk Matrix Premium Active Style
+   ========================================================================== */
+.active-card {
+  position: relative !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.15) !important;
+}
+
+.active-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 15%;
+  height: 70%;
+  width: 3px;
+  background: #ef4444;
+  border-radius: 0 4px 4px 0;
+  transition: all 0.2s ease-in-out;
+}
+
+/* ==========================================================================
+   🤖 Phase 5 AI Action Advisor Premium Styles
+   ========================================================================== */
+.preset-btn {
+  text-align: left;
+  background: var(--bg-app) !important;
+  border: 1px solid var(--border-card) !important;
+  border-radius: var(--radius-chip) !important;
+  padding: 10px 14px !important;
+  font-size: 12.2px !important;
+  color: var(--text-primary) !important;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.preset-btn:hover {
+  background: var(--bg-status-info) !important;
+  border-color: var(--border-status-info) !important;
+  box-shadow: var(--shadow-sm) !important;
+  transform: translateY(-1.5px);
+}
+
+.preset-btn:hover span {
+  color: var(--text-status-info) !important;
+  font-weight: 600;
+}
+
+.preset-btn:hover i {
+  transform: translateX(4px);
+  color: var(--color-status-info) !important;
+}
+
+.preset-btn i {
+  transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.glass-subcard {
+  border: 1px solid var(--border-card) !important;
+  background: var(--bg-card) !important;
+  box-shadow: var(--shadow-sm) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.glass-subcard:hover {
+  transform: translateY(-2.5px);
+  box-shadow: var(--shadow-md) !important;
+  background: #ffffff !important;
+  border-color: var(--border-status-info) !important;
+}
+
+.ai-feed-placeholder {
+  animation: float-slow 4s infinite ease-in-out;
+}
+
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* 📊 공정별 요약 미니 카드 글래스모피즘 호버 및 스타일링 */
+.process-summary-card {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.process-summary-card:hover {
+  transform: translateY(-2.5px) scale(1.02);
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.process-summary-card:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+
