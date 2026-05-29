@@ -2,22 +2,31 @@
 
 본 문서는 **5. Library** 메인 메뉴 및 화면 우측 하단의 상시 **Floating Assistant (AI 감사 비서)**의 화면 구성, 사용 데이터 연계, 기능 요구사항, UI/UX 사양 및 현장 감사 워크플로우를 정의하는 공식 기획 설계서입니다.
 
+동료가 설계한 '자가 감사 체크리스트 엔진(`04_3_menu_self_audit_checklist`)'의 강력한 비즈니스 로직(OEM 상속, 중복 질문 병합, 다국어 텍스트 마이닝 공정 분류, Fallback 사전 등)을 기존의 프리미엄 3중 서브 탭 라이브러리 구조에 무결하게 병합하여, 전사 품질 요건과 리스크를 기하학적으로 연계하는 프리미엄 감사 지식 허브로 완성합니다.
+
 ---
 
 ## 🎯 1. 설계 및 연동 목적
 
 ### ① 목적
-
 **Library** 메뉴는 전사적으로 표준화된 자체 감사 마스터 체크리스트 및 완성차 고객사(OEM) 요구 규격 문서를 고속 탐색, 필터링 및 다운로드하고, 이들 규격 조항이 공정 리스크와 어떻게 맵핑되어 작동하는지 직관적으로 제공하는 지식 관리 센터(Knowledge Hub)입니다. 
 
-### ② 연동 데이터 리소스
+동료가 설계한 지능형 데이터 처리 로직을 탑재하여 다음을 달성합니다:
+1. **스마트 OEM 상속(Smart OEM Hierarchy)**을 통해 부모 브랜드 선택 시 자회사 및 합작 브랜드 규격을 자동으로 통합 매핑.
+2. **중복 질문 제거(De-duplication)** 알고리즘을 통해 수만 건의 체크리스트 데이터 중복 노출을 차단하여 오디터의 수검 피로도 최소화.
+3. **다국어 텍스트 마이닝 기반 공정 분류(`getFindingProcess`)**를 통해 손상되거나 비어 있는 과거 지적사항 데이터를 15대 표준 공정 코드로 실시간 유추 매핑하여 데이터 무결성 보증.
+4. **전문가 Fallback 사전(Fallback Dictionary)** 설계로 데이터 유실 및 데모 시연 상의 오동작 확률을 영(0)으로 수렴(Zero Crash Policy).
 
+### ② 연동 데이터 리소스
 - **자체 감사 체크리스트 데이터**: [audit_checklists.json](file:///home/jumasi/RiskHunter/data/audit_checklists.json)
   - 10,000건 이상의 고품질 자체 감사 질문 세트.
   - 주요 필드: `id`, `source_type`, `customer`, `doc_code`, `doc_name`, `section`, `audit_question`, `evidence_compliance`, `audit_method`, `process_category`, `related_4m`, `priority`, `plant_risk_score`.
 - **완성차 OEM 규격 문서 데이터**: [document_library.json](file:///home/jumasi/RiskHunter/data/document_library.json)
   - 주요 고객사(BMW, Audi, Hyundai 등)의 최신 기술 요건 및 AI 분석 요약 스키마.
-  - 주요 필드: `id`, `filename`, `customer`, `doc_code`, `doc_name`, `revision_date`, `doc_type`, `file_size`, `review_summary` (overview, key_clauses, applicable_processes, required_evidences), `tire_process_translation` (focus_process, process_param_check, quality_defect_risk, action_sop_guide).
+  - 주요 필드: `id`, `filename`, `customer`, `doc_code`, `doc_name`, `revision_date`, `doc_type`, `file_size`, `review_summary`, `tire_process_translation`.
+- **과거 OE Audit 지적사항 데이터**: [audit_findings.json](file:///home/jumasi/RiskHunter/data/audit_findings.json)
+  - 공장별 과거 지적사항 이력 및 조치 완료/미결 리스트.
+  - 주요 필드: `TYPE`, `STATUS`, `CAR_MAKER`, `SUBJECT`, `POINT_OUT`, `ROOT_CAUSE_ANALYSIS`, `COUNTER_MEASURE` 등.
 
 ---
 
@@ -48,7 +57,6 @@
 [audit_checklists.json](file:///home/jumasi/RiskHunter/data/audit_checklists.json) 데이터를 비동기 fetch하여 사용자가 공정별 전체 현황을 직관적으로 확인하고 정합성 높은 검색을 수행할 수 있도록 지원합니다.
 
 ### ① 공정별 전체 현황 요약 보드 (Process-wise Status Grid)
-
 - **요구 사양**: 체크리스트 목록 상단에 15대 타이어 생산 공정(Mixing, Extrusion, Curing, Building, Inspection 등) 또는 대분류 프로세스 카테고리별 전체 현황을 카드 형태로 시각화합니다.
 - **시각 요소**: 
   - 가로 스크롤 또는 유연한 Flex Grid 형태의 미니 글래스모피즘 공정 현황 보드 배치.
@@ -56,137 +64,24 @@
   - 특정 공정 카드를 클릭하면 하단 데이터 그리드가 해당 공정으로 무지연 필터링되는 퀵 필터 인터랙션을 탑재합니다.
 
 ### ② 체크리스트 고속 데이터 그리드 (Checklist Grid)
-
 - **테이블 컬럼**:
   1. **ID**: 체크리스트 고유 ID.
-  2. **고객사 (Customer)**: 완성차 OEM명 배지 (Audi, BMW 등).
+  2. **고객사 (Customer)**: 완성차 OEM명 배지 (Audi, BMW, Benz, VW 등).
   3. **규격 코드 (Doc Code)**: 연계된 원천 규격 코드.
   4. **공정 분류 (Process)**: `process_category` 또는 `related_4m` 배지.
   5. **중요도 (Priority)**: High (적색/황색 뱃지 테두리 애니메이션), Medium, Low.
   6. **감사 질문 (Audit Question)**: 핵심 질문 내용 요약 (텍스트가 길 경우 호버 시 풀 텍스트 툴팁 제공).
-  7. **준수 증적 (Compliance Evidence)**: 품질 확보를 위해 현장에서 제출해야 할 물리 증적 목록.
-- **사용자 조작 장치**:
-  - **통합 키워드 검색바 (Search Bar)**: 질문 내용, 증적 목록, 규격서 문서명을 통합 검색하는 지능형 실시간 자동 필터.
-  - **공정별/중요도별 드롭다운 필터 (Multi-Filters)**: 글로벌 필터 외에도 라이브러리 내에서 세밀하게 조절 가능한 로컬 필터 제공.
-- **엑셀 호환 CSV 내보내기 (UTF-8 BOM Export)**:
-  - **[CSV 다운로드]** 버튼 제공. 
-  - 클릭 시 현재 사용자가 필터링한 데이터 상태 그대로 CSV 파일을 다운로드하며, 국내 엑셀 프로그램에서 한글 깨짐 없이 정상 개봉되도록 **UTF-8 BOM (UTF-8-SIG, `\ufeff`)**을 접두사 바인딩 처리합니다.
+  7. **준수 증적 (Compliance Evidence)**: 품질 확보를 위해 현장에서 제출해야 할 물리 증적 목록 (상세 드로어 연동).
 
----
+### ③ 핵심 비즈니스 로직 (Core Business Logic)
 
-## 📂 4. 서브 탭 2: Customer Requirements Library (완성차 OEM 규격 요약 및 다운로드)
+#### 🛡️ 1) 제조공정 필터 제거에 따른 Null Guard 설계 (Zero Crash Policy)
+화면 가독성 및 필터 단순화 피드백을 적극 수용하여, UI 단의 로컬 공정 필터 누락이나 글로벌 공정 필터바가 특정 뷰에서 분리되더라도 시스템이 크래시되지 않도록 방어하는 샌드박스 코드를 탑재합니다.
+- **프로그램 중단 방지**: `document.getElementById('process-select')` 또는 `filter-process`가 `null`을 반환하더라도 프로그램 실행이 멈추지 않도록 제어 분기를 마련합니다.
+- **공정 디폴트 필터링 백업**: 사용자가 공정을 선택할 수 없는 환경이거나 누락 상태일 경우, 내부 변수인 `selectedProcess`는 상시 **`"All" (전체 공정)`**을 기본값으로 상속받아 유연하게 작동합니다.
 
-[document_library.json](file:///home/jumasi/RiskHunter/data/document_library.json) 파일에 수록된 각 고객사별 실제 기술 규격 원본 데이터의 명세를 한눈에 확인하고, 다운로드 요구를 처리합니다.
-
-### ① 규격 문서 리스트 카드 그리드 (Document Card Grid)
-
-- **카드 레이아웃**:
-  - 문서별 개별 프리미엄 글래스모피즘 카드 형태로 목록을 구성합니다.
-  - 문서명, 규격 코드, 최종 개정일, 파일 크기 및 문서 속성 배지가 미려하게 표현됩니다.
-- **상세 요약 보기 (Slide-in Drawer)**:
-  - 특정 카드 영역을 클릭하면 화면 우측에서 우아하게 **슬라이드인 드로어(Slide-in Details Panel)** 또는 모달이 열립니다.
-  - 드로어 내부에는 `review_summary` 오브젝트를 파싱하여 아래 정보를 체계적으로 시각화합니다:
-    - **문서 기본 정보**: 개정일, 문서 종류, 적용 공정 배지 칩 세트 (`applicable_processes`).
-    - **AI 요약 개요 (Overview)**: 고도로 정제된 비즈니스 개요 요약 서술.
-    - **핵심 통제 조항 (Key Clauses)**: 각 기술 조항명(`clause`), 타이틀(`title`), 그리고 규격이 지시하는 상세 요건(`summary`)을 아름다운 타임라인이나 리스트 카드로 표현.
-    - **타이어 공정 번역 지침 (Tire Process Translation)**: 공장 현장에서 바로 적용할 수 있는 `focus_process` 지표, `process_param_check` 핵심 매개변수 점검 기준, 무단 변경 시 유발될 수 있는 `quality_defect_risk` 위험 시나리오, 그리고 `action_sop_guide`인 구체적 SOP 개정 가이드라인을 전문가 계기판 스타일로 제공하여 AI 분석의 정교함을 부각시킵니다.
-    - **필수 준수 증적 (Required Evidences)**: 해당 규격을 수검하기 위해 오디터에게 보여주어야 할 실물 대장 목록.
-
-### ② 필요 시 규격 원본 다운로드 기능 (Document Download Engine)
-
-- **요구 사양**: 상세 드로어 및 메인 카드 내부에 **[규격 원본 다운로드 (Download Original Document)]** 버튼을 배치합니다.
-- **동작 매커니즘 (WASM-free Client Blob Download)**:
-  - MVP 환경에서 외부 파일 서버가 연결되어 있지 않더라도, 실제 파일이 다운로드되는 것과 동일한 강력한 사용자 경험(WOW Effect)을 선사하기 위해 가상 다운로드 엔진을 설계합니다.
-  - 버튼 클릭 시 브라우저 내에서 해당 문서 데이터의 상세 핵심 사항과 AI 요약 요약문을 가상 생성하여 정제된 `.txt` 또는 `.pdf` 구조의 가상 실물 Blob 파일 객체를 생성하고, 브라우저 다운로드 파이프라인을 트리거하여 로컬 디스크로 즉시 내려받도록 완결합니다. (예: `[고객사_규격코드]_AI_Summary.txt` 형태로 다운로드 처리하여 오프라인 시연장에서도 완벽히 검증 가능하도록 설계).
-
----
-
-## 🔗 5. 서브 탭 3: Requirement Mapping Matrix (규격-리스크 맵핑 뷰)
-
-- **요구 사양**: 완성차 OEM 규격 조항이 공장의 15대 표준 공정 및 4M 요인(Man, Machine, Material, Method)과 어떻게 유기적으로 연계되어 있는지 입체적으로 조회하는 대화형 매트릭스 뷰를 제공합니다.
-- **인터랙션**:
-  - 특정 OEM(예: BMW)과 공정(예: Curing)을 교차 선택하면, 해당 접점에 매핑되는 마스터 체크리스트 항목과 공장의 과거 위험 이력 수치가 기하학적 맵 형태로 렌더링되어, 리스크 기반 감사 설계의 타당성을 시각적으로 증명합니다.
-
----
-
-## 💬 6. [공통 전역] Floating Assistant (AI 감사 비서)
-
-전사 화면 우측 하단에 상시 존재하며 수시로 오디팅 전문 가이드를 제시하는 프리미엄 챗봇 컴포넌트입니다.
-
-### ① 화면 컨텍스트 감지형 첫 인사 (Context-Aware Welcome Greeting)
-
-- **기능 요건**: 사용자가 사이드바를 통해 어떤 탭을 보고 있는지 감지하여 첫 인사말을 동적으로 교체합니다:
-  - **Library 탭 활성화 상태에서 챗봇 개봉 시**: *"안녕하세요! 현재 통합 라이브러리를 탐색 중이시군요. 특정 완성차 규격서 조항의 한글 번역 가이드나, 가류(Curing) 공정의 고위험 핵심 체크리스트 요약이 필요하시면 언제든 물어보세요."* 와 같이 현재 뷰포트에 완전히 동기화된 가이드를 제시하여 스마트한 시스템 정체성을 강조합니다.
-
-### ② 세련된 대화형 인터랙션 (Premium Micro-animations)
-
-- **모션 효과**: 
-  - 챗봇 버블 호버 시 미세한 펄스(Pulse) 광원 효과 및 위아래 흔들림(Float Bounce).
-  - 채팅창 개봉 시 부드러운 Ease-in-out 슬라이드업 모션 및 글래스모피즘 블러 필터 적용.
-  - AI 답변 대기 시 정교하게 감박이는 **3도트 타이핑 로딩 애니메이션 (Typing Indicator)**을 노출하여 심층 연산 중인 가상 대기 인지 체감을 고급화합니다.
-- **Mock-up 안전 예외 처리**:
-  - 사용자의 채팅 질의 내용에서 핵심 키워드(예: "온도", "압력", "Audit", "SOP", "Audi", "BMW")를 탐지하여, 사전 준비된 도메인 최적화 가상 응답 사전(SOP Guidance Dictionary)과 실시간 매핑하여 형태소 분석 수준의 완성도 높은 자연어 전문 답변을 고속 출력합니다.
-
----
-
-## 📋 7. 인수 테스트 기준 (Acceptance Criteria)
-
-본 컨텍스트에 따라 구현된 결과물이 통과해야 할 필수 정량 자가 검증 기준입니다:
-
-1. **공정별 현황 확인**: Library 탭 진입 시 공정별 미니 현황 카드가 정상 렌더링되고, 특정 공정 클릭 시 하단 그리드 목록이 해당 공정에 해당하는 항목으로 빈틈없이 리로드 정합성을 유지하는가?
-2. **규격 문서 서머리 출력**: Customer Requirements 서브 탭 내에서 카드를 클릭했을 때, 슬라이드 드로어가 매끄러운 트랜지션으로 전개되며 applicable_processes, key_clauses, tire_process_translation 내용이 누락 없이 가독성 높게 바인딩되는가?
-3. **파일 다운로드 신뢰성**: 다운로드 버튼 클릭 시 즉각 다운로드 창이 로컬에 표시되며, 한글이 깨지지 않는 원본 파일 또는 AI 상세 요약 텍스트 문서가 완벽히 저장되는가?
-4. **CSV 내보내기 인코딩**: CSV 내보내기 수행 후 엑셀에서 개봉했을 때, 한글 문자열이 UTF-8 BOM 바인딩에 의해 완벽히 깨짐 없이 렌더링되는가?
-5. **컨텍스트 감지형 인사말**: Dashboard 탭에서 챗봇을 열었을 때와 Library 탭에서 챗봇을 열었을 때의 첫 웰컴 안내 멘트가 실시간으로 일치하게 동적 변경되는가?
-
-----------
-# 📋 04_3_menu_self_audit_checklist (Self-Audit & Master Checklist 화면 및 핵심 로직 연산 상세 가이드)
-
-본 문서는 **Risk-Based Audit Checklist System**의 핵심 엔진과 UI가 작동하는 명세서입니다. 본 명세서의 데이터 구조, 필터링 알고리즘, 공정 마이닝 정규식, 데이터 내보내기 명세만 참고하더라도 백엔드 서버 없이 웹 표준 환경에서 완벽하게 동작하는 `index.html`과 `app.js`를 100% 동일하게 복원하고 구현할 수 있도록 상세하고 정밀하게 작성되었습니다.
-
----
-
-## 🗺️ 1. 화면 아키텍처 및 UI 컴포넌트 구조
-
-`index.html`은 HTML5 시맨틱 구조 및 CSS3 디자인 시스템 변수 시스템(HSL)을 탑재하고 있으며, 다음과 같은 계층적 돔(DOM) 요소와 변수 규칙을 따릅니다.
-
-### ① 🌌 화면 구성 핵심 DOM 트리 요약
-*   **사이드바 콘솔 (`aside.sidebar`)**:
-    *   브랜드 로고, 네비게이션 링크 5개 (`active` 클래스: `#menu-checklist`), 하단 수석감사원 프로필 카드 배치.
-*   **컨트롤 타워 카드 (`section.control-tower-card`)**:
-    *   완성차 고객사 셀렉터: `<select id="oem-select">`
-    *   제조 공정 셀렉터: (★ **화면 단순화 피드백을 반영하여 DOM에서 완전 삭제됨**. 자바스크립트 단에서 `null` 검사를 수행하여 존재하지 않을 경우 기본값 `"All"`로 자동 대체 처리하는 예외 샌드박스 탑재).
-    *   출력 언어 셀렉터: `<select id="lang-select">` (옵션 `"ko"`, `"en"`, `"zh"`)
-    *   실시간 텍스트 검색바: `<input type="text" id="search-input">`
-*   **결과 데이터 섹션 (`section.data-section`)**:
-    *   **탭 헤더**: `<button id="tab-checklist-btn" onclick="switchTab('checklist')">` 및 `<button id="tab-findings-btn" onclick="switchTab('findings')">`
-    *   **엑셀 추출 액션**: `<button onclick="exportData('excel')">`
-    *   **[Tab 1] 체크리스트 테이블 (`table#checklist-table`)**: `<thead>` 내 헤더 구성은 `구분 (Section)`, `감사 체크리스트 핵심 질문 (Audit Question)`, `대응 합치 증적 요구 요건 (Evidence Required)`, `검사 방법` 4개 열로만 구성 (★ **'제조공정 (Process)' 컬럼 제외**됨).
-    *   **[Tab 2] 지적사항 테이블 (`table#findings-table`)**: `<thead>` 내 헤더 구성은 `공정 (Process)`, `공장`, `프로젝트`, `지적 사항 (Point Out)`, `원인 분석 (Root Cause)`, `영구 조치 계획 (Countermeasure)`, `상태`, `감사 일정` 8개 열로 구성.
-    *   **공통 페이지네이션 및 빈 화면 처리**:
-        *   데이터 없음 대응: `<div id="checklist-empty" class="empty-state hidden">` 및 `<div id="findings-empty" class="empty-state hidden">`
-        *   페이지 제어: `#checklist-page-info` 및 `#checklist-prev`, `#checklist-next` 버튼 쌍.
-
----
-
-## ⚙️ 2. 핵심 비즈니스 로직 및 연산 알고리즘 (Core Logic)
-
-`app.js`에서 처리되는 핵심 데이터 파이프라인과 상태 제어 알고리즘 세부 명세입니다.
-
-### 🛡️ ⓪ 제조공정 필터 제거에 따른 Null Guard 설계 (Zero Crash Policy)
-화면 가독성 및 필터 단순화 피드백을 적극 수용하여 상단 컨트롤 타워에서 **제조 공정 (Process) 필터 드롭다운을 삭제**하였습니다. 
-이에 따라 자바스크립트 엔진이 웹 요소 누락으로 인해 멈추는 현상(Null Pointer Exception)을 방지하고 일관된 데이터를 렌더링하기 위해 다음과 같은 설계 패턴이 적용되었습니다.
-
-1.  **DOM 인스턴스 Null 처리 방지**:
-    *   `document.getElementById('process-select')`가 `null`을 반환하더라도 프로그램이 중단되지 않도록 제어 분기를 마련합니다.
-2.  **공정 디폴트 필터링 백업**:
-    *   사용자가 공정을 선택할 수 없는 환경이므로, 내부 변수인 `selectedProcess`는 3항 연산자(`processSelect ? processSelect.value : "All"`)를 통해 상시 **`"All" (전체 공정)`**을 기본값으로 상속받아 연산합니다.
-    *   이로 인해 필터가 없어도 완성차(OEM) 기준의 모든 전 공정 데이터가 자동으로 완전 정밀 필터링 및 렌더링됩니다.
-3.  **이벤트 리스너 바인딩 보호**:
-    *   `if (processSelect)` 조건문을 통해, DOM에 해당 선택 상자가 감지되는 상황에서만 동적 이벤트가 바인딩되도록 설계하여 코드 이식성과 컴포넌트 독립성을 100% 보장합니다.
-
-### ① 완성차 계층형 매핑 마스터 (Smart OEM Hierarchy)
-완성차 브랜드 필터 선택 시 종속 합작사 및 서브 브랜드(Sub-brand)의 데이터를 계층적으로 자동 통합 및 상속하여 조회 범위를 확장합니다.
+#### 🚗 2) 완성차 계층형 매핑 마스터 (Smart OEM Hierarchy)
+완성차 브랜드 필터 선택 시 종속 합작사 및 서브 브랜드(Sub-brand)의 데이터를 계층적으로 자동 통합 및 상속하여 조회 범위를 지능적으로 확장합니다.
 
 ```javascript
 const OEM_MASTER = {
@@ -212,96 +107,103 @@ const OEM_MASTER = {
     "Xiaomi": { name: "Xiaomi (샤오미)", subs: [] }
 };
 ```
+- 사용자가 부모 OEM(`selectedOem`)을 선택하면, 검색 대상 타겟 배열(`targetOems`)을 다음과 같이 빌드하여 필터링합니다:
+  ```javascript
+  let targetOems = [selectedOem];
+  if (OEM_MASTER[selectedOem] && OEM_MASTER[selectedOem].subs) {
+      targetOems = targetOems.concat(OEM_MASTER[selectedOem].subs);
+  }
+  const lowerTargetOems = targetOems.map(o => o.toLowerCase());
+  ```
 
-*   **상속 대상 매퍼 구축 로직**:
-    사용자가 UI에서 부모 OEM(`selectedOem`)을 선택하면, 검색 대상 타겟 배열(`targetOems`)을 다음과 같이 고속 빌드합니다:
-    ```javascript
-    let targetOems = [selectedOem];
-    if (OEM_MASTER[selectedOem] && OEM_MASTER[selectedOem].subs) {
-        targetOems = targetOems.concat(OEM_MASTER[selectedOem].subs);
-    }
-    const lowerTargetOems = targetOems.map(o => o.toLowerCase());
-    ```
-
----
-
-### ② [Tab 1] 맞춤형 감사 체크리스트 추출 및 중복 병합 알고리즘
+#### 🔄 3) 맞춤형 감사 체크리스트 추출 및 중복 병합 알고리즘 (De-duplication)
 고객사 필터, 공정 필터, 검색 키워드를 조합하여 데이터를 필터링하고 중복 질문을 완전히 합칩니다.
+- **De-duplication**: 질문 텍스트의 앞뒤 공백을 다듬어 세트(`Set`) 자료구조를 통해 중복을 제로화함으로써 동일 질문의 누적 노출을 방지합니다.
+  ```javascript
+  const seenQuestions = new Set();
+  filteredChecklists = filteredChecklists.filter(item => {
+      const q = (item.audit_question || '').trim();
+      if (!q) return true;
+      if (seenQuestions.has(q)) return false;
+      seenQuestions.add(q);
+      return true;
+  });
+  ```
 
-1.  **필터링 단계 (Filter)**:
-    *   **OEM 일치 확인**: 항목의 고객사 정보(`item.customer`)가 `lowerTargetOems`에 포함되는지 확인.
-    *   **공정 일치 확인**: 공정 필터가 `"All"`이거나 항목의 `process_category`가 선택된 공정과 같을 때, 혹은 질문/요구사항 본문 텍스트 내에 공정 키워드가 일치할 때 통과.
-    *   **실시간 검색어 확인**: 사용자가 입력한 `searchTerm`이 `section`, `audit_question`, `requirement`, `evidence_compliance` 문자열 합치 내에 존재하는지 대소문자 무관 비교.
-2.  **중복 질문 병합 단계 (De-duplication)**:
-    *   질문 텍스트의 앞뒤 공백을 다듬어 세트(`Set`) 자료구조를 통해 중복을 제거함으로써 동일 질문의 누적 노출을 막아줍니다.
-    ```javascript
-    const seenQuestions = new Set();
-    filteredChecklists = filteredChecklists.filter(item => {
-        const q = (item.audit_question || '').trim();
-        if (!q) return true;
-        if (seenQuestions.has(q)) return false;
-        seenQuestions.add(q);
-        return true;
-    });
-    ```
+#### 📥 4) 한글 깨짐 방지 엑셀 데이터 단일화 내보내기 알고리즘 (UTF-8 BOM Export)
+사용자가 체크리스트를 현재 필터링된 데이터 상태 그대로 CSV 파일로 다운로드할 수 있는 버튼을 제공합니다.
+- **한국어 MS Excel 호환 인코딩**: 국내 엑셀 프로그램에서 한글 깨짐 없이 정상 개봉되도록 **UTF-8 BOM (UTF-8-SIG, `\ufeff`)**을 접두사 바인딩 처리합니다.
+  ```javascript
+  const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute("download", `${filename}.csv`);
+  ```
+- **출력 헤더 맵**: `구분 (Section)`, `감사 체크리스트 핵심 질문`, `대응 합치 증적 요구 요건`, `검사 방법`으로 정렬되어 화면 구성과의 정합성을 완성합니다.
 
 ---
 
-### ③ [Tab 2] 과거 OE Audit 지적사항 핵심 타입 및 상태 필터링 알고리즘
+## 📂 4. 서브 탭 2: Customer Requirements Library (완성차 OEM 규격 요약 및 다운로드)
+
+[document_library.json](file:///home/jumasi/RiskHunter/data/document_library.json) 파일에 수록된 각 고객사별 실제 기술 규격 원본 데이터의 명세를 한눈에 확인하고, 다운로드 요구를 처리합니다.
+
+### ① 규격 문서 리스트 카드 그리드 (Document Card Grid)
+- **카드 레이아웃**:
+  - 문서별 개별 프리미엄 글래스모피즘 카드 형태로 목록을 구성합니다.
+  - 문서명, 규격 코드, 최종 개정일, 파일 크기 및 문서 속성 배지가 미려하게 표현됩니다.
+- **상세 요약 보기 (Slide-in Drawer)**:
+  - 특정 카드 영역을 클릭하면 화면 우측에서 우아하게 **슬라이드인 드로어(Slide-in Details Panel)** 또는 모달이 열립니다.
+  - 드로어 내부에는 `review_summary` 및 `tire_process_translation` 오브젝트를 파싱하여 아래 정보를 체계적으로 시각화합니다:
+    - **문서 기본 정보**: 개정일, 문서 종류, 적용 공정 배지 칩 세트 (`applicable_processes`).
+    - **AI 요약 개요 (Overview)**: 고도로 정제된 비즈니스 개요 요약 서술.
+    - **핵심 통제 조항 (Key Clauses)**: 각 기술 조항명(`clause`), 타이틀(`title`), 그리고 규격이 지시하는 상세 요건(`summary`)을 아름다운 타임라인이나 리스트 카드로 표현.
+    - **타이어 공정 번역 지침 (Tire Process Translation)**: 공장 현장에서 바로 적용할 수 있는 `focus_process` 지표, `process_param_check` 핵심 매개변수 점검 기준, 무단 변경 시 유발될 수 있는 `quality_defect_risk` 위험 시나리오, 그리고 `action_sop_guide`인 구체적 SOP 개정 가이드라인을 전문가 계기판 스타일로 제공하여 AI 분석의 정교함을 부각시킵니다.
+    - **필수 준수 증적 (Required Evidences)**: 해당 규격을 수검하기 위해 오디터에게 보여주어야 할 실물 대장 목록.
+
+### ② 필요 시 규격 원본 다운로드 기능 (Document Download Engine)
+- **가상 다운로드 엔진 (WASM-free Client Blob Download)**:
+  - MVP 환경에서 외부 파일 서버가 연결되어 있지 않더라도, 실제 파일이 다운로드되는 것과 동일한 강력한 사용자 경험(WOW Effect)을 선사하기 위해 가상 다운로드 엔진을 설계합니다.
+  - 버튼 클릭 시 브라우저 내에서 해당 문서 데이터의 상세 핵심 사항과 AI 요약 요약문을 가상 생성하여 정제된 `.txt` 또는 `.pdf` 구조의 가상 실물 Blob 파일 객체를 생성하고, 브라우저 다운로드 파이프라인을 트리거하여 로컬 디스크로 즉시 내려받도록 완결합니다. (예: `[고객사_규격코드]_AI_Summary.txt` 형태로 다운로드 처리하여 오프라인 시연장에서도 완벽히 검증 가능하도록 설계).
+
+---
+
+## 🔗 5. 서브 탭 3: Requirement Mapping Matrix (규격-리스크 맵핑 뷰)
+
+- **요구 사양**: 완성차 OEM 규격 조항이 공장의 15대 표준 공정 및 4M 요인(Man, Machine, Material, Method)과 어떻게 유기적으로 연계되어 있는지 입체적으로 조회하는 대화형 매트릭스 뷰를 제공합니다.
+- **인터랙션**:
+  - 특정 OEM(예: BMW)과 공정(예: Curing)을 교차 선택하면, 해당 접점에 매핑되는 마스터 체크리스트 항목과 공장의 과거 위험 이력 수치가 기하학적 맵 형태로 렌더링되어, 리스크 기반 감사 설계의 타당성을 시각적으로 증명합니다.
+
+---
+
+## 🧠 6. [연계 공유 로직] 과거 Audit 지적사항 가공 및 텍스트 마이닝
+
+동료가 설계한 '과거 지적사항 필터링 및 공정 자동 분류 알고리즘'은 `3. Plant Risk & Action` (`04_3`)의 실시간 구동 및 `5. Library` 데이터의 완성도 보강을 위해 두 메뉴가 전역적으로 긴밀하게 공유하는 핵심 유틸리티 로직입니다.
+
+### ① 과거 OE Audit 지적사항 핵심 타입 및 상태 필터링 알고리즘
 과거 원천 데이터에서 수검 실무상 가치가 높은 **Project 및 System 타입의 지적사항**만 선별하고, 데이터 무결성을 위해 삭제되거나 무효화된 내역을 강력하게 걸러냅니다.
+- **필터 조건**:
+  1. `TYPE`이 'Project' 또는 'System'인 유효 지적사항만 노출.
+  2. `STATUS`가 'deleted' 또는 'customer_audit_deleted'인 부적합 항목은 완전 제외.
+  3. `OEM_MASTER`를 활용한 계층형 상속 필터 매칭 적용.
 
-```javascript
-filteredFindings = dbFindings.filter(finding => {
-    // Rule 1: Project 또는 System 타입의 유효 지적사항만 노출
-    const type = (finding.TYPE || '').toLowerCase();
-    if (type !== 'project' && type !== 'system') return false;
-
-    // Rule 2: 삭제되거나 비활성화된 부적합 항목은 완전 제외
-    const status = (finding.STATUS || '').toLowerCase();
-    if (status.includes('deleted') || status === 'customer_audit_deleted') return false;
-
-    // Rule 3: OEM 다중 계층 상속 필터링 매칭
-    const maker = finding.CAR_MAKER || '';
-    const oemMatch = lowerTargetOems.some(target => {
-        return maker.toLowerCase() === target || maker.toLowerCase().includes(target);
-    });
-    if (!oemMatch) return false;
-
-    // Rule 4: 스마트 지적사항 공정 텍스트 마이닝 분류 결과 매칭
-    const findingProcess = getFindingProcess(finding);
-    const procMatch = selectedProcess.toLowerCase() === 'all' ||
-                      findingProcess.toLowerCase() === selectedProcess.toLowerCase();
-    if (!procMatch) return false;
-    
-    // Rule 5: 텍스트 검색어 매칭
-    if (searchTerm) {
-        const textContent = `${finding.SUBJECT} ${finding.POINT_OUT} ${finding.ROOT_CAUSE_ANALYSIS} ${finding.COUNTER_MEASURE}`.toLowerCase();
-        if (!textContent.includes(searchTerm)) return false;
-    }
-    
-    return true;
-});
-```
-
----
-
-### ④ 텍스트 마이닝 기반 지적사항 공정 분류 알고리즘 (`getFindingProcess`)
-원천 지적사항 원본에 공정 정보가 손상되거나 비어 있을 시, 다국어(한국어, 영어, 중국어) 정규식 형태소 분석을 통해 해당 공정을 15대 표준 공정 코드로 실시간 자동 유추 매핑합니다.
-
+### ② 텍스트 마이닝 기반 지적사항 공정 분류 알고리즘 (`getFindingProcess`)
+원천 지적사항 데이터에 공정 정보가 유실되어 손상되어 있더라도, 다국어(한국어, 영어, 중국어) 정규식 형태소 분석을 통해 해당 공정을 15대 표준 공정 코드로 실시간 자동 유추 매핑합니다.
+- **동작 단계**:
+  1. 지적내용(`POINT_OUT`), 주제(`SUBJECT`), 원인분석(`ROOT_CAUSE_ANALYSIS`), 조치대책(`COUNTER_MEASURE`) 텍스트를 모두 통합하여 스캔 타겟 문자열 구축.
+  2. 다국어 형태소 정규식 패턴 분류 스캔 실행:
 ```javascript
 function getFindingProcess(finding) {
     if (finding.process_category) return finding.process_category;
     if (finding.PROCESS) return finding.PROCESS;
     if (finding.process) return finding.process;
     
-    // 1단계: 지적내용, 주제, 원인분석, 조치대책 텍스트를 모두 통합하여 탐색
     const pt = (finding.POINT_OUT || '').toLowerCase();
     const subj = (finding.SUBJECT || '').toLowerCase();
     const rc = (finding.ROOT_CAUSE_ANALYSIS || '').toLowerCase();
     const cm = (finding.COUNTER_MEASURE || '').toLowerCase();
     const textToScan = `${pt} ${subj} ${rc} ${cm}`;
     
-    // 2단계: 다국어 형태소 정규식 패턴 분류 스캔
     if (/mixing|배합|밀링|믹싱|밀렉스|密炼|混炼|配料|母胶|终炼/.test(textToScan)) return 'Mixing';
     if (/extrusion|압출|압출기|태면|사이드월|에이펙스|压出|挤出|胎面|胎侧|三角胶/.test(textToScan)) return 'Extrusion';
     if (/curing|vulcanization|가류|가류기|몰드|블래더|세그먼트|硫化|硫化机|模具|胶囊|温控/.test(textToScan)) return 'Curing';
@@ -318,7 +220,7 @@ function getFindingProcess(finding) {
     if (/test|testing|lab|specimen|시험|검증|실험|평가|신뢰성|试验|测试|实验|评价|分析|gc/.test(textToScan)) return 'Test';
     if (/system|audit|fmea|control plan|ppap|sop|document|training|시스템|인증|교육|표준|컨트롤플랜|系统|体系|文档|培训|标准|文件|cp/.test(textToScan)) return 'System';
     
-    // 3단계: 어떤 키워드에도 분류되지 않는 데이터는 결정론적 해싱을 거쳐 9대 표준 공정으로 분산 배정 (System 덤핑 현상 방지)
+    // 3단계: 어떤 키워드에도 분류되지 않는 데이터는 결정론적 해싱을 거쳐 9대 표준 공정으로 분산 배정
     const hashString = subj + (finding.PROJECT || '') + (finding.M_CODE || '');
     let hash = 0;
     for (let i = 0; i < hashString.length; i++) {
@@ -330,11 +232,8 @@ function getFindingProcess(finding) {
 }
 ```
 
----
-
-### ⑤ 품질 지적사항 실무 시나리오 대응용 전문가 백업 사전 (Fallback Dictionary)
-수입 검사 중이거나 데모 실사 시 원천 CSV/JSON의 데이터 유실 및 공백 항목이 존재하더라도, 피감사자 시연 화면이 중단되지 않고 실제 수준의 고품질 분석결과를 화면에 채워주는 똑똑한 지식 사전 모듈입니다.
-
+### ③ 품질 지적사항 실무 대응용 전문가 백업 사전 (Fallback Dictionary)
+오프라인 데모 환경이나 수입 검사 도중 원천 CSV/JSON의 유실 및 공백 항목이 포착되더라도, 피감사자 화면이 중단되지 않고 전문적인 8D 분석 결과를 화면에 무지연 표출하는 지능형 백업 엔진입니다.
 ```javascript
 const FALLBACK_FINDING_DICT = {
     "Curing": {
@@ -369,22 +268,36 @@ const FALLBACK_FINDING_DICT = {
     }
 };
 ```
-*   *데이터 활용 기법*: 불러온 객체의 `POINT_OUT`, `ROOT_CAUSE_ANALYSIS`, `COUNTER_MEASURE`가 공백이거나 누락 시 해당 분류 공정(`processCode`)의 백업 사전을 정밀 주입하여 화면을 완벽히 채워줍니다.
+- *동작*: 로드한 지적사항 오브젝트의 핵심 필드가 누락되었을 시, 분류된 공정 코드(`processCode`)의 백업 사전 데이터를 동적으로 대체 주입합니다.
 
 ---
 
-### ⑥ 한글 깨짐 방지 엑셀 데이터 단일화 내보내기 알고리즘 (`exportData`)
-사용자가 `Check List 1` 탭 상태에서 내보내기를 할 때와 `Check List 2` 상태에서 할 때 각각의 출력 헤더를 정합성 있게 매칭하고, 엑셀 구동 시 텍스트 깨짐 현상을 원천 방지합니다.
+## 💬 7. [공통 전역] Floating Assistant (AI 감사 비서)
 
-*   **한국어 MS Excel을 위한 인코딩 BOM 마커 주입**:
-    ```javascript
-    // UTF-8 BOM 마커(\ufeff)를 데이터 맨 앞에 추가하여 엑셀 자동 인지 유도
-    const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `${filename}.csv`);
-    ```
-*   **Check List 1 테이블 구조에 특화된 열 바인딩**:
-    *   내보내는 CSV 헤더: `구분 (Section)`, `감사 체크리스트 핵심 질문`, `대응 합치 증적 요구 요건`, `검사 방법`
-    *   화면 렌더링 스펙과 정확히 매칭되도록 **제조공정(Process) 열이 자동 스루 생략 처리**되어 정합성을 완성합니다.
+전사 화면 우측 하단에 상시 존재하며 수시로 오디팅 전문 가이드를 제시하는 프리미엄 챗봇 컴포넌트입니다.
+
+### ① 화면 컨텍스트 감지형 첫 인사 (Context-Aware Welcome Greeting)
+- **기능 요건**: 사용자가 사이드바를 통해 어떤 탭을 보고 있는지 감지하여 첫 인사말을 동적으로 교체합니다:
+  - **Library 탭 활성화 상태에서 챗봇 개봉 시**: *"안녕하세요! 현재 통합 라이브러리를 탐색 중이시군요. 특정 완성차 규격서 조항의 한글 번역 가이드나, 가류(Curing) 공정의 고위험 핵심 체크리스트 요약이 필요하시면 언제든 물어보세요."* 와 같이 현재 뷰포트에 완전히 동기화된 가이드를 제시하여 스마트한 시스템 정체성을 강조합니다.
+
+### ② 세련된 대화형 인터랙션 (Premium Micro-animations)
+- **모션 효과**: 
+  - 챗봇 버블 호버 시 미세한 펄스(Pulse) 광원 효과 및 위아래 흔들림(Float Bounce).
+  - 채팅창 개봉 시 부드러운 Ease-in-out 슬라이드업 모션 및 글래스모피즘 블러 필터 적용.
+  - AI 답변 대기 시 정교하게 감박이는 **3도트 타이핑 로딩 애니메이션 (Typing Indicator)**을 노출하여 심층 연산 중인 가상 대기 인지 체감을 고급화합니다.
+- **Mock-up 안전 예외 처리**:
+  - 사용자의 채팅 질의 내용에서 핵심 키워드(예: "온도", "압력", "Audit", "SOP", "Audi", "BMW")를 탐지하여, 사전 준비된 도메인 최적화 가상 응답 사전(SOP Guidance Dictionary)과 실시간 매핑하여 형태소 분석 수준의 완성도 높은 자연어 전문 답변을 고속 출력합니다.
+
+---
+
+## 📋 8. 인수 테스트 기준 (Acceptance Criteria)
+
+본 컨텍스트에 따라 구현된 결과물이 통과해야 할 필수 정량 자가 검증 기준입니다:
+
+1. **공정별 현황 확인**: Library 탭 진입 시 공정별 미니 현황 카드가 정상 렌더링되고, 특정 공정 클릭 시 하단 그리드 목록이 해당 공정에 해당하는 항목으로 빈틈없이 리로드 정합성을 유지하는가?
+2. **De-duplication 및 OEM 상속**: 마스터 체크리스트 데이터 로딩 시 중복 질문이 완벽히 거정 제거(`Set`)되어 렌더링되며, 완성차 부모 브랜드 선택 시 자회사 데이터가 정상적으로 통합 정밀 필터링되는가?
+3. **규격 문서 서머리 출력**: Customer Requirements 서브 탭 내에서 카드를 클릭했을 때, 슬라이드 드로어가 매끄러운 트랜지션으로 전개되며 applicable_processes, key_clauses, tire_process_translation 내용이 누락 없이 가독성 높게 바인딩되는가?
+4. **파일 다운로드 신뢰성**: 다운로드 버튼 클릭 시 즉각 다운로드 창이 로컬에 표시되며, 한글이 깨지지 않는 원본 파일 또는 AI 상세 요약 텍스트 문서가 완벽히 저장되는가?
+5. **CSV 내보내기 인코딩**: CSV 내보내기 수행 후 엑셀에서 개봉했을 때, 한글 문자열이 UTF-8 BOM 바인딩(`\ufeff` 주입)에 의해 완벽히 깨짐 없이 렌더링되는가?
+6. **컨텍스트 감지형 인사말**: Dashboard 탭에서 챗봇을 열었을 때와 Library 탭에서 챗봇을 열었을 때의 첫 웰컴 안내 멘트가 실시간으로 일치하게 동적 변경되는가?
+7. **Zero Crash Policy**: 글로벌 공정/공장 필터바가 부재하거나 null인 상황에서도 스크립트가 멈추지 않고 기본값("All")을 상속받아 정밀하게 데이터를 렌더링하는가?

@@ -1397,7 +1397,28 @@ body {
   display: block !important;
 }
 
-/* 🤖 플로팅 AI 감사 비서 (Floating AI Assistant Chat Widget) */
+/* 🤖 플로팅 AI 감사 비서 (Floating AI Assistant Chat Widget) - 애니메이션 정의 */
+@keyframes floatBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(37, 99, 235, 0.65), 0 0 12px rgba(37, 99, 235, 0.4);
+  }
+  100% {
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35);
+  }
+}
+
 .floating-assistant-container {
   position: fixed;
   bottom: 24px;
@@ -1424,11 +1445,13 @@ body {
   cursor: pointer;
   box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: floatBounce 3s ease-in-out infinite, pulseGlow 2.5s ease-in-out infinite;
 }
 
 .assistant-trigger-btn:hover {
-  transform: scale(1.1) translateY(-2px);
-  box-shadow: 0 6px 24px rgba(37, 99, 235, 0.45);
+  transform: scale(1.1) translateY(-4px);
+  box-shadow: 0 6px 24px rgba(37, 99, 235, 0.55);
+  animation-play-state: paused; /* 호버 시 애니메이션 일시정지하여 세련된 수동 조작 인지 부여 */
 }
 
 .assistant-chat-drawer {

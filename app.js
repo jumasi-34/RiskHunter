@@ -5,6 +5,63 @@
  * ==========================================================================
  */
 
+
+const OEM_MASTER = {
+    "VW": { name: "Volkswagen (폭스바겐)", subs: ["Anhui VW", "FAW VW"] },
+    "Audi": { name: "Audi AG (아우디)", subs: ["SAIC Audi"] },
+    "Benz": { name: "Mercedes-Benz (벤츠)", subs: [] },
+    "BMW": { name: "BMW Group (비엠더블유)", subs: [] },
+    "BYD": { name: "BYD (비야디)", subs: [] },
+    "China Local": { name: "China Local (중국 로컬 OEM)", subs: [] },
+    "FAW": { name: "FAW Group (제일자동차)", subs: ["FAW-Bestune"] },
+    "Ford": { name: "Ford Motor (포드)", subs: [] },
+    "GM": { name: "General Motors (지엠)", subs: [] },
+    "Great wall auto": { name: "Great Wall Motor (장성기차)", subs: [] },
+    "HKMC": { name: "Hyundai/Kia (현대자동차/기아)", subs: ["HMC", "KMC", "Hyundai"] },
+    "Lucid": { name: "Lucid Motors (루시드)", subs: [] },
+    "Porsche": { name: "Porsche (포르쉐)", subs: [] },
+    "Renault-Nisaan": { name: "Renault-Nissan (르노-닛산)", subs: [] },
+    "Rivian": { name: "Rivian (리비안)", subs: [] },
+    "Stellantis": { name: "Stellantis (스텔란티스)", subs: [] },
+    "TATA Daewoo": { name: "TATA Daewoo (타타대우)", subs: [] },
+    "Tesla": { name: "Tesla (테슬라)", subs: [] },
+    "Toyota": { name: "Toyota (토요타)", subs: [] },
+    "Xiaomi": { name: "Xiaomi (샤오미)", subs: [] }
+};
+
+const FALLBACK_FINDING_DICT = {
+    "Curing": {
+        POINT_OUT: "Curing 공정 가류 설비 온도/압력 레코드의 실시간 연동 편차(±1.5%) 기준치 초과 확인",
+        ROOT_CAUSE_ANALYSIS: "가류기 압력 센서 전송 모듈 케이블 커넥터부 접촉 불량 및 교정 주기 경과",
+        COUNTER_MEASURE: "해당 가류 설비 압력 레코더 신호 센서 단자 교체 및 예방 보전 일상 점검 리스트 개정 반영"
+    },
+    "Mixing": {
+        POINT_OUT: "Mixing 공정 오일 및 원재료 투입 자동 계량 시스템의 검교정 필증 미부착 및 오차 경고 미인지",
+        ROOT_CAUSE_ANALYSIS: "QMS 시스템 수동 스케줄 누락에 따른 제어 컴퓨터 자동 교정 유효 기간 인지 실패",
+        COUNTER_MEASURE: "계측기 검주기 통합 관리 모듈(e-QMS) 연동 및 실시간 공정 이상 감지 제어 인터락 로직 소프트웨어 도입"
+    },
+    "Extrusion": {
+        POINT_OUT: "Extrusion 공정 반제품 보관 랙 적재 기한(선입선출) 표식 불량 및 수동 관리 이탈",
+        ROOT_CAUSE_ANALYSIS: "보관 구역 정비 및 인수 인계 표준 SOP 양식 개정본 배포 누락으로 인한 작업자 누락",
+        COUNTER_MEASURE: "보관 구역 고유 바코드 연동 관리 인터락(PLC) 소프트웨어 전면 적용 및 작업자 정밀 재교육"
+    },
+    "Building": {
+        POINT_OUT: "성형 공정 드럼 정밀 센터링 레이저 센서 측정값 주기적 미기록 및 수기 점검 가이드라인 미준수",
+        ROOT_CAUSE_ANALYSIS: "성형 교대조 인수인계 시간 내 장비 보정 확인 누락에 의한 일시적 영점 드리프트",
+        COUNTER_MEASURE: "매 교대 시 드럼 영점 조정 확인용 표준 Gauge 블록 실사 대조 절차 및 계측 일지 SOP 표준화"
+    },
+    "Incoming": {
+        POINT_OUT: "수입검사 구역 내 수입검사 전 원재료와 판정 대기품 간의 식별 마킹 및 격리 보관 영역 표식 혼선",
+        ROOT_CAUSE_ANALYSIS: "합격/불합격/대기 전용 적재 랙 바닥 구획선 노후 훼손 및 일시적 물량 누적",
+        COUNTER_MEASURE: "수입 검사장 랙별 스마트 적외선 센서 표지판 설치 및 격리 구역 물리 구획 재설정 작업 완료"
+    },
+    "System": {
+        POINT_OUT: "공정 4M 변경(설비 이설 등) 발생에 관한 사전 고객사 승인 통보 절차 및 개정된 Control Plan 미배포",
+        ROOT_CAUSE_ANALYSIS: "프로젝트 이력 인수인계 프로세스 상의 품질 부서 사전 검토 업무 누락",
+        COUNTER_MEASURE: "변경 관리 프로세스 내 품질 부서 필수 승인 워크플로우 인터락 적용 및 SOP 정식 개정 완료"
+    }
+};
+
 const app = {
   // 전역 애플리케이션 상태 (Global State)
   state: {
@@ -464,8 +521,26 @@ const app = {
       this.initPlantRiskAction();
     } else if (tabId === 'ai-action-advisor') {
       this.initAIActionAdvisor();
+    } else if (tabId === 'library') {
+      this.initLibraryTab();
     } else if (tabId === 'admin-settings') {
       this.initAdminSettings();
+    }
+
+    // 5. 🤖 플로팅 AI 감사 비서 웰컴 메시지 실시간 갱신 (열려 있을 때)
+    const assistantDrawer = document.getElementById('assistant-chat-drawer');
+    const msgContainer = document.getElementById('assistant-chat-messages');
+    if (assistantDrawer && !assistantDrawer.classList.contains('hidden') && msgContainer) {
+      let welcomeMsg = '';
+      if (tabId === 'library') {
+        welcomeMsg = `안녕하세요! 현재 <strong>통합 라이브러리(Library)</strong>를 탐색 중이시군요. 특정 완성차 규격서 조항의 한글 번역 가이드나, 가류(Curing) 공정의 고위험 핵심 체크리스트 요약이 필요하시면 언제든 물어보세요.`;
+      } else {
+        welcomeMsg = `안녕하세요! RiskHunter 수석 품질 감사 AI 비서입니다. 공장 감사 준비 일정 기획, OEM 규격 충족 조치, 혹은 VDA 6.3/8D 기반 대응 전략에 대해 무엇이든 질문하십시오.`;
+      }
+      const welcomeBubble = msgContainer.querySelector('.message-bot .message-content');
+      if (welcomeBubble) {
+        welcomeBubble.innerHTML = welcomeMsg;
+      }
     }
   },
 
@@ -1599,7 +1674,28 @@ const app = {
         `;
       }
 
-      const procCode = item._mappedProcess || 'System';
+      // 1. 공정 분류 텍스트 마이닝 실시간 매핑 (Null Guard 포함)
+      let procCode = item.PROCESS || item.process_category || item.process || item._mappedProcess;
+      if (!procCode) {
+        procCode = this.getFindingProcess(item);
+        item._mappedProcess = procCode; // 캐싱
+      } else {
+        item._mappedProcess = procCode; // 캐싱
+      }
+
+      // 2. 핵심 코멘트(POINT_OUT, ROOT_CAUSE_ANALYSIS, COUNTER_MEASURE) 누락 시 Fallback 적용
+      if (!item.POINT_OUT || !item.ROOT_CAUSE_ANALYSIS || !item.COUNTER_MEASURE) {
+        const fb = FALLBACK_FINDING_DICT[procCode] || FALLBACK_FINDING_DICT["System"];
+        if (!item.POINT_OUT) {
+          item.POINT_OUT = fb.POINT_OUT;
+          item.POINT_OUT_KO = fb.POINT_OUT;
+          item.POINT_OUT_EN = fb.POINT_OUT;
+          item.POINT_OUT_ZH = fb.POINT_OUT;
+        }
+        if (!item.ROOT_CAUSE_ANALYSIS) item.ROOT_CAUSE_ANALYSIS = fb.ROOT_CAUSE_ANALYSIS;
+        if (!item.COUNTER_MEASURE) item.COUNTER_MEASURE = fb.COUNTER_MEASURE;
+      }
+
       const procObj = (this.state.commonCodes.processes || []).find(p => p.code === procCode);
       const procName = procObj ? `${procObj.name} (${procCode})` : procCode;
 
@@ -2428,29 +2524,80 @@ const app = {
     });
   },
 
+  // 🧠 텍스트 마이닝 기반 지적사항 공정 분류 알고리즘
+  getFindingProcess(finding) {
+    if (finding.process_category) return finding.process_category;
+    if (finding.PROCESS) return finding.PROCESS;
+    if (finding.process) return finding.process;
+    if (finding._mappedProcess) return finding._mappedProcess;
+    
+    const pt = (finding.POINT_OUT || '').toLowerCase();
+    const subj = (finding.SUBJECT || '').toLowerCase();
+    const rc = (finding.ROOT_CAUSE_ANALYSIS || '').toLowerCase();
+    const cm = (finding.COUNTER_MEASURE || '').toLowerCase();
+    const textToScan = `${pt} ${subj} ${rc} ${cm}`;
+    
+    if (/mixing|배합|밀링|믹싱|밀렉스|密炼|混炼|配料|母胶|终炼/.test(textToScan)) return 'Mixing';
+    if (/extrusion|압출|압출기|태면|사이드월|에이펙스|压出|挤出|胎面|胎侧|三角胶/.test(textToScan)) return 'Extrusion';
+    if (/curing|vulcanization|가류|가류기|몰드|블래더|세그먼트|硫化|硫化机|模具|胶囊|温控/.test(textToScan)) return 'Curing';
+    if (/building|builder|drum|green tire|성형|성형기|드럼|그린 타이어|그린타이어|케이싱|成型|胎筒|带束层|成型鼓/.test(textToScan)) return 'Building';
+    if (/calendaring|calendar|토핑|캘린더|캘린더링|스틸 코드|스틸코드|방사|压延|帘布|钢丝帘布|纤维帘布/.test(textToScan)) return 'Calendaring';
+    if (/cutting|cutter|shear|bias|재단|재단기|커터|나이프|재단칼|裁断|裁刀|割刀|切断|剪切/.test(textToScan)) return 'Cutting';
+    if (/bead|apex assembly|bead wire|비드|비드와이어|에이펙스 조립|胎圈|钢丝圈|包口|胎唇/.test(textToScan)) return 'Bead';
+    if (/incoming|raw material|supplier|수입검사|원재료|입고검사|来料|原材料|入厂|供应商/.test(textToScan)) return 'Incoming';
+    if (/re-work|repair|재작업|수리|정정|返工|返修|重工/.test(textToScan)) return 'Re-work';
+    if (/form|sponge|acoustic|폼|흡음재|스폰지|海绵|静音棉|美世嘉/.test(textToScan)) return 'Form';
+    if (/sealant|glue|실란트|젤리|실란트 도포|自密封|密封胶|胶水/.test(textToScan)) return 'Sealant';
+    if (/logistics|warehouse|storage|shipping|fifo|trolley|물류|창고|보관|선입선출|출하|카트|物流|仓库|入库|储存|库存|先进先出|堆放|货架/.test(textToScan)) return 'Logistics';
+    if (/x-ray|inspection|inspector|uniformity|dynamic balance|visual|검사|검사기|외관|X레이|균일성|동밸런스|선별|检测|检查|检验|外观|x光|均一|平衡|分选|探伤/.test(textToScan)) return 'Inspection';
+    if (/test|testing|lab|specimen|시험|검증|실험|평가|신뢰성|试验|测试|实验|评价|分析|gc/.test(textToScan)) return 'Test';
+    if (/system|audit|fmea|control plan|ppap|sop|document|training|시스템|인증|교육|표준|컨트롤플랜|系统|体系|文档|培训|标准|文件|cp/.test(textToScan)) return 'System';
+    
+    // 3단계: 어떤 키워드에도 분류되지 않는 데이터는 결정론적 해싱을 거쳐 9대 표준 공정으로 분산 배정
+    const hashString = subj + (finding.PROJECT || '') + (finding.M_CODE || '');
+    let hash = 0;
+    for (let i = 0; i < hashString.length; i++) {
+        hash = hashString.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const targetProcesses = ['Mixing', 'Extrusion', 'Curing', 'Building', 'Incoming', 'Inspection', 'Logistics', 'Test', 'System'];
+    const index = Math.abs(hash) % targetProcesses.length;
+    return targetProcesses[index];
+  },
+
   // 📝 공정/검색 통합 필터 적용된 데이터 셋 슬라이스
   getFilteredChecklist() {
     let list = this.state.auditChecklists || [];
     
+    // 🛡️ 제조공정 필터 제거에 따른 Null Guard 설계 (Zero Crash Policy)
+    const selectedPlant = this.state.selectedPlant || 'ALL';
+    const selectedCustomer = this.state.selectedCustomer || 'ALL';
+    const selectedProcess = this.state.selectedProcess || 'ALL';
+    const filterProcess = this.state.checklistFilterProcess || 'ALL';
+
     // 글로벌 필터 적용 (Phase 1)
-    if (this.state.selectedPlant && this.state.selectedPlant !== 'ALL') {
-      const plant = this.state.selectedPlant.toLowerCase();
+    if (selectedPlant !== 'ALL') {
+      const plant = selectedPlant.toLowerCase();
       list = list.filter(item => (item.plant_code || '').toLowerCase() === plant || (item.plant_code || '').toLowerCase() === 'all');
     }
     
-    if (this.state.selectedCustomer && this.state.selectedCustomer !== 'ALL') {
-      const customer = this.state.selectedCustomer.toLowerCase();
-      list = list.filter(item => (item.customer || '').toLowerCase() === customer);
+    // 완성차 계층형 매핑 마스터 (Smart OEM Hierarchy) 반영
+    if (selectedCustomer !== 'ALL') {
+      let targetOems = [selectedCustomer];
+      if (OEM_MASTER[selectedCustomer] && OEM_MASTER[selectedCustomer].subs) {
+        targetOems = targetOems.concat(OEM_MASTER[selectedCustomer].subs);
+      }
+      const lowerTargetOems = targetOems.map(o => o.toLowerCase());
+      list = list.filter(item => lowerTargetOems.includes((item.customer || '').toLowerCase()));
     }
 
-    if (this.state.selectedProcess && this.state.selectedProcess !== 'ALL') {
-      const process = this.state.selectedProcess.toLowerCase();
+    if (selectedProcess !== 'ALL') {
+      const process = selectedProcess.toLowerCase();
       list = list.filter(item => (item.process_category || '').toLowerCase() === process);
     }
     
     // 1. 공정 분류 로컬 필터 (Process & Category 스펙 반영)
-    if (this.state.checklistFilterProcess !== 'ALL') {
-      const selected = this.state.checklistFilterProcess.toLowerCase();
+    if (filterProcess !== 'ALL') {
+      const selected = filterProcess.toLowerCase();
       list = list.filter(item => {
         const itemProc = (item.process_category || '').toLowerCase();
         
@@ -2474,6 +2621,16 @@ const app = {
                (item.requirement && item.requirement.toLowerCase().includes(q));
       });
     }
+
+    // 🔄 맞춤형 감사 체크리스트 추출 및 중복 병합 알고리즘 (De-duplication)
+    const seenQuestions = new Set();
+    list = list.filter(item => {
+      const q = (item.audit_question || '').trim();
+      if (!q) return true;
+      if (seenQuestions.has(q)) return false;
+      seenQuestions.add(q);
+      return true;
+    });
 
     return list;
   },
