@@ -460,6 +460,46 @@
           </button>
         </div>
 
+        <!-- ⚠️ 상단 대화형 통합 컨트롤 바 (Control Panel) - 3번 메뉴 글로벌 필터로 격상 -->
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; background: rgba(16, 21, 38, 0.65); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: flex-end;">
+          <!-- 공장지 선택 -->
+          <div style="flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 6px;">
+            <label style="font-size: 10.5px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">공장 선택 (Factory)</label>
+            <select id="tab3-plant-select" class="filter-select" style="width: 100%; height: 38px; font-size: 12.5px; background: rgba(255,255,255,0.03); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; cursor: pointer;">
+              <!-- 동적 로드됨 -->
+            </select>
+          </div>
+          
+          <!-- 감사 일정 달력 (Date Picker) -->
+          <div style="flex: 1.5; min-width: 250px; display: flex; flex-direction: column; gap: 6px;">
+            <label style="font-size: 10.5px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">감사 예정 일정 (Audit Period)</label>
+            <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+              <input type="date" id="tab3-start-date" class="chat-input" style="flex: 1; height: 38px; font-size: 12px; padding: 0 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: var(--text-primary);">
+              <span style="color: var(--text-secondary); font-size: 12px;">~</span>
+              <input type="date" id="tab3-end-date" class="chat-input" style="flex: 1; height: 38px; font-size: 12px; padding: 0 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: var(--text-primary);">
+            </div>
+          </div>
+
+          <!-- 완성차 고객사 셀렉터 (Customer Dropdown) -->
+          <div style="flex: 1.2; min-width: 160px; display: flex; flex-direction: column; gap: 6px;">
+            <label style="font-size: 10.5px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">완성차 고객사 (Customer)</label>
+            <select id="tab3-customer-select" class="filter-select" style="width: 100%; height: 38px; font-size: 12.5px; background: rgba(255,255,255,0.03); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; cursor: pointer;">
+              <!-- 동적 수집 + HQ 및 Internal 강제 바인딩 -->
+            </select>
+          </div>
+
+          <!-- 감사 목적 셀렉터 (Purpose Selector) -->
+          <div style="flex: 1.2; min-width: 160px; display: flex; flex-direction: column; gap: 6px;">
+            <label style="font-size: 10.5px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">감사 목적 (Audit Purpose)</label>
+            <select id="tab3-purpose-select" class="filter-select" style="width: 100%; height: 38px; font-size: 12.5px; background: rgba(255,255,255,0.03); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; cursor: pointer;">
+              <option value="Customer audit">Customer audit (완성차 고객 감사)</option>
+              <option value="Internal Audit">Internal Audit (사내 보증 자가진단)</option>
+              <option value="Quality Issue">Quality Issue (품질 결함 특별 오딧)</option>
+              <option value="Etc.">Etc. (기타 수시 점검)</option>
+            </select>
+          </div>
+        </div>
+
         <!-- ================= Sub-Tab 1: Integrated Risk Compass ================= -->
         <div class="sub-tab-pane active-sub-pane" id="subtab-risk-compass">
           <div class="grid-2col" style="grid-template-columns: 1fr 1.2fr; gap: 20px; margin-bottom: 20px;">
@@ -559,45 +599,6 @@
 
         <!-- ================= Sub-Tab 3: AI Custom Audit (기존 화면) ================= -->
         <div class="sub-tab-pane" id="subtab-custom-audit">
-          <!-- ⚠️ 상단 대화형 통합 컨트롤 바 (Control Panel) -->
-          <div style="display: flex; gap: 15px; flex-wrap: wrap; background: rgba(16, 21, 38, 0.65); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: flex-end;">
-            <!-- 공장지 선택 -->
-            <div style="flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 6px;">
-              <label style="font-size: 10.5px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">공장 선택 (Factory)</label>
-              <select id="tab3-plant-select" class="filter-select" style="width: 100%; height: 38px; font-size: 12.5px; background: rgba(255,255,255,0.03); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; cursor: pointer;">
-                <!-- 동적 로드됨 -->
-              </select>
-            </div>
-            
-            <!-- 감사 일정 달력 (Date Picker) -->
-            <div style="flex: 1.5; min-width: 250px; display: flex; flex-direction: column; gap: 6px;">
-              <label style="font-size: 10.5px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">감사 예정 일정 (Audit Period)</label>
-              <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
-                <input type="date" id="tab3-start-date" class="chat-input" style="flex: 1; height: 38px; font-size: 12px; padding: 0 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: var(--text-primary);">
-                <span style="color: var(--text-secondary); font-size: 12px;">~</span>
-                <input type="date" id="tab3-end-date" class="chat-input" style="flex: 1; height: 38px; font-size: 12px; padding: 0 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: var(--text-primary);">
-              </div>
-            </div>
-
-            <!-- 완성차 고객사 셀렉터 (Customer Dropdown) -->
-            <div style="flex: 1.2; min-width: 160px; display: flex; flex-direction: column; gap: 6px;">
-              <label style="font-size: 10.5px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">완성차 고객사 (Customer)</label>
-              <select id="tab3-customer-select" class="filter-select" style="width: 100%; height: 38px; font-size: 12.5px; background: rgba(255,255,255,0.03); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; cursor: pointer;">
-                <!-- 동적 수집 + HQ 및 Internal 강제 바인딩 -->
-              </select>
-            </div>
-
-            <!-- 감사 목적 셀렉터 (Purpose Selector) -->
-            <div style="flex: 1.2; min-width: 160px; display: flex; flex-direction: column; gap: 6px;">
-              <label style="font-size: 10.5px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">감사 목적 (Audit Purpose)</label>
-              <select id="tab3-purpose-select" class="filter-select" style="width: 100%; height: 38px; font-size: 12.5px; background: rgba(255,255,255,0.03); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; cursor: pointer;">
-                <option value="Customer audit">Customer audit (완성차 고객 감사)</option>
-                <option value="Internal Audit">Internal Audit (사내 보증 자가진단)</option>
-                <option value="Quality Issue">Quality Issue (품질 결함 특별 오딧)</option>
-                <option value="Etc.">Etc. (기타 수시 점검)</option>
-              </select>
-            </div>
-          </div>
 
           <!-- 🎗️ 11대 핵심 생산 공정 리본 필터 (11-Process Ribbon Filters) -->
           <div style="background: rgba(10, 14, 28, 0.4); border: 1px solid rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 8px; margin-bottom: 20px;">

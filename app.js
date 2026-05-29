@@ -1645,6 +1645,23 @@ const app = {
       }
     });
 
+    // 2.5. 글로벌 컨트롤 패널 값 동기화 (어느 서브 탭에서나 일관된 UI 유지)
+    const activeCustomer = this.state.tab3Customer || 'BMW';
+    const plantSelect = document.getElementById('tab3-plant-select');
+    if (plantSelect) plantSelect.value = activePlantCode;
+
+    const customerSelect = document.getElementById('tab3-customer-select');
+    if (customerSelect) customerSelect.value = activeCustomer;
+
+    const purposeSelect = document.getElementById('tab3-purpose-select');
+    if (purposeSelect) purposeSelect.value = this.state.tab3Purpose || 'Customer audit';
+
+    const startDateInput = document.getElementById('tab3-start-date');
+    if (startDateInput) startDateInput.value = this.state.tab3StartDate || '';
+
+    const endDateInput = document.getElementById('tab3-end-date');
+    if (endDateInput) endDateInput.value = this.state.tab3EndDate || '';
+
     // 3. 서브 탭별 화면 분기 렌더링
     if (activeSubtab === 'risk-compass') {
       this.renderRiskCompassTab(activePlantCode);

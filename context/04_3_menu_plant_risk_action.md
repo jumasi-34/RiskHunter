@@ -131,12 +131,12 @@ $$\text{CRI} = 0.4 \times (100 - \text{System Level}) + 0.3 \times (100 - \text{
 
 완성차 고객사 감사 지적 이력과 사내 현장 실사 진단 미흡점을 연동해 원클릭으로 최적의 우선 개선 가이드를 자동 조합해 주는 지능형 실무 패널입니다.
 
-### ① 상단 대화형 통합 컨트롤 바 (Control Panel)
-완성차 오딧 대응 실무자가 출무 계획에 부합하는 요건을 즉시 반영하여 타겟 체크시트를 빌드할 수 있도록 최상단에 고정 배치된 하이테크 컨트롤 패널입니다.
-*   **공장지 선택 (Factory Selector)**: 글로벌 8개 공장 중 자사 분석 대상 공장을 즉시 스위칭합니다.
+### ① 상단 대화형 통합 컨트롤 바 (Menu 3 글로벌 Control Panel)
+3번 메뉴(Plant Risk & Action) 전체를 관장할 수 있도록 서브 탭 셀렉터 바로 하단에 배치된 글로벌 하이테크 컨트롤 패널입니다. 특정 서브 탭에 속하지 않고 상시 표시되어, 사용자가 어느 화면(Integrated Risk Compass, OE Quality System Level, AI Custom Audit)에서나 필터를 전환할 때 3대 서브 탭 모두의 시각 자료와 데이터가 유기적으로 실시간 반응 및 동기화됩니다.
+*   **공장 선택 (Factory Selector)**: 글로벌 8개 공장 중 자사 분석 대상 공장을 즉시 스위칭합니다. (전체 서브 탭 차트 및 연산에 즉각 반영)
 *   **감사 일정 달력 (Date Picker)**: 시작일과 종료일 입력 시 단순 텍스트 타이핑이 아닌 직관적인 모던 브라우저 시스템 달력(Calendar) 인터페이스를 즉시 활성화하여 날짜를 손쉽게 바인딩합니다.
 *   **완성차 고객사 셀렉터 (Customer Dropdown)**: `audit_findings` 데이터에 등록된 고유 완성차 메이커 목록을 추출하여 드롭다운 리스트에 자동 파싱 주입합니다. 이에 추가로 특수 오딧 요건 분석을 지원하기 위해 **`HQ (본사 주관 종합감사)`** 옵션과 **`Internal (사내 보증 자가진단)`** 전용 드롭박스 옵션을 강제로 자동 탑재 설계하였습니다.
-*   **감사 목적 셀렉터 (Purpose Selector)**: 감사 유형에 따라 `Customer audit`, `Internal Audit`, `Quality Issue`, `Etc.`를 분류 지정해 하단 정보를 동기화합니다.
+*   **감사 목적 셀렉터 (Purpose Selector)**: 감사 유형에 따라 `Customer audit`, `Internal Audit`, `Quality Issue`, `Etc.`를 분류 지정해 정보를 동기화합니다.
 *   **[신규 지적사항 간편 등록] 버튼**: 클릭 시 즉석에서 현장 부적합을 추가 등록하고 리스크를 실시간 주입할 수 있는 네온 핑크 버튼(`btn-trigger-register-finding`)을 우측 상단에 노출합니다.
 
 ### ② 11대 핵심 생산 공정 리본 필터 (Ribbon Filters)
