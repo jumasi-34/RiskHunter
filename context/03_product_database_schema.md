@@ -192,9 +192,19 @@ flowchart TD
 | `CAR_MAKER` | TEXT | 심사를 주관한 오디터 고객 완성차 명칭 | `"BMW"`, `"Benz"`, `"Audi"` |
 | `PROJECT` | TEXT | 수검 대상 타이어 부품 개발 프로젝트명 | `"G50"`, `"V520"`, `"G45"` |
 | `M_CODE` | TEXT | 지적 대상 타이어 규격 파트 코드 | `"1036705"`, `"M-225-50R18"` |
-| `POINT_OUT` | TEXT | **[부적합 지적 현상]** 오디터 코멘트 및 구체적 지적 내용 | `"압출 튜브 냉각수 온도 조절 장치의 제어 편차가 ±5°C 이상 발생"` |
-| `ROOT_CAUSE_ANALYSIS` | TEXT | 지적 사항 유발 근본 제조 원인 분석 | `"자동 유량 조절 피드백 밸브의 제어 응답 속도 저하 및 오작동"` |
-| `COUNTER_MEASURE` | TEXT | 시정 및 예방 조치 재발 방지 대책 | `"정밀 비례 전자 유량 제어 밸브로 전면 교체 적용"` |
+| `PROCESS` | TEXT | 과거 감사 지적사항 연계 제조 공정/도메인 구분 | `"Inspection"`, `"Logistics"`, `"Incoming"`, `"Mixing"` |
+| `POINT_OUT` | TEXT | **[부적합 지적 현상]** 오디터 코멘트 및 구체적 지적 원문 내용 | `"압출 튜브 냉각수 온도 조절 장치의 제어 편차가 ±5°C 이상 발생"` |
+| `ROOT_CAUSE_ANALYSIS` | TEXT | 지적 사항 유발 근본 제조 원인 분석 원문 요약 | `"자동 유량 조절 피드백 밸브의 제어 응답 속도 저하 및 오작동"` |
+| `COUNTER_MEASURE` | TEXT | 시정 및 예방 조치 재발 방지 대책 원문 요약 | `"정밀 비례 전자 유량 제어 밸브로 전면 교체 적용"` |
+| `POINT_OUT_KO` | TEXT | 부적합 지적 현상 (한국어 번역 컬럼) | `"압출 튜브 냉각수 온도 조절 장치의 제어 편차가 ±5°C 이상 발생"` |
+| `POINT_OUT_EN` | TEXT | 부적합 지적 현상 (영어 번역 컬럼) | `"The control deviation of the extrusion tube cooling water temperature control device is more than ±5°C."` |
+| `POINT_OUT_ZH` | TEXT | 부적합 지적 현상 (중국어 번역 컬럼) | `"挤出管冷却水温调节装置控制偏差达±5℃以上"` |
+| `ROOT_CAUSE_KO` | TEXT | 근본 제조 원인 분석 (한국어 번역 컬럼) | `"자동 유량 조절 피드백 밸브의 제어 응답 속도 저하 및 오작동"` |
+| `ROOT_CAUSE_EN` | TEXT | 근본 제조 원인 분석 (영어 번역 컬럼) | `"Control response delay and malfunction of automatic flow control feedback valve"` |
+| `ROOT_CAUSE_ZH` | TEXT | 근본 제조 원인 분석 (중국어 번역 컬럼) | `"自动流量调节反馈阀控制响应速度变慢及误动作"` |
+| `COUNTER_MEASURE_KO` | TEXT | 시정 및 재발 방지 대책 (한국어 번역 컬럼) | `"정밀 비례 전자 유량 제어 밸브로 전면 교체 적용"` |
+| `COUNTER_MEASURE_EN` | TEXT | 시정 및 재발 방지 대책 (영어 번역 컬럼) | `"Full replacement with precision proportional electronic flow control valve"` |
+| `COUNTER_MEASURE_ZH` | TEXT | 시정 및 재발 방지 대책 (중국어 번역 컬럼) | `"全面更换为精密比例电子流量控制阀"` |
 | `URL` | TEXT | 사내 글로벌 Audit 시스템 지적사항 상세 링크 | `"https://egqms.hankooktech.com/..."` |
 
 ---

@@ -233,9 +233,19 @@ flowchart TD
     "CAR_MAKER": "BMW",
     "PROJECT": "G50",
     "M_CODE": "1036705",
+    "PROCESS": "Extrusion",
     "POINT_OUT": "압출 튜브 냉각수 온도 조절 장치의 제어 편차가 ±5°C 이상 발생하여 타이어 반제품 수축 산포 제어가 불가함",
     "ROOT_CAUSE_ANALYSIS": "자동 유량 조절 피드백 밸브의 제어 응답 속도 저하 및 오작동",
     "COUNTER_MEASURE": "정밀 비례 전자 유량 제어 밸브로 전면 교체 적용",
+    "POINT_OUT_KO": "압출 튜브 냉각수 온도 조절 장치의 제어 편차가 ±5°C 이상 발생하여 타이어 반제품 수축 산포 제어가 불가함",
+    "POINT_OUT_EN": "The control deviation of the extrusion tube cooling water temperature control device was more than ±5°C, making it impossible to control the shrinkage dispersion of the semi-finished tire.",
+    "POINT_OUT_ZH": "挤出管冷却水温度调节装置的控制偏差超过±5°C，导致无法控制轮胎半成品的收缩散布。",
+    "ROOT_CAUSE_KO": "자동 유량 조절 피드백 밸브의 제어 응답 속도 저하 및 오작동",
+    "ROOT_CAUSE_EN": "Decrease in control response speed and malfunction of the automatic flow control feedback valve",
+    "ROOT_CAUSE_ZH": "自动流量调节反馈阀的控制响应速度下降和误动作",
+    "COUNTER_MEASURE_KO": "정밀 비례 전자 유량 제어 밸브로 전면 교체 적용",
+    "COUNTER_MEASURE_EN": "Full replacement with precision proportional electronic flow control valve",
+    "COUNTER_MEASURE_ZH": "全面更换为精密比例电子流量控制阀",
     "URL": "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?callid=filter&cqmsCustomerAuditSeq=5251BBFB044EE57CE0633C071FCA87F3"
   }
 ]

@@ -9,6 +9,7 @@ const app = {
   // 전역 애플리케이션 상태 (Global State)
   state: {
     currentTab: 'dashboard',
+    currentLang: 'KO', // 글로벌 다국어 서비스 상태 기본값 ('KO' | 'EN' | 'ZH')
     plantRiskActivePlant: 'DP', // Phase 4 활성 공장 기본값
     currentUser: { name: '박정호 수석', role: 'admin', dept: '품질보증부', badge: 'ADMIN', color: '#ef4444' },
     currentRole: 'admin', // 기본 역할: 최고관리자 (admin)
@@ -74,6 +75,15 @@ const app = {
   init() {
     console.log("🏁 RiskHunter Phase 6 Core Engine Initializing...");
     
+    // 로컬스토리지에서 다국어 세팅 복구
+    const storedLang = localStorage.getItem('riskhunter_language');
+    if (storedLang) {
+      this.state.currentLang = storedLang;
+      console.log(`[*] Restored default language: ${this.state.currentLang}`);
+    } else {
+      this.state.currentLang = 'KO';
+    }
+
     // 1. Lucide SVG 아이콘 생성 및 바인딩
     if (typeof lucide !== 'undefined') {
       lucide.createIcons();
@@ -86,6 +96,12 @@ const app = {
 
     // 3. 이벤트 리스너 바인딩
     this.bindEvents();
+    
+    // 글로벌 다국어 선택기 엘리먼트 값 동기화
+    const globalLangSelect = document.getElementById('global-lang-select');
+    if (globalLangSelect) {
+      globalLangSelect.value = this.state.currentLang;
+    }
     
     // 4. 권한 기반 UI 요소 상태 제어 및 탭 동기화
     this.applyPermissionToUI();
@@ -1151,8 +1167,19 @@ const app = {
     const storedFindings = localStorage.getItem('riskhunter_findings');
     if (storedFindings) {
       try {
-        this.state.auditFindings = JSON.parse(storedFindings);
-        console.log(`🏭 Restored ${this.state.auditFindings.length} findings from localStorage.`);
+        const parsed = JSON.parse(storedFindings);
+        // 스키마 마이그레이션 정합성 검사: 구형 데이터에 다국어 컬럼('POINT_OUT_KO')이 존재하지 않으면 캐시를 리셋하여 최신 번역 DB로 갱신
+        const hasMultiLang = parsed.length > 0 && ('POINT_OUT_KO' in parsed[0]);
+        if (!hasMultiLang) {
+          console.log("⚠️ 구형 지적사항 데이터 스키마가 로컬스토리지에서 포착되었습니다. 최신 다국어 데이터베이스로 마이그레이션을 강제 수행합니다.");
+          if (this.state.auditFindings && this.state.auditFindings.length > 0) {
+            localStorage.setItem('riskhunter_findings', JSON.stringify(this.state.auditFindings));
+            console.log("🏭 로컬스토리지 지적사항 스키마 동기화 완료!");
+          }
+        } else {
+          this.state.auditFindings = parsed;
+          console.log(`🏭 Restored ${this.state.auditFindings.length} findings from localStorage with Multilingual support.`);
+        }
       } catch (e) {
         console.error("Failed to parse findings from localStorage", e);
       }
@@ -1576,6 +1603,16 @@ const app = {
       const procObj = (this.state.commonCodes.processes || []).find(p => p.code === procCode);
       const procName = procObj ? `${procObj.name} (${procCode})` : procCode;
 
+      // 🌐 글로벌 다국어 서비스 컬럼 스위칭 기법 적용 (POINT_OUT)
+      let pointOutText = item.POINT_OUT || '-';
+      if (this.state.currentLang === 'KO' && item.POINT_OUT_KO) {
+        pointOutText = item.POINT_OUT_KO;
+      } else if (this.state.currentLang === 'EN' && item.POINT_OUT_EN) {
+        pointOutText = item.POINT_OUT_EN;
+      } else if (this.state.currentLang === 'ZH' && item.POINT_OUT_ZH) {
+        pointOutText = item.POINT_OUT_ZH;
+      }
+
       tr.innerHTML = `
         <td style="padding: 10px; font-weight: 700; color: var(--text-primary); font-family: monospace;">${fNo}</td>
         <td style="padding: 10px; font-weight: 600; color: var(--text-primary);">${item.CAR_MAKER || '-'}</td>
@@ -1583,7 +1620,7 @@ const app = {
         <td style="padding: 10px;"><span style="font-size:11px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); padding:2px 6px; border-radius:4px; color:var(--text-primary);">${procName}</span></td>
         <td style="padding: 10px; line-height: 1.4;">
           <div style="font-weight: 700; color: var(--text-primary);">${item.SUBJECT || '-'}</div>
-          <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">${item.POINT_OUT || '-'}</div>
+          <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">${pointOutText}</div>
         </td>
         <td style="padding: 10px; color: var(--text-primary); font-weight: 600;">${item.OWNER_ID || '-'}</td>
         <td style="padding: 10px; text-align: center;">${statusBadge}</td>
@@ -1692,9 +1729,22 @@ const app = {
       CAR_MAKER: customer,
       PROJECT: 'General',
       M_CODE: 'General-Spec',
+      
+      // 원문 컬럼
       POINT_OUT: pointout,
       ROOT_CAUSE_ANALYSIS: rootcause,
-      COUNTER_MEASURE: countermeasure
+      COUNTER_MEASURE: countermeasure,
+      
+      // 🌐 다국어 지원 대응 초기화 맵핑
+      POINT_OUT_KO: pointout,
+      POINT_OUT_EN: pointout,
+      POINT_OUT_ZH: pointout,
+      ROOT_CAUSE_KO: rootcause,
+      ROOT_CAUSE_EN: rootcause,
+      ROOT_CAUSE_ZH: rootcause,
+      COUNTER_MEASURE_KO: countermeasure,
+      COUNTER_MEASURE_EN: countermeasure,
+      COUNTER_MEASURE_ZH: countermeasure
     };
 
     if (!this.state.auditFindings) {
@@ -3152,10 +3202,14 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
         ].join(' ').toLowerCase();
 
         let matchedProc = 'System';
-        for (const [proc, regexes] of Object.entries(processKeywords)) {
-          if (regexes.some(rx => rx.test(text))) {
-            matchedProc = proc;
-            break;
+        if (item.PROCESS) {
+          matchedProc = item.PROCESS;
+        } else {
+          for (const [proc, regexes] of Object.entries(processKeywords)) {
+            if (regexes.some(rx => rx.test(text))) {
+              matchedProc = proc;
+              break;
+            }
           }
         }
         item._mappedProcess = matchedProc;
@@ -4059,6 +4113,22 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
         permissionModal.classList.add('hidden');
       });
     }
+
+    // 9. 🌐 글로벌 다국어 선택기 이벤트 바인딩
+    const globalLangSelect = document.getElementById('global-lang-select');
+    if (globalLangSelect) {
+      globalLangSelect.addEventListener('change', (e) => {
+        this.state.currentLang = e.target.value;
+        console.log(`[Global Language] Language Switched: ${this.state.currentLang}`);
+        this.showToast(`시스템 언어가 [${e.target.options[e.target.selectedIndex].text}](으)로 스위칭되었습니다.`, 'success');
+        
+        // 영속 저장
+        localStorage.setItem('riskhunter_language', this.state.currentLang);
+        
+        // 다국어 렌더링 트리거
+        this.onLanguageChange();
+      });
+    }
   },
 
   // ⚡ 글로벌 공통 필터 변경 이벤트 핸들러 (Phase 1)
@@ -4077,6 +4147,21 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
       this.renderChecklistTable();
       this.renderDocumentLibrary();
       this.renderRequirementMapping();
+    }
+  },
+
+  // 🌐 글로벌 다국어 언어 변경 이벤트 핸들러
+  onLanguageChange() {
+    console.log(`[Language Changed Update] Target Language: ${this.state.currentLang}`);
+    
+    // 1. Plant Risk & Action 탭이 활성화되어 있다면 지적사항 테이블 재렌더링
+    if (this.state.currentTab === 'plant-risk-action') {
+      this.renderPlantRiskScreen();
+    }
+    
+    // 2. Dashboard 탭이 활성화되어 있다면 실시간 리스크 보드 등 갱신을 위해 재렌더링
+    if (this.state.currentTab === 'dashboard') {
+      this.renderDashboard();
     }
   },
 
