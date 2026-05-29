@@ -40,12 +40,12 @@
   --text-status-info: #1d4ed8;            /* HSL(221, 83%, 46%) */
 
   /* --- 📄 Premium Typography --- */
-  --text-primary: #0f172a;        /* HSL(222, 47%, 11%) - 주조색 텍스트 (다크 네이비) */
-  --text-secondary: #475569;      /* HSL(215, 16%, 47%) - 부조색 텍스트 (슬레이트 그레이) */
-  --text-muted: #94a3b8;          /* HSL(218, 11%, 65%) - 기본 설명/비활성 텍스트 (사이드바용 다크) */
-  --text-muted-dark: #94a3b8;     /* HSL(218, 11%, 65%) - 어두운 배경(사이드바)용 설명 텍스트 */
+  --text-primary: #0f172a;        /* HSL(222, 47%, 11%) - 주조색 텍스트 (다크 네이비) [★밝은배경에 필수] */
+  --text-secondary: #475569;      /* HSL(215, 16%, 47%) - 부조색 텍스트 (슬레이트 그레이) [★밝은배경 보조] */
+  --text-muted: #94a3b8;          /* HSL(218, 11%, 65%) - 기본 설명/비활성 텍스트 [★주의: 어두운 배경전용, 밝은배경 사용시 대비 에러] */
+  --text-muted-dark: #94a3b8;     /* HSL(218, 11%, 65%) - 어두운 배경(사이드바)용 설명 텍스트 [★밝은배경에 사용금지] */
   --text-muted-light: #64748b;    /* HSL(215, 16%, 47%) - 밝은 배경(카드, 메인캔버스)용 설명 텍스트 (WCAG 4.5:1 만족) */
-  --text-light: #ffffff;          /* 어두운 컴포넌트/사이드바용 밝은 텍스트 */
+  --text-light: #ffffff;          /* 어두운 컴포넌트/사이드바용 밝은 텍스트 [★경고: pure white 이므로 밝은카드/배경 사용 금지 - 글자 안 보임] */
 
   /* --- 🫧 Layout Borders --- */
   --border-card: #e2e8f0;         /* 표준 카드 연그레이 테두리 */
@@ -188,6 +188,7 @@ body {
   align-items: center;
   justify-content: center;
   color: var(--text-light);
+  flex-shrink: 0;
 }
 
 .profile-avatar i {
@@ -224,9 +225,12 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 32px;
   gap: 24px;
   background-color: var(--bg-app);
+  min-width: 0;
+  width: 100%;
 }
 
 /* ==========================================================================
@@ -239,6 +243,16 @@ body {
   border-bottom: 1px solid var(--border-card);
   padding-bottom: 20px;
   margin-bottom: 8px;
+}
+
+.header-left {
+  flex: 1;
+  min-width: 0;
+  margin-right: 24px;
+}
+
+.header-right {
+  flex-shrink: 0;
 }
 
 .header-title {
@@ -276,6 +290,8 @@ body {
   gap: 24px;
   opacity: 1;
   transform: translateY(0);
+  min-width: 0;
+  width: 100%;
 }
 
 /* ==========================================================================
@@ -374,6 +390,7 @@ body {
   border-radius: var(--radius-card);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
 }
 
 .btn-primary {
@@ -717,6 +734,7 @@ body {
 }
 
 .checklist-main-panel {
+  display: flex;
   flex-direction: column;
   height: 100%;
 }
@@ -1014,7 +1032,7 @@ body {
 }
 
 .filter-btn-item {
-  flex: 0;
+  flex: 0 0 auto;
   min-width: auto;
   align-self: flex-end;
 }
@@ -1022,6 +1040,8 @@ body {
 .btn-reset-filters {
   padding: 10px 16px;
   height: 38px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ==========================================================================
@@ -1203,6 +1223,7 @@ body {
   font-size: 11px;
   font-weight: 700;
   color: var(--text-light);
+  flex-shrink: 0;
 }
 
 .popover-info {
@@ -1219,9 +1240,16 @@ body {
 }
 
 .popover-role {
-  color: var(--text-muted);
+  color: var(--text-muted-dark);
   font-size: 11px;
   text-align: left;
+}
+
+.popover-dept {
+  color: var(--text-muted-dark);
+  font-size: 11px;
+  text-align: left;
+  margin-top: 2px;
 }
 
 .popover-badge {
@@ -1231,6 +1259,7 @@ body {
   border-radius: var(--radius-chip);
   background-color: rgba(255, 255, 255, 0.15);
   color: var(--text-light);
+  flex-shrink: 0;
 }
 
 /* 사이드바 메뉴 잠금 상태 (Locked Menu) */
@@ -1810,6 +1839,135 @@ body {
 
 .process-summary-card:active {
   transform: translateY(-1px) scale(0.99);
+}
+
+/* 📋 라이브러리 체크리스트 및 공통 반응형 오버플로우 격리 구조 */
+#checklist-process-summary-container {
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+#checklist-process-summary {
+  min-width: 0;
+  width: 100%;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  min-width: 0;
+}
+
+/* ==========================================================================
+   반응형 해상도 점검 및 가로폭 넘침 방지 (Responsive Media Queries)
+   ========================================================================== */
+
+/* 태블릿 및 대화면 최적화 (1200px 이하) */
+@media (max-width: 1200px) {
+  .app-layout {
+    grid-template-columns: 220px 1fr; /* 사이드바를 약간 슬림하게 */
+  }
+  .main-content {
+    padding: 20px;
+    gap: 16px;
+  }
+}
+
+/* 모바일 및 저해상도 (768px 이하) */
+@media (max-width: 768px) {
+  .app-layout {
+    grid-template-columns: 1fr; /* 세로 1컬럼으로 변경 */
+    height: auto;
+    overflow-y: auto;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 16px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: sticky;
+    top: 0;
+  }
+  
+  .sidebar-logo {
+    font-size: 18px;
+  }
+  
+  .logo-sub {
+    display: none; /* 서브 텍스트는 모바일에서 숨김 */
+  }
+  
+  .sidebar-nav {
+    flex-direction: row;
+    gap: 4px;
+    overflow-x: auto;
+    width: auto;
+    padding-bottom: 0;
+  }
+  
+  .sidebar-nav-item {
+    padding: 8px 12px;
+    font-size: 13px;
+    white-space: nowrap;
+    width: auto;
+  }
+  
+  .sidebar-profile {
+    display: none; /* 프로필은 모바일에서 숨김 */
+  }
+
+  .main-content {
+    padding: 16px;
+    gap: 14px;
+    height: auto;
+    overflow-y: visible;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding-bottom: 12px;
+  }
+
+  .header-left {
+    margin-right: 0;
+    width: 100%;
+  }
+
+  #header-action-area {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  /* 체크리스트 하단 영역 모바일 대응 */
+  .checklist-container {
+    height: auto;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .detail-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%; /* 모바일에서는 드로어가 전체 화면을 차지하도록 설정 */
+    max-width: 100%;
+    height: 100%;
+    z-index: 100;
+  }
 }
 
 

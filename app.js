@@ -2270,15 +2270,15 @@ const app = {
 
       // 카드 개별 스타일 정의
       const cardStyle = isCardActive 
-        ? `border: 1.5px solid var(--brand-blue); box-shadow: 0 0 12px rgba(59, 130, 246, 0.25); background: rgba(59, 130, 246, 0.05);` 
-        : `border: 1px solid var(--border-card); background: rgba(255, 255, 255, 0.01);`;
+        ? `border: 1.5px solid var(--brand-blue); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12); background: #eff6ff;` 
+        : `border: 1px solid var(--border-card); background: var(--bg-app);`;
 
       const iconColor = isCardActive ? 'var(--brand-blue)' : 'var(--text-secondary)';
 
       cardsHTML += `
         <div class="process-summary-card" data-process-code="${cp.code}" style="min-width: 195px; width: 195px; flex-shrink: 0; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); ${cardStyle} display: flex; flex-direction: column; gap: 6px;">
           <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-            <span style="font-size: 11px; font-weight: 700; color: ${isCardActive ? 'var(--text-light)' : 'var(--text-secondary)'}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 125px;">${cp.label}</span>
+            <span style="font-size: 11px; font-weight: 700; color: ${isCardActive ? 'var(--brand-blue)' : 'var(--text-secondary)'}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 125px;">${cp.label}</span>
             <i data-lucide="${cp.icon}" style="width: 14px; height: 14px; color: ${iconColor};"></i>
           </div>
           
@@ -2289,11 +2289,11 @@ const app = {
 
           <!-- 고위험 비중 정보 -->
           <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10px;">
-            <span style="color: #f87171; display: flex; align-items: center; gap: 2px;">
+            <span style="color: #ef4444; display: flex; align-items: center; gap: 2px; font-weight: 500;">
               <i data-lucide="alert-triangle" style="width: 10px; height: 10px;"></i>
               High ${high}건
             </span>
-            <span style="color: var(--text-secondary); font-family: monospace;">비중 ${highRate}%</span>
+            <span style="color: var(--text-muted-light); font-family: monospace; font-weight: 500;">비중 ${highRate}%</span>
           </div>
 
           <!-- 진척률 게이지 바 (기획 인디케이터 요건 준수) -->
@@ -2302,7 +2302,7 @@ const app = {
               <span>자체 점검 진척</span>
               <span style="font-weight: 700; color: var(--brand-blue);">${cp.progress}%</span>
             </div>
-            <div style="width: 100%; height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden;">
+            <div style="width: 100%; height: 3px; background: rgba(0,0,0,0.05); border-radius: 2px; overflow: hidden;">
               <div style="width: ${cp.progress}%; height: 100%; background: ${isCardActive ? 'var(--brand-blue)' : '#10b981'}; border-radius: 2px; transition: width 0.3s ease;"></div>
             </div>
           </div>
@@ -2314,29 +2314,29 @@ const app = {
       <div style="display: flex; flex-direction: column; width: 100%; gap: 14px;">
         
         <!-- 1. 상단 조정 행: 드롭다운 선택 필터 & 요약 수치 -->
-        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 16px; flex-wrap: wrap; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 12px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 16px; flex-wrap: wrap; border-bottom: 1px dashed var(--border-card); padding-bottom: 12px;">
           <!-- 좌측: 드롭다운 선택상자 -->
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 12px; color: var(--text-secondary); font-weight: 600;">공정 빠른 탐색:</span>
-            <select id="checklist-process-dropdown" class="filter-select" style="min-width: 250px; font-size: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-card); border-radius: 6px; padding: 5px 10px; color: var(--text-primary); cursor: pointer; outline: none; transition: border-color 0.2s;">
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: nowrap;">
+            <span style="font-size: 12px; color: var(--text-primary); font-weight: 600; white-space: nowrap;">공정 빠른 탐색:</span>
+            <select id="checklist-process-dropdown" class="filter-select" style="min-width: 250px; font-size: 12px; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 6px; padding: 5px 10px; color: var(--text-primary); cursor: pointer; outline: none; transition: border-color 0.2s;">
               ${optionsHTML}
             </select>
           </div>
           
           <!-- 우측: 선택된 공정의 요약 지표 보드 -->
-          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <div style="font-size: 11px; color: var(--text-secondary);">
-              현재 선택: <strong style="color: var(--brand-blue); font-size: 12px;">${dispLabel}</strong>
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex-shrink: 0;">
+            <div style="font-size: 11px; color: var(--text-secondary); white-space: nowrap; display: flex; align-items: center; gap: 4px;">
+              현재 선택: <strong style="color: var(--text-status-info); font-size: 12px; font-weight: 700; white-space: nowrap;">${dispLabel}</strong>
             </div>
             
-            <div style="background: rgba(255, 255, 255, 0.01); border: 1px solid var(--border-card); border-radius: 4px; padding: 4px 10px; display: flex; align-items: center; gap: 6px; font-size: 11px;">
-              <span style="color: var(--text-secondary);">총 반영 조항 수</span>
-              <span style="font-weight: 700; color: var(--text-primary); font-family: monospace;">${dispTotal}건</span>
+            <div style="background: var(--bg-app); border: 1px solid var(--border-card); border-radius: 4px; padding: 4px 10px; display: flex; align-items: center; gap: 6px; font-size: 11px; white-space: nowrap; flex-shrink: 0;">
+              <span style="color: var(--text-secondary); white-space: nowrap;">총 반영 조항 수</span>
+              <span style="font-weight: 700; color: var(--text-primary); font-family: monospace; white-space: nowrap;">${dispTotal}건</span>
             </div>
 
-            <div style="background: rgba(239, 68, 68, 0.02); border: 1px solid rgba(239, 68, 68, 0.12); border-radius: 4px; padding: 4px 10px; display: flex; align-items: center; gap: 6px; font-size: 11px;">
-              <span style="color: #ef4444; font-weight: 500;">고위험 (High)</span>
-              <span style="font-weight: 700; color: #f87171; font-family: monospace; display: flex; align-items: center; gap: 3px;">
+            <div style="background: var(--bg-status-high); border: 1px solid var(--border-status-high); border-radius: 4px; padding: 4px 10px; display: flex; align-items: center; gap: 6px; font-size: 11px; white-space: nowrap; flex-shrink: 0;">
+              <span style="color: var(--text-status-high); font-weight: 600; white-space: nowrap;">고위험 (High)</span>
+              <span style="font-weight: 700; color: var(--color-status-high); font-family: monospace; display: flex; align-items: center; gap: 3px; white-space: nowrap; flex-shrink: 0;">
                 <i data-lucide="alert-triangle" style="width: 11px; height: 11px;"></i>
                 ${dispHigh}건
               </span>
@@ -2345,7 +2345,7 @@ const app = {
         </div>
 
         <!-- 2. 하단 조정 행: 미학적 가로 스크롤 글래스모피즘 공정 요약 보드 (수치 및 진척 인디케이터 장착) -->
-        <div id="checklist-horizontal-scroll-board" style="display: flex; gap: 12px; overflow-x: auto; width: 100%; padding-bottom: 6px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent;">
+        <div id="checklist-horizontal-scroll-board" style="display: flex; gap: 12px; overflow-x: auto; width: 100%; padding-bottom: 6px; scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.15) transparent;">
           ${cardsHTML}
         </div>
 
@@ -3299,21 +3299,21 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
     if (kpiTotalVal && kpiTotalSub) {
       kpiTotalVal.innerHTML = `
         <div style="display: flex; align-items: baseline; gap: 4px;">
-          <span style="font-size: 32px; font-weight: 800; color: var(--text-light); font-family: monospace;">${totalUnresolved}</span>
+          <span style="font-size: 32px; font-weight: 800; color: var(--text-primary); font-family: monospace;">${totalUnresolved}</span>
           <span style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">건 미결</span>
         </div>
         <div style="margin-top: 10px; width: 100%;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 11px;">
-            <span style="color: var(--text-muted); font-weight: 500;">종합 종결 관리 진행률</span>
-            <span style="color: #00c8ff; font-weight: 700;">${totalRate.toFixed(1)}%</span>
+            <span style="color: var(--text-muted-light); font-weight: 500;">종합 종결 관리 진행률</span>
+            <span style="color: var(--brand-blue); font-weight: 700;">${totalRate.toFixed(1)}%</span>
           </div>
-          <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-card);">
+          <div style="width: 100%; height: 5px; background: rgba(15, 23, 42, 0.08); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-card);">
             <div style="width: ${totalRate}%; height: 100%; background: linear-gradient(90deg, #3b82f6, #00c8ff); border-radius: 3px;"></div>
           </div>
         </div>
       `;
       kpiTotalSub.innerHTML = `
-        <span style="color: var(--text-muted); font-size: 12px;">전체 누적 건수: <strong>${totalCount}건</strong> (해결 완료 ${totalResolved}건)</span>
+        <span style="color: var(--text-muted-light); font-size: 12px;">전체 누적 건수: <strong style="color: var(--text-primary);">${totalCount}건</strong> (해결 완료 ${totalResolved}건)</span>
       `;
     }
 
@@ -3323,21 +3323,21 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
     if (kpiQiVal && kpiQiSub) {
       kpiQiVal.innerHTML = `
         <div style="display: flex; align-items: baseline; gap: 4px;">
-          <span style="font-size: 32px; font-weight: 800; color: var(--text-light); font-family: monospace;">${qiUnresolved}</span>
+          <span style="font-size: 32px; font-weight: 800; color: var(--text-primary); font-family: monospace;">${qiUnresolved}</span>
           <span style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">건 미결</span>
         </div>
         <div style="margin-top: 10px; width: 100%;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 11px;">
-            <span style="color: var(--text-muted); font-weight: 500;">품질 이슈 해결 처리율</span>
-            <span style="color: #ef4444; font-weight: 700;">${qiRate.toFixed(1)}%</span>
+            <span style="color: var(--text-muted-light); font-weight: 500;">품질 이슈 해결 처리율</span>
+            <span style="color: var(--text-status-high); font-weight: 700;">${qiRate.toFixed(1)}%</span>
           </div>
-          <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-card);">
+          <div style="width: 100%; height: 5px; background: rgba(15, 23, 42, 0.08); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-card);">
             <div style="width: ${qiRate}%; height: 100%; background: linear-gradient(90deg, #ef4444, #ff7b72); border-radius: 3px;"></div>
           </div>
         </div>
       `;
       kpiQiSub.innerHTML = `
-        <span style="color: var(--text-muted); font-size: 12px;">품질 이슈 총량: <strong>${qiTotal}건</strong> (종결완료 ${qiResolved}건)</span>
+        <span style="color: var(--text-muted-light); font-size: 12px;">품질 이슈 총량: <strong style="color: var(--text-primary);">${qiTotal}건</strong> (종결완료 ${qiResolved}건)</span>
       `;
     }
 
@@ -3347,21 +3347,21 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
     if (kpi4mVal && kpi4mSub) {
       kpi4mVal.innerHTML = `
         <div style="display: flex; align-items: baseline; gap: 4px;">
-          <span style="font-size: 32px; font-weight: 800; color: var(--text-light); font-family: monospace;">${m4Unresolved}</span>
+          <span style="font-size: 32px; font-weight: 800; color: var(--text-primary); font-family: monospace;">${m4Unresolved}</span>
           <span style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">건 On-going</span>
         </div>
         <div style="margin-top: 10px; width: 100%;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 11px;">
-            <span style="color: var(--text-muted); font-weight: 500;">공정 변경 안정화 점검률</span>
-            <span style="color: #f59e0b; font-weight: 700;">${m4Rate.toFixed(1)}%</span>
+            <span style="color: var(--text-muted-light); font-weight: 500;">공정 변경 안정화 점검률</span>
+            <span style="color: var(--text-status-medium); font-weight: 700;">${m4Rate.toFixed(1)}%</span>
           </div>
-          <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-card);">
+          <div style="width: 100%; height: 5px; background: rgba(15, 23, 42, 0.08); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-card);">
             <div style="width: ${m4Rate}%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); border-radius: 3px;"></div>
           </div>
         </div>
       `;
       kpi4mSub.innerHTML = `
-        <span style="color: var(--text-muted); font-size: 12px;">공정 변경 신청: <strong>${m4Total}건</strong> (점검완료 ${m4Resolved}건)</span>
+        <span style="color: var(--text-muted-light); font-size: 12px;">공정 변경 신청: <strong style="color: var(--text-primary);">${m4Total}건</strong> (점검완료 ${m4Resolved}건)</span>
       `;
     }
 
@@ -3371,21 +3371,21 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
     if (kpiAuditVal && kpiAuditSub) {
       kpiAuditVal.innerHTML = `
         <div style="display: flex; align-items: baseline; gap: 4px;">
-          <span style="font-size: 32px; font-weight: 800; color: var(--text-light); font-family: monospace;">${findingsUnresolved}</span>
+          <span style="font-size: 32px; font-weight: 800; color: var(--text-primary); font-family: monospace;">${findingsUnresolved}</span>
           <span style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">건 미결</span>
         </div>
         <div style="margin-top: 10px; width: 100%;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 11px;">
-            <span style="color: var(--text-muted); font-weight: 500;">지적 대책 수립 조치율</span>
-            <span style="color: #a855f7; font-weight: 700;">${findingsRate.toFixed(1)}%</span>
+            <span style="color: var(--text-muted-light); font-weight: 500;">지적 대책 수립 조치율</span>
+            <span style="color: #7c3aed; font-weight: 700;">${findingsRate.toFixed(1)}%</span>
           </div>
-          <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-card);">
+          <div style="width: 100%; height: 5px; background: rgba(15, 23, 42, 0.08); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-card);">
             <div style="width: ${findingsRate}%; height: 100%; background: linear-gradient(90deg, #a855f7, #c084fc); border-radius: 3px;"></div>
           </div>
         </div>
       `;
       kpiAuditSub.innerHTML = `
-        <span style="color: var(--text-muted); font-size: 12px;">지적 조항 수량: <strong>${findingsTotal}건</strong> (조치종결 ${findingsResolved}건)</span>
+        <span style="color: var(--text-muted-light); font-size: 12px;">지적 조항 수량: <strong style="color: var(--text-primary);">${findingsTotal}건</strong> (조치종결 ${findingsResolved}건)</span>
       `;
     }
 
@@ -3468,7 +3468,7 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
               legend: {
                 position: 'bottom',
                 labels: {
-                  color: 'rgba(255, 255, 255, 0.8)',
+                  color: '#475569',
                   font: { family: 'Pretendard', size: 11, weight: '500' },
                   boxWidth: 10
                 }
@@ -3527,13 +3527,13 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
             scales: {
               x: {
                 grid: { display: false },
-                ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 11, family: 'Pretendard' } }
+                ticks: { color: '#475569', font: { size: 11, family: 'Pretendard', weight: '500' } }
               },
               y: {
                 min: 0,
                 max: 5.0,
-                grid: { color: 'rgba(255,255,255,0.04)' },
-                ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10, family: 'monospace' }, stepSize: 1 }
+                grid: { color: '#e2e8f0' },
+                ticks: { color: '#475569', font: { size: 10, family: 'monospace' }, stepSize: 1 }
               }
             },
             plugins: {
@@ -3628,12 +3628,12 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
             x: {
               min: 0,
               max: 5.0,
-              grid: { color: 'rgba(255,255,255,0.04)' },
-              ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10, family: 'monospace' } }
+              grid: { color: '#e2e8f0' },
+              ticks: { color: '#475569', font: { size: 10, family: 'monospace' } }
             },
             y: {
               grid: { display: false },
-              ticks: { color: 'rgba(255,255,255,0.8)', font: { size: 11, family: 'Pretendard', weight: '600' } }
+              ticks: { color: '#0f172a', font: { size: 11, family: 'Pretendard', weight: '600' } }
             }
           },
           plugins: {
@@ -4509,7 +4509,7 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
       tr.title = row.tooltip; // 마우스 호버 시 툴팁 제공
 
       tr.innerHTML = `
-        <td style="padding: 14px 18px; font-weight: 600; color: var(--text-light); vertical-align: middle;">${row.category}</td>
+        <td style="padding: 14px 18px; font-weight: 600; color: var(--text-primary); vertical-align: middle;">${row.category}</td>
         <td style="padding: 14px 18px; color: var(--text-primary); vertical-align: middle;">${row.detail}</td>
         <td style="padding: 14px 18px; text-align: center; vertical-align: middle;">
           <span style="font-weight: 700; color: ${row.admin === 'O' ? '#10b981' : '#ef4444'}; font-size: 15px;">${row.admin}</span>

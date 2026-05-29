@@ -498,7 +498,7 @@
               <!-- 1. 지적사항 입력 폼 -->
               <div class="flex-col" style="gap: 6px;">
                 <label style="font-size: 11px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">현장 지적사항 / 부적합 상황 입력 (Natural Language Input)</label>
-                <textarea id="ai-advisor-textarea" class="chat-input" style="font-size: 13px; padding: 12px; resize: none; min-height: 140px; line-height: 1.5; background: rgba(255,255,255,0.02); color: var(--text-primary); border: 1px solid var(--border-card); border-radius: 6px;" placeholder="오디터가 제기한 품질 부적합 사항을 직접 타이핑하여 입력하거나 하단의 빠른 시나리오 버튼을 클릭하십시오.&#13;예: 가류공정 벤트 홀 막힘 현상이 발생하여 타이어 표면에 기포 발생 리스크 노출. VDA 6.3 금형 보전 규칙 위배 지적."></textarea>
+                <textarea id="ai-advisor-textarea" class="chat-input" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 12px; resize: none; min-height: 140px; line-height: 1.5; background: rgba(255,255,255,0.02); color: var(--text-primary); border: 1px solid var(--border-card); border-radius: 6px;" placeholder="오디터가 제기한 품질 부적합 사항을 직접 타이핑하여 입력하거나 하단의 빠른 시나리오 버튼을 클릭하십시오.&#13;예: 가류공정 벤트 홀 막힘 현상이 발생하여 타이어 표면에 기포 발생 리스크 노출. VDA 6.3 금형 보전 규칙 위배 지적."></textarea>
               </div>
 
               <!-- 2. 빠른 시나리오 프리셋 선택 (데모 시연용 킬러 피처) -->
@@ -600,12 +600,12 @@
         <!-- 서브 탭 1: Master Checklist -->
         <div id="sub-tab-content-master-checklist" class="sub-tab-pane active-sub-pane">
           <!-- 공정별 전체 현황 요약 보드 -->
-          <div id="checklist-process-summary-container" class="card-solid" style="padding: 14px 20px; margin-bottom: 16px;">
-            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-              <i data-lucide="layers" style="width: 14px; height: 14px; color: var(--brand-blue);"></i>
+          <div id="checklist-process-summary-container" class="card-solid" style="padding: 16px 20px; margin-bottom: 16px; min-width: 0; width: 100%; overflow: hidden;">
+            <div style="font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="layers" style="width: 16px; height: 16px; color: var(--brand-blue);"></i>
               <span>Process-wise Overall Status (공정 Process별 수검 현황 요약)</span>
             </div>
-            <div id="checklist-process-summary" style="display: flex; min-height: 40px; align-items: center; width: 100%;">
+            <div id="checklist-process-summary" style="display: flex; min-height: 40px; align-items: center; width: 100%; min-width: 0; overflow: hidden;">
               <!-- Dynamic process dropdown & stats loaded from JS -->
               <div class="loading-text" style="color: var(--text-secondary); font-size: 13px;">데이터를 파싱하여 공정별 통계를 연산 중입니다...</div>
             </div>
@@ -629,7 +629,7 @@
                 </div>
               </div>
               <div class="card-body" style="overflow: hidden; display: flex; flex-direction: column; flex: 1;">
-                <div class="table-responsive" style="overflow-y: auto; flex: 1; min-height: 250px;">
+                <div class="table-responsive" style="overflow-x: auto; overflow-y: auto; flex: 1; min-height: 250px; min-width: 0; width: 100%;">
                   <table class="data-table" id="checklist-data-table" style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead>
                       <tr style="border-bottom: 1px solid var(--border-card); background: rgba(255,255,255,0.02);">
