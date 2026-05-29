@@ -1439,11 +1439,11 @@ body {
   width: 380px;
   height: 520px;
   border-radius: var(--radius-panel);
-  background: rgba(15, 23, 42, 0.88);
+  background: rgba(15, 23, 42, 0.94); /* 명도 대비 향상을 위해 배경 투명도를 약간 낮추고 어둡게 보정 */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15); /* 보더 선명도 보강 */
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1471,7 +1471,7 @@ body {
 .btn-close-chat {
   background: transparent;
   border: none;
-  color: var(--text-muted);
+  color: #cbd5e1; /* 더 선명하고 밝은 회색으로 변경해 닫기 버튼 명도 대비 극대화 */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1504,72 +1504,82 @@ body {
   background: rgba(255, 255, 255, 0.02);
 }
 .drawer-chat-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.18);
   border-radius: 3px;
 }
 .drawer-chat-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.28);
 }
 
-.chat-msg-wrapper {
+/* 💬 실제 HTML/JS에서 사용되는 메시지 클래스 매핑 및 고대비화 */
+.message {
   display: flex;
   gap: 10px;
   align-items: flex-start;
   max-width: 85%;
 }
 
-.chat-msg-wrapper.bot {
+.message.message-bot {
   align-self: flex-start;
 }
 
-.chat-msg-wrapper.user {
+.message.message-user {
   align-self: flex-end;
   flex-direction: row-reverse;
   margin-left: auto;
 }
 
-.chat-msg-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.chat-msg-avatar.bot {
-  background: linear-gradient(135deg, var(--brand-blue), #1d4ed8);
-  color: var(--text-light);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.chat-msg-avatar.user {
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--text-light);
-}
-
-.chat-msg-bubble {
+.message .message-content {
   padding: 10px 14px;
   border-radius: 12px;
   font-size: 13px;
   line-height: 1.5;
-  color: #f1f5f9;
 }
 
-.chat-msg-wrapper.bot .chat-msg-bubble {
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.message.message-bot .message-content {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f8fafc; /* 밝은 회백색 글자색으로 변경하여 어두운 배경 위에서 높은 시인성 확보 (대비율 10:1 이상) */
   border-top-left-radius: 2px;
 }
 
-.chat-msg-wrapper.user .chat-msg-bubble {
+/* 봇 메시지 안의 강조 스타일링 - 가독성 향상 */
+.message.message-bot .message-content strong {
+  color: #38bdf8; /* 형광 파스텔 하늘색으로 중요 어휘 시인성 극대화 */
+  font-weight: 700;
+}
+
+.message.message-bot .message-content em {
+  color: #fb7185; /* 부드러운 분홍빛으로 팁이나 경고 시인성 보강 */
+  font-style: normal;
+  font-weight: 600;
+}
+
+.message.message-bot .message-content ul {
+  margin-top: 6px;
+  margin-bottom: 6px;
+  padding-left: 20px;
+}
+
+.message.message-bot .message-content li {
+  margin-bottom: 4px;
+}
+
+.message.message-user .message-content {
   background: var(--brand-blue);
-  color: var(--text-light);
+  color: var(--text-light); /* 순백색으로 명확한 가독성 */
   border-top-right-radius: 2px;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+/* 온라인 상태 점 스타일링 */
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-status-low); /* 초록색 완료/안전 (#10b981) */
+  box-shadow: 0 0 6px var(--color-status-low);
+  display: inline-block;
 }
 
 .drawer-chat-footer {

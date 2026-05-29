@@ -483,64 +483,66 @@
 
       <!-- [메뉴 04] AI Action Advisor -->
       <section id="tab-ai-action-advisor" class="tab-pane">
-        <div class="grid-2col" style="grid-template-columns: 1fr 1.2fr; gap: 20px; min-height: calc(100vh - 180px);">
+        <div class="grid-2col" style="grid-template-columns: 1fr 1.2fr; gap: 20px; height: calc(100vh - 210px); min-height: 480px; max-height: 590px;">
           <!-- 좌측 오디트 지적 사항 대화창/입력 카드 (Problem Input Card) -->
-          <div class="card-solid flex-col" style="min-height: 520px; display: flex; flex-direction: column;">
-            <div class="card-header" style="border-bottom: 1px solid var(--border-card); padding-bottom: 12px; margin-bottom: 15px;">
+          <div class="card-solid flex-col" style="height: 100%; min-height: 480px; display: flex; flex-direction: column; box-sizing: border-box; justify-content: space-between;">
+            <div class="card-header" style="border-bottom: 1px solid var(--border-card); padding-bottom: 10px; margin-bottom: 12px;">
               <h2 class="card-title" style="display: flex; align-items: center; gap: 8px;">
                 <i data-lucide="shield-alert" style="width: 20px; height: 20px; color: var(--color-status-high);"></i>
                 지적 사항 및 부적합 상황 분석기 (Problem Input Analyzer)
               </h2>
-              <p class="card-subtitle">오디트 및 현장 수검 중 제기된 부적합 사항을 직접 기입하거나 아래 현장 시나리오 프리셋을 고속 선택하십시오.</p>
+              <p class="card-subtitle" style="margin-top: 2px;">품질 부적합 지적사항을 타이핑하거나 시나리오를 고속 선택하십시오.</p>
             </div>
-            <div class="card-body flex-col" style="flex-grow: 1; justify-content: space-between; gap: 15px; display: flex; flex-direction: column; overflow-y: auto;">
+            
+            <!-- 스크롤 가능한 중간 몸체 영역 -->
+            <div class="card-body flex-col" style="flex-grow: 1; gap: 12px; display: flex; flex-direction: column; overflow-y: auto; padding-right: 4px; margin-bottom: 12px;">
               
               <!-- 1. 지적사항 입력 폼 -->
-              <div class="flex-col" style="gap: 6px;">
-                <label style="font-size: 11px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">현장 지적사항 / 부적합 상황 입력 (Natural Language Input)</label>
-                <textarea id="ai-advisor-textarea" class="chat-input" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 12px; resize: none; min-height: 140px; line-height: 1.5; background: rgba(255,255,255,0.02); color: var(--text-primary); border: 1px solid var(--border-card); border-radius: 6px;" placeholder="오디터가 제기한 품질 부적합 사항을 직접 타이핑하여 입력하거나 하단의 빠른 시나리오 버튼을 클릭하십시오.&#13;예: 가류공정 벤트 홀 막힘 현상이 발생하여 타이어 표면에 기포 발생 리스크 노출. VDA 6.3 금형 보전 규칙 위배 지적."></textarea>
+              <div class="flex-col" style="gap: 5px;">
+                <label style="font-size: 10.5px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">현장 지적사항 / 부적합 상황 입력</label>
+                <textarea id="ai-advisor-textarea" class="chat-input" style="width: 100%; box-sizing: border-box; font-size: 12.5px; padding: 10px; resize: none; min-height: 90px; line-height: 1.4; background: rgba(255,255,255,0.02); color: var(--text-primary); border: 1px solid var(--border-card); border-radius: 6px;" placeholder="품질 부적합 사항을 타이핑하거나 하단의 프리셋을 클릭하십시오.&#13;예: 가류공정 벤트 홀 막힘에 따른 기포 발생 리스크 노출. VDA 6.3 6.4.4항 보전 위배 지적."></textarea>
               </div>
 
               <!-- 2. 빠른 시나리오 프리셋 선택 (데모 시연용 킬러 피처) -->
-              <div class="flex-col" style="gap: 8px;">
-                <label style="font-size: 11px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
+              <div class="flex-col" style="gap: 6px;">
+                <label style="font-size: 10.5px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
                   <i data-lucide="zap" style="width: 12px; height: 12px; color: var(--color-status-medium);"></i>
-                  현장 시연용 다자간 시나리오 빠른 프리셋 (One-Click Scenario Preset)
+                  시연용 시나리오 빠른 프리셋 (One-Click Scenario)
                 </label>
-                <div style="display: flex; flex-direction: column; gap: 6px;" id="ai-preset-container">
-                  <button class="preset-btn" data-preset="curing-vent" style="text-align: left; background: rgba(255,255,255,0.03); border: 1px solid var(--border-card); border-radius: 6px; padding: 8px 12px; font-size: 12px; color: var(--text-primary); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                    <span>🏭 가류 공정: 벤트 홀 세정 및 벤트핀 작동 편차 (Curing Vent Hole Clogging)</span>
-                    <i data-lucide="chevron-right" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
+                <div style="display: flex; flex-direction: column; gap: 5px; max-height: 120px; overflow-y: auto; padding-right: 4px;" id="ai-preset-container">
+                  <button class="preset-btn" data-preset="curing-vent" style="text-align: left; background: rgba(255,255,255,0.03); border: 1px solid var(--border-card); border-radius: 6px; padding: 6px 10px; font-size: 11.5px; color: var(--text-primary); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                    <span>🏭 가류 공정: 벤트 홀 세정 및 벤트핀 작동 편차 (Curing Vent)</span>
+                    <i data-lucide="chevron-right" style="width: 13px; height: 13px; color: var(--text-muted-light);"></i>
                   </button>
-                  <button class="preset-btn" data-preset="green-tire" style="text-align: left; background: rgba(255,255,255,0.03); border: 1px solid var(--border-card); border-radius: 6px; padding: 8px 12px; font-size: 12px; color: var(--text-primary); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                    <span>🏗️ 성형 공정: 그린타이어 보관 시간 (24H) 초과 및 FIFO 오동작 (Storage Time Over)</span>
-                    <i data-lucide="chevron-right" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
+                  <button class="preset-btn" data-preset="green-tire" style="text-align: left; background: rgba(255,255,255,0.03); border: 1px solid var(--border-card); border-radius: 6px; padding: 6px 10px; font-size: 11.5px; color: var(--text-primary); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                    <span>🏗️ 성형 공정: 그린타이어 보관 시간 (24H) 초과 및 FIFO (Storage Time)</span>
+                    <i data-lucide="chevron-right" style="width: 13px; height: 13px; color: var(--text-muted-light);"></i>
                   </button>
-                  <button class="preset-btn" data-preset="oil-sensor" style="text-align: left; background: rgba(255,255,255,0.03); border: 1px solid var(--border-card); border-radius: 6px; padding: 8px 12px; font-size: 12px; color: var(--text-primary); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                    <span>⚖️ 배합 공정: 오일 투입 평량 탱크 레벨 센서 오정렬 및 캘리브레이션 누락 (Oil Sensor)</span>
-                    <i data-lucide="chevron-right" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
+                  <button class="preset-btn" data-preset="oil-sensor" style="text-align: left; background: rgba(255,255,255,0.03); border: 1px solid var(--border-card); border-radius: 6px; padding: 6px 10px; font-size: 11.5px; color: var(--text-primary); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                    <span>⚖️ 배합 공정: 오일 평량 탱크 레벨 센서 오정렬 및 검교정 지연 (Oil Sensor)</span>
+                    <i data-lucide="chevron-right" style="width: 13px; height: 13px; color: var(--text-muted-light);"></i>
                   </button>
-                  <button class="preset-btn" data-preset="compounding-temp" style="text-align: left; background: rgba(255,255,255,0.03); border: 1px solid var(--border-card); border-radius: 6px; padding: 8px 12px; font-size: 12px; color: var(--text-primary); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                    <span>🔥 혼련 공정: 냉각 배관 고착 및 고온(135℃) 고무 조기 가류 위배 (Compounding Temp Over)</span>
-                    <i data-lucide="chevron-right" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
+                  <button class="preset-btn" data-preset="compounding-temp" style="text-align: left; background: rgba(255,255,255,0.03); border: 1px solid var(--border-card); border-radius: 6px; padding: 6px 10px; font-size: 11.5px; color: var(--text-primary); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                    <span>🔥 혼련 공정: 냉각 배관 고착 및 고온(135℃) 조기 가류 (Compounding Temp)</span>
+                    <i data-lucide="chevron-right" style="width: 13px; height: 13px; color: var(--text-muted-light);"></i>
                   </button>
-                  <button class="preset-btn" data-preset="extrusion-thickness" style="text-align: left; background: rgba(255,255,255,0.03); border: 1px solid var(--border-card); border-radius: 6px; padding: 8px 12px; font-size: 12px; color: var(--text-primary); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                    <span>📐 압출 공정: 트레드 두께 레이저 센서 오차 및 다이(Die) 편차 발생 (Extrusion Die Wear)</span>
-                    <i data-lucide="chevron-right" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
+                  <button class="preset-btn" data-preset="extrusion-thickness" style="text-align: left; background: rgba(255,255,255,0.03); border: 1px solid var(--border-card); border-radius: 6px; padding: 6px 10px; font-size: 11.5px; color: var(--text-primary); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                    <span>📐 압출 공정: 트레드 두께 레이저 센서 오차 및 다이(Die) 편차 (Extrusion Die)</span>
+                    <i data-lucide="chevron-right" style="width: 13px; height: 13px; color: var(--text-muted-light);"></i>
                   </button>
                 </div>
               </div>
-
-              <!-- 3. AI 제안 트리거 단추 -->
-              <button id="btn-generate-ai-action" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; background: linear-gradient(135deg, #2563eb, #1d4ed8); border: none; padding: 12px 16px; border-radius: 6px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25); transition: all 0.2s; margin-top: auto; cursor: pointer; font-size: 14px; color: var(--text-light);">
-                <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
-                AI 개선 조치 가이드라인 생성 (Generate AI Action Plan)
-              </button>
             </div>
+
+            <!-- 3. AI 제안 트리거 단추 (Sticky Footer - 스크롤 밖 하단 고정) -->
+            <button id="btn-generate-ai-action" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; background: linear-gradient(135deg, #2563eb, #1d4ed8); border: none; padding: 10px 14px; border-radius: 6px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: all 0.2s; cursor: pointer; font-size: 13.5px; color: var(--text-light); margin-top: auto;">
+              <i data-lucide="sparkles" style="width: 15px; height: 15px;"></i>
+              AI 개선 조치 가이드라인 생성 (Generate AI Action Plan)
+            </button>
           </div>
           
           <!-- 우측 AI 종합 피드백 보드 (AI Action Feed) -->
-          <div class="card-solid flex-col" style="min-height: 520px; display: flex; flex-direction: column;">
+          <div class="card-solid flex-col" style="height: 100%; min-height: 520px; display: flex; flex-direction: column; box-sizing: border-box;">
             <div class="card-header" style="background: rgba(37, 99, 235, 0.04); border-bottom: 1px solid rgba(37, 99, 235, 0.12); padding: 16px; border-radius: var(--radius-card) var(--radius-card) 0 0;">
               <h2 class="card-title text-info" style="display: flex; align-items: center; gap: 8px; color: var(--color-status-info) !important; margin: 0; font-size: 16px; font-weight: 700;">
                 <i data-lucide="sparkles" style="width: 20px; height: 20px; color: var(--color-status-info);"></i> 
@@ -860,7 +862,7 @@
                   <p class="card-subtitle">자주 쿼리하는 분석용 SELECT 서식을 안전 샌드박스로 실행합니다</p>
                 </div>
                 <div class="flex-row gap-8 align-center" style="display: flex; align-items: center; gap: 8px;">
-                  <label for="sql-table-select" class="text-sm font-semibold text-muted" style="font-size: 13px; color: var(--text-muted);">리뷰할 테이블:</label>
+                  <label for="sql-table-select" class="text-sm font-semibold text-muted" style="font-size: 13px; color: var(--text-muted-light);">리뷰할 테이블:</label>
                   <select id="sql-table-select" class="form-select" style="background: var(--bg-app); border: 1px solid var(--border-card); color: var(--text-primary); border-radius: 6px; padding: 6px 12px; font-size: 13px; outline: none; cursor: pointer; font-family: inherit;">
                     <option value="checklists">audit_checklists (체크리스트 마스터)</option>
                     <option value="findings">audit_findings (과거 오디트 지적사항)</option>
@@ -876,7 +878,7 @@
                   <textarea id="sql-editor" class="sql-textarea" spellcheck="false" style="width: 100%; height: 130px; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--border-card); border-radius: 8px; color: #cbd5e1; font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.6; padding: 14px 16px; resize: none; outline: none; border-left: 4px solid var(--brand-blue);">SELECT * FROM audit_checklists LIMIT 100;</textarea>
                 </div>
                 <div class="flex-between" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                  <span class="text-muted text-sm flex-row align-center gap-6" style="font-size: 12.5px; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                  <span class="text-muted text-sm flex-row align-center gap-6" style="font-size: 12.5px; color: var(--text-muted-light); display: flex; align-items: center; gap: 6px;">
                     <i data-lucide="shield-check" style="color: var(--color-status-low); width: 16px; height: 16px;"></i> 
                     <span>SELECT 전용 안전 샌드박스 작동 중</span>
                   </span>
@@ -1087,7 +1089,7 @@
           <div class="bot-avatar-icon"><i data-lucide="bot"></i></div>
           <div>
             <div class="bot-name" style="font-weight: 600; font-size: 14px; color: var(--text-light);">RiskHunter AI Assistant</div>
-            <div class="bot-status" style="font-size: 11px; color: #a1a1a1; display: flex; align-items: center; gap: 4px;"><span class="status-dot"></span>실시간 감사 대응 추론 중</div>
+            <div class="bot-status" style="font-size: 11px; color: #cbd5e1; display: flex; align-items: center; gap: 4px;"><span class="status-dot"></span>실시간 감사 대응 추론 중</div>
           </div>
         </div>
         <button class="btn-close-chat" id="btn-close-chat" style="background: transparent; border: none; color: #cbd5e1; cursor: pointer;"><i data-lucide="x"></i></button>

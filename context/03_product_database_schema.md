@@ -1,350 +1,263 @@
-# 🗄️ [Context 3] 통합 DB 구축 컨텍스트 문서 (database.db)
+# 🗄️ [Context 3] 통합 가상 JSON DB 구축 및 스키마 정의서
 
-본 문서는 완성차 고객사(OEM) 완제품 규격서(OE Requirements) 및 생산 공장별 품질 이슈(QI), 변경 이력(4M), 과거 감사 지적사항(AUDIT) 데이터를 AI 기술과 결합하여, **공장별 위험도(Plant Risk)가 반영된 차세대 통합 Audit Checklist 데이터베이스(`database.db`)**를 설계하고 구축하는 기술 가이드입니다.
+본 문서는 완성차 고객사(OEM) 기술 규격서(OE Requirements) 및 생산 공장별 품질 실패 이력(QI), 공정 변경 이력(4M), 과거 감사 지적사항(AUDIT), 그리고 공장 자체 진단 이력인 **내부 Audit 시트(Internal Audit Sheet)** 데이터를 포함하는 **시스템의 전체 8대 가상 데이터베이스 목록(DB List) 및 논리/물리 스키마 사양**을 정의합니다.
 
----
-
-## 🌟 1. 통합 데이터베이스 설계 개요 및 방향성
-
-본 플랫폼은 단순한 규격 문서 뷰어가 아닌, 완성차 표준 요구사항과 제조 현장의 리스크를 융합하는 **위험 기반 감사(Risk-Based Auditing) 시스템**을 지향합니다. 이를 위해 다변화된 데이터 원천을 하나의 통합 모델로 병합하도록 설계되었습니다.
-
-### 💡 핵심 설계 방향 (Architectural Strategy)
-
-1.  **Checklist 이원화 및 병합 (Unified Checklist)**:
-    *   **규격 기반(Document-Driven)**: OEM 표준서에서 AI가 추출한 일반 품질 시스템 및 표준 공정 준수 조항.
-    *   **이력 기반(Database-Driven)**: 과거 품질 실패(QI), 설비/공정 변경(4M), 감사 지적(AUDIT) 테이블에서 AI가 현장 맞춤형으로 실시간 추출한 예방 검증 조항.
-    *   이 두 가지 체크리스트를 단일 스키마인 **`unified_audit_checklists`** 테이블로 추후 완벽히 병합할 수 있도록 확장 설계합니다.
-2.  **공장별 위험도(Plant Risk) 계량화**:
-    *   규격 표준서는 전사 공통으로 적용되나, 이력 데이터는 **8개 자사공장(DP, KP, JP, HP, CP, MP, IP, TP)**별로 독립적입니다.
-    *   테이블 설계 시 공장 코드(`plant_code`)를 필수 식별자로 지정하고, 공정별 이벤트 빈도와 심각도를 기반으로 한 **공장별 리스크 점수(`plant_risk_score`)** 컬럼을 배치하여 감사 조항의 우선순위를 동적으로 조정(Dynamic Boosting)합니다.
-3.  **DB 기반 AI Checklist 추출 프로세스 도입**:
-    *   정형화된 DB 필드(현상, 원인, 대책)를 LLM 프롬프트에 주입하여 "감사원이 현장에서 검증해야 할 실질적인 감사 질문과 증빙 리스트"를 자동 생성해 냅니다.
+사내 해커톤 MVP 구동 및 브라우저 온디맨드 초고속 연산을 보증하기 위해, 본 문서에 기재된 모든 데이터 사양은 `data/` 디렉토리에 위치한 **정적 JSON 파일(`*.json`) 데이터 구조와 100% 철저히 부합**하도록 동기화되었습니다. 모든 클라이언트 렌더링, 필터링 및 AI 변환 알고리즘은 본 기준 정의를 상속 및 적용합니다.
 
 ---
 
-## 🔄 2. 통합 데이터 흐름 및 AI 파이프라인 (Data & AI Flow)
+## 🌟 1. 가상 데이터베이스 목록 (DB List Overview)
 
-문서 파싱 파이프라인과 현장 이력 가공 파이프라인이 AI 모델을 거쳐 하나의 통합 체크리스트 테이블로 집결하는 데이터 아키텍처입니다.
+플랫폼을 구성하는 핵심 데이터 자원은 `data/` 디렉토리 아래 총 **8대 정적 JSON 파일**의 테이블 구조로 관리됩니다.
+
+| No. | 물리적 파일명 | 논리적 테이블명 | 주요 보관 정보 및 역할 |
+| :---: | :--- | :--- | :--- |
+| **①** | `users.json` | `users` | 로그인 사용자 정보, 역할 권한(Role) 및 소속/담당 공정 마스터 |
+| **②** | `common_codes.json` | `common_codes` | 8대 생산 공장, 15대 표준 공정, 4M 분류 및 소스 구분용 공통 코드셋 |
+| **③** | `document_library.json` | `document_library` | 최신 OEM 기술 규격서 메타데이터 및 타이어 도메인 역해석 매스터 데이터 |
+| **④** | `quality_issues_qi.json` | `quality_issues_qi` | 공장별 과거 발생 품질 실패(QI), 현상(D2), 원인(D4) 및 8D 영구조치 대책(D5) |
+| **⑤** | `change_history_4m.json` | `change_history_4m` | 생산 현장의 설비, 공정, 재료, 작업 표준(4M) 변경 이력 신청/승인 건 |
+| **⑥** | `audit_findings.json` | `audit_findings` | 과거 외부 완성차 고객사 및 제3자 Audit 지적사항(Point out) 및 시정 계획 |
+| **⑦** | `oe_quality_assessment_details.json` | `internal_audit_sheets` | **[내부 Audit 시트]** 공장 자체 진단 점검 항목, 부적합 세부 결과 및 예방조치안 |
+| **⑧** | `audit_checklists.json` | `unified_audit_checklists` | **[통합 Checklist]** 규격서(DOCUMENT) 및 현장 이력(DATABASE) 기반 AI 추출 질문 통합 저장소 |
+
+---
+
+## 🔄 2. 데이터 흐름 및 AI 질문 변환 파이프라인
+
+원천 데이터셋(QI, 4M, 감사지적, 내부 Audit)이 수집되면, 클라이언트 엔진 또는 AI Extractor를 통해 **"실무 감사 질문"** 및 **"합치 증적 서류명"**으로 구조화된 감사 체크리스트로 가공되어 `audit_checklists.json`에 집결합니다.
 
 ```mermaid
 flowchart TD
-    subgraph Raw_Sources ["1단계: 원천 데이터 수집 및 적재"]
+    subgraph Raw_Resources ["1단계: 5대 원천 데이터 파일"]
         direction LR
-        A["📂 oe_requirements/<br>(165개 PDF/XLS/DOC)"]
-        B1["📄 change_risk_hunter.csv<br>(4M 변경이력)"]
-        B2["📄 qi_risk_hunter.csv<br>(QI 품질이슈)"]
-        B3["📄 audit_risk_hunter.csv<br>(과거 지적사항)"]
+        SRC_DOC["📄 document_library.json<br>(규격 메타)"]
+        SRC_QI["🚨 quality_issues_qi.json<br>(품질실패 이력)"]
+        SRC_4M["⚙️ change_history_4m.json<br>(4M 변경이력)"]
+        SRC_AUD["🕵️ audit_findings.json<br>(과거 지적사항)"]
+        SRC_INT["📋 oe_quality_assessment_details.json<br>(내부 Audit 시트)"]
     end
 
-    subgraph Parsing_and_AI ["2단계: AI 추출 및 데이터 가공"]
+    subgraph AI_Parser_Engine ["2단계: AI 변환 및 도메인 번역기"]
         direction TB
-        %% 경로 A: 문서 분석
-        A -->|oe_manager.py| C["📄 oe_requirements_list.csv<br>(규격서 메타데이터)"]
-        A -->|AI 조항 분석| D["📄 audit_checklists.csv<br>(규격 기반 Checklist)"]
-        
-        %% 경로 B: DB 이력 분석
-        B1 & B2 & B3 -->|Pandas 적재| DB_Tables[("🗄️ 이력 마스터 테이블<br>(change_history_4m, quality_issues_qi, audit_findings)")]
-        DB_Tables -->|**AI DB Checklist Extractor**<br>(Gemini API 가동)| E["📄 db_audit_checklists.csv<br>(현장 이력 기반 Checklist)"]
+        PROMPT["💡 수석 품질 오디터 페르소나 적용<br>(Open-ended Question & 실물 SOP 증적 가이던스 도출)"]
+        BOOST["⚙️ Plant Risk Score 계산<br>(공정 가중치 주입)"]
     end
 
-    subgraph Plant_Risk_Engine ["3단계: 공장별 리스크 엔진"]
-        E -->|공장코드 매핑 및 빈도 산출| PRE["⚙️ Plant Risk Engine<br>(공정별 가중치 산출 및 위험도 주입)"]
+    subgraph Consolidated_Virtual_DB ["3단계: 통합 감사 데이터베이스 적재"]
+        T_UAC[("📊 audit_checklists.json<br>(통합 Checklist 테이블)")]
     end
 
-    subgraph Consolidated_DB ["4단계: 통합 DB 병합 (database.db)"]
-        direction TB
-        C -->|INSERT| T1[("document_library")]
-        D -->|INSERT (Source: DOCUMENT, Plant: ALL)| T2[("unified_audit_checklists")]
-        PRE -->|INSERT (Source: DATABASE, Plant: DP/KP...)| T2
-        DB_Tables -->|Raw Copy| T3[("Raw History Tables")]
-    end
-
-    style T2 fill:#1f3a52,stroke:#00c8ff,stroke-width:2.5px,color:#fff
-    style PRE fill:#402030,stroke:#ff3b30,stroke-width:2px,color:#fff
+    %% 데이터 흐름 연결
+    Raw_Resources --> AI_Parser_Engine
+    AI_Parser_Engine --> T_UAC
 ```
 
 ---
 
-## 📊 3. 테이블별 상세 스키마 정의 (Schemas)
+## 🗄️ 3. 테이블별 상세 스키마 정의 (JSON Schema Specs)
 
-> [!IMPORTANT]
-> **[아키텍처 가상화 선언]**
-> 본 시스템은 해커톤 MVP 안정성과 무지연 구동을 위해 실제 서버용 이진 SQLite 파일(`database.db`)에 직접 커넥션을 열지 않습니다. 
-> 본 문서에 기재된 모든 테이블 스키마 사양은 `data/` 디렉토리에 위치한 **정적 JSON 파일(`*.json`) 객체들이 100% 준수해야 하는 '논리 데이터 모델(Logical Data Model)' 및 JSON 구조 사양**으로 가상화하여 적용됩니다. 모든 클라이언트 렌더링 및 필터링 처리는 이 스키마에 정의된 키(Key) 및 타입 속성과 1:1 대응하여 이루어집니다.
+`data/` 아래 적재된 실물 JSON 파일 객체들이 준수해야 하는 상세 필드 속성 및 물리 데이터 모델입니다.
 
-통합 및 확장 설계를 반영한 `database.db` 내 테이블 스키마 사양입니다.
+### ① `users` (`data/users.json`)
+*   **설명**: 플랫폼 로그인 및 세션 관리, 사용자 역할 권한(Role-Based Access Control)을 위한 사용자 계정 정보입니다.
+*   **스키마 구성**:
 
-### ① `unified_audit_checklists` (통합 Audit Checklist - ★핵심 병합 테이블)
-
-*   **설명**: 규격 기반(DOCUMENT) 질문과 현장 실시간 실패 이력 기반(DATABASE) 질문이 하나의 인터페이스로 병합되는 핵심 테이블입니다. 공장별 리스크 점수가 산정되어 함께 기록됩니다.
-*   **소스**: `documents/audit_checklists.csv` + **[NEW] AI 추출 현장 이력 체크리스트**
-
-| 컬럼명 | 데이터 타입 | 제약사항 | 설명 | 예시 |
-| :--- | :--- | :--- | :--- | :--- |
-| `id` | INTEGER | PRIMARY KEY | 체크리스트 고유 ID | `1` |
-| `source_type` | TEXT | NOT NULL | 소스 원천 구분 (`DOCUMENT`, `DATABASE_QI`, `DATABASE_4M`, `DATABASE_AUDIT`) | `DATABASE_QI` |
-| `source_id` | TEXT | NOT NULL | 원천 문서명 또는 DB 내 관리번호 (`DOC_NO`) | `QI-2025-0812` |
-| `plant_code` | TEXT | NOT NULL | 적용 대상 자사 공장 코드 (전사 공통은 `ALL` 입력) | `DP` (대전), `KP` (금산), `ALL` |
-| `customer` | TEXT | - | 완성차 고객사 브랜드 | `BMW`, `Audi`, `Hyundai` |
-| `doc_code` | TEXT | - | 원본 규격 문서 코드 (이력 기반의 경우 `NULL` 가능) | `GS 91011` |
-| `doc_name` | TEXT | - | 원본 규격서명 또는 관련 표준 제목 | `SPECIAL CHARACTERISTICS` |
-| `section` | TEXT | - | 규격서 내 조항 번호 또는 공정 단계명 | `Curing (가류공정)` |
-| `requirement` | TEXT | NOT NULL | 원본 규격 요구사항 또는 품질 실패 현상 요약 | `타이어 성형 중 Air 배출 불충분으로 가류 후 기포 발생` |
-| `audit_question` | TEXT | NOT NULL | **[AI 제안]** 오디터가 현장에서 질문해야 할 내용 | `가류 세정 및 벤트핀 막힘 유무 확인 프로세스가 마련되어 있습니까?` |
-| `evidence_compliance` | TEXT | - | **[AI 제안]** 오디 대응을 위해 제시해야 할 증적 | `벤트핀 점검 체크리스트 및 주간 금형 세정 일지` |
-| `audit_method` | TEXT | - | 감사 기법 (면담, 실사, 문서 검토) | `현장 실사 (Plant Tour)` |
-| `requirement_type` | TEXT | - | 요구사항 속성 (시험, 공정관리, 변경점 등) | `재발방지 (Recurrence Prevention)` |
-| `process_category` | TEXT | NOT NULL | 연관 제조 공정/카테고리 | `Curing` |
-| `related_4m` | TEXT | - | 4M 구분 (Man, Machine, Material, Method) | `Machine` |
-| `priority` | TEXT | - | 리스크 중요도 등급 (`High`, `Medium`, `Low`) | `High` |
-| `plant_risk_score` | REAL | DEFAULT 0.0 | 공장별 공정 위험 가중치 점수 (0.0 ~ 5.0) | `4.2` |
-| `processed_at` | TEXT | - | 데이터 가공 및 적재 시점 | `2026-05-26 18:00:00` |
-
----
-
-### ② `document_library` (완제품 규격서 라이브러리)
-
-*   **설명**: 규격서 원천 파일 메타정보 테이블입니다. (전사 공통 기준 데이터, 타이어 전문 제조공정 역해석 매퍼 탑재)
-*   **소스**: `documents/oe_requirements_list.csv`
-
-| 컬럼명 | 데이터 타입 | 설명 | 예시 |
+| Key | 데이터 타입 | 설명 | 예시 |
 | :--- | :--- | :--- | :--- |
-| `id` | INTEGER | 규격서 일련번호 (PK) | `1` |
-| `filename` | TEXT | 실제 물리 파일명 (Unique) | `BMW_GS_90018-1...pdf` |
-| `customer` | TEXT | 완성차 고객사명 (OEM) | `BMW`, `Audi`, `HKMC`, `GM` |
-| `doc_code` | TEXT | 규격 문서 코드 | `GS 90018-1` |
-| `doc_name` | TEXT | 규격 문서 국/영문 명칭 | `REQUALIFICATION OF PRODUCT AT SUPPLIER` |
-| `revision_date` | TEXT | 규격 제/개정 일자 | `2024-11-19` |
-| `doc_type` | TEXT | 문서 구분 | `품질 기술 표준` |
-| `file_size` | TEXT | 실제 물리 파일 크기 | `3.03 MB` |
-| `review_summary` | JSON/TEXT | AI 기반 핵심 검토 구조화 요약 내용 (overview, key_clauses, applicable_processes, required_evidences) | `{"overview": "...", "key_clauses": [...]}` |
-| `tire_process_translation` | JSON/TEXT | **[핵심 추가]** 범용 OEM 규격을 타이어 공정/파라미터/결함리스크 및 SOP 가이드로 일대일 역해석한 상세 데이터 | `{"focus_process": "...", "process_param_check": "..."}` |
-| `processed_at` | TEXT | 시스템 등록/분석 처리 시점 | `2026-05-26 17:45:00` |
+| `id` | INTEGER (PK) | 사용자 일련번호 | `1`, `2` |
+| `username` | TEXT | 사용자 로그인 아이디 | `"admin"`, `"manager"`, `"viewer"` |
+| `password` | TEXT | 비밀번호 (평문 문자열) | `"admin123"`, `"manager123"` |
+| `name` | TEXT | 사용자 성명 및 직책 | `"박정호 수석"`, `"이현우 책임"`, `"최선아 연구원"` |
+| `role` | TEXT | 권한 역할 식별자 (`admin` / `manager` / `viewer`) | `"admin"`, `"manager"`, `"viewer"` |
+| `role_name` | TEXT | 권한 역할 국/영문 표시 명칭 | `"Lead Auditor"`, `"Quality Manager"`, `"Quality Viewer"` |
+| `badge` | TEXT | 화면 상 표시될 역할 구분 뱃지 텍스트 | `"ADMIN"`, `"MANAGER"`, `"VIEWER"` |
+| `avatar_color` | TEXT | 사용자 아바타의 테마 배경색 (CSS 헥사 코드) | `"#ff3b30"`, `"#ef4444"`, `"#a1a1a1"` |
+| `department` | TEXT | 소속 부서명 | `"품질보증그룹"`, `"품질기획팀"`, `"생산기술센터"` |
 
 ---
 
-### ③ `change_history_4m` (4M 변경점 마스터)
 
-*   **소스**: `documents/change_risk_hunter.csv`
+### ② `common_codes` (`data/common_codes.json`)
+*   **설명**: 전사 필터 연동, 분류 및 데이터 일관성을 지휘하는 글로벌 기준 코드셋(마스터 딕셔너리)입니다.
+*   **구성 객체**:
+    *   `plants`: 자사 8대 공장 정의 (code, name, location, desc, is_active)
+    *   `categories`: 보조 시스템 카테고리 정의 (code, name, english_name, desc)
+    *   `processes`: 타이어 12대 표준 물리 공정 정의 (code, name, english_name, desc)
+    *   `dimensions_4m`: 4M 분류 기준 정의 (code, name, desc)
+    *   `source_types`: 체크리스트 질문 원천 마스터 정의 (code, name, desc)
 
-| 컬럼명 | 데이터 타입 | 설명 | 예시 |
+---
+
+### ③ `document_library` (`data/document_library.json`)
+*   **설명**: 완성차 브랜드별 최신 기술 규격 요구사항 정보 및 해당 문서를 타이어 7대 물리 공정으로 정밀 역해석한 도메인 매퍼를 보존합니다.
+*   **스키마 구성**:
+
+| Key | 데이터 타입 | 설명 | 예시 |
 | :--- | :--- | :--- | :--- |
-| `DOC_NO` | TEXT | 변경점 신청 문서 번호 (PK) | `4M-2025-DP-0024` |
-| `PLANT` | TEXT | 발생 자사 공장 코드 | `DP` (대전), `KP` (금산) |
-| `PURPOSE` | TEXT | 변경 추진 목적 | `설비 이설에 따른 공정 안정화` |
-| `SUBJECT` | TEXT | 변경점 대표 제목 | `성형기 No.5 권취 롤러 기구부 개선` |
-| `STATUS` | TEXT | 변경 관리 결재 상태 | `승인 완료` |
-| `PROGRESS` | TEXT | 검증 프로세스 단계 | `양산 적용 및 검증` |
-| `REQUESTER` | TEXT | 신청자 부서 및 성명 | `홍길동 과장(대전성형기술)` |
-| `REG_DATE` | TEXT | 시스템 최초 등록일 | `2025-02-15` |
-| `COMP_DATE` | TEXT | 최종 승인/완료일 | `2025-03-10` |
-| `URL` | TEXT | 사내 시스템 링크 | `http://gw.hunter.com/change/view/129` |
-| `CHANGE_ITEM` | TEXT | 변경 항목 카테고리 | `설비 기구부 변경` |
-| `CHANGE_CONTENT` | TEXT | 전-후 세부 대비 내용 | `롤러 재질 변경 (우레탄 -> 스틸)` |
-| `MTL` | TEXT | 관련 적용 재료 코드 | `MTL-橡胶-012A` |
+| `id` | INTEGER (PK) | 규격 등록 고유 번호 | `1` |
+| `filename` | TEXT | 물리적인 규격서 파일 명칭 (Unique) | `"BMW_GS_98000.pdf"` |
+| `customer` | TEXT | 완성차 브랜드 (OEM) | `"BMW"`, `"Audi"`, `"Hyundai"`, `"GM"` |
+| `doc_code` | TEXT | 규격 문서 관리 코드 | `"GS 98000"`, `"ES52930-01"` |
+| `doc_name` | TEXT | 규격서 국/영문 공식 제목 | `"Statistical Process Capability Studies"` |
+| `revision_date` | TEXT | 규격 제정 및 개정 일자 | `"2024-11-19"` |
+| `doc_type` | TEXT | 규격 문서 종류 | `"품질 표준"`, `"화학 물질 표준"` |
+| `file_size` | TEXT | 물리 규격서 파일 크기 | `"3.03 MB"` |
+| `review_summary` | OBJECT | AI 기반 구조화된 규격 검토 요약 객체 | `{"overview": "...", "applicable_processes": [...], ...}` |
+| `review_summary.overview` | TEXT | 규격서 핵심 제약 조건 및 목적 개요 | `"BMW 부품 공급 시 공정능력(Cpk>=1.33) 보증 기준"` |
+| `review_summary.applicable_processes` | ARRAY | 연관 표준 제조 공정 목록 | `["Mixing", "Extrusion", "Curing"]` |
+| `review_summary.required_evidences` | ARRAY | 오디트 통과를 위해 협력사가 구비해야 할 서류들 | `["공정별 일일 SPC 트래킹 차트"]` |
+| `tire_process_translation` | OBJECT | **[도메인 역해석]** 범용 OEM 표준을 타이어 공정으로 기하학적 매핑한 정보 객체 | `{"focus_process": "...", "process_param_check": "...", ...}` |
+| `tire_process_translation.focus_process` | TEXT | 타이어 현장 집중 가용 대상 공정 | `"전 공정 공통 (Site-Wide Process Capability)"` |
+| `tire_process_translation.process_param_check` | TEXT | 각 공정별 타이어 설비 제어 파라미터 점검 기준 | `"배합(Mixing) Mooney 점도 Cpk 제어..."` |
+| `tire_process_translation.quality_defect_risk` | TEXT | 규격 요구사항 이탈 시 타이어 결함 및 주행 리스크 | `"고무 균일성 파괴 및 고속 드럼 주행 중 파열 박리..."` |
+| `tire_process_translation.action_sop_guide` | TEXT | 공장 작업 표준서(SOP) 내 의무적 반영/개정 수립 가이드 | `"공장 종합 SPC 지침 내 4M 파라미터별 점검 제정..."` |
+| `processed_at` | TEXT | 시스템 해석 등록 일자 | `"2026-05-26 17:45:00"` |
 
 ---
 
-### ④ `quality_issues_qi` (QI 품질 실패 및 클레임 마스터)
+### ④ `quality_issues_qi` (`data/quality_issues_qi.json`)
+*   **설명**: 공장별 과거 발생 품질 실패(Claim, 필드 반품, 공정 불량) 이력과 8D 시정 대책을 담은 마스터 데이터셋입니다.
+*   **스키마 구성**:
 
-*   **소스**: `documents/qi_risk_hunter.csv`
-
-| 컬럼명 | 데이터 타입 | 설명 | 예시 |
+| Key | 데이터 타입 | 설명 | 예시 |
 | :--- | :--- | :--- | :--- |
-| `DOC_NO` | TEXT | 품질 이슈 관리 번호 (PK) | `QI-2025-0812` |
-| `PLANT` | TEXT | 생산 공장 | `KP` |
-| `STAGE` | TEXT | 발견 단계 (양산, 클레임 등) | `Field Claim` |
-| `OEM` | TEXT | 대상 고객 완성차 브랜드 | `Hyundai` |
-| `VEH` | TEXT | 적용 차량 모델 | `GV80` |
-| `PJT` | TEXT | 개발/양산 프로젝트명 | `JX1 FL` |
-| `OCC_DATE` | TEXT | 이슈 최초 발생일 | `2025-01-20` |
-| `REG_DATE` | TEXT | 이슈 등록일 | `2025-01-22` |
-| `RETURN_YN` | TEXT | 반품 여부 (Y/N) | `Y` |
-| `RTN_DATE` | TEXT | 반품 접수일 | `2025-01-25` |
-| `CTM_DATE` | TEXT | 고객 회신 요구 기한 | `2025-02-10` |
-| `HK_FAULT_YN` | TEXT | 자사 원인 귀책 여부 | `Y` |
-| `COMP_DATE` | TEXT | 종결일 | `2025-02-12` |
-| `STATUS` | TEXT | 진행 상태 | `Closed` |
-| `LOCATION` | TEXT | 고장 부위 및 환경 조건 | `트레드 접지부` |
-| `MARKET` | TEXT | 판매/클레임 접수 국가 | `USA` |
-| `M_CODE` | TEXT | 자사 제품 파트 코드 | `M-255-45R19-99V` |
-| `TYPE_NAME` | TEXT | 대분류 불량 유형 | `외관 불량` |
-| `CAT_NAME` | TEXT | 중분류 불량 유형 | `기포 (Blister)` |
-| `SUB_CAT_NAME` | TEXT | 소분류 불량 유형 | `가류 성형 기포` |
-| `D2_PROBLEM` | TEXT | 고객 현상 현지 리포트 | `Tread blister observed...` |
-| `D0_EMERGENCY` | TEXT | D0 긴급 대응 조치 내용 | `동일 로트 출하 보류 및 보관 재고 100% 검사` |
-| `D4_SMMY` | TEXT | D4 이슈 기술 분석 요약 | `타이어 성형 중 Air 배출 불충분` |
-| `D8_RESULT` | TEXT | D8 유효성 검증 결과 | `가류 벤트핀 세정 주기 단축으로 기포 재발 제로` |
-| `D4_ROOT_CAUSE` | TEXT | 발생 근본 원인 | `가류 금형의 Air 배출 벤트 홀 막힘` |
-| `D5_COUNTERMEASURE` | TEXT | 영구 재발 방지 대책 | `벤트핀 구조 개선 및 성형 공정 모니터링 강화` |
-| `URL` | TEXT | 사내 품질이슈 포털 링크 | `http://qi.hunter.com/report/view?id=9582` |
+| `DOC_NO` | TEXT (PK) | 품질 이슈 관리 번호 | `"QI-2026-00134"`, `"QI-2025-0812"` |
+| `PLANT` | TEXT | 발생 자사 공장 코드 | `"KP"`, `"DP"`, `"MP"` |
+| `STAGE` | TEXT | 이슈 최초 인지 단계 | `"Field Claim"`, `"Development"`, `"Mass Production"` |
+| `OEM` | TEXT | 연관 완성차 고객사 브랜드 | `"BMW"`, `"Hyundai"`, `"Benz"` |
+| `VEH` | TEXT | 장착 및 클레임 차량 모델 명칭 | `"GV80"`, `"3 series"` |
+| `PJT` | TEXT | 연관 개발 및 양산 프로젝트 코드 | `"JX1 FL"`, `"NA0/NA1"` |
+| `OCC_DATE` | TEXT | 불량 최초 발생 일자 | `"2025-01-20"` |
+| `REG_DATE` | TEXT | 시스템 최초 등록 일자 | `"2025-01-22"` |
+| `RETURN_YN` | TEXT | 실물 타이어 반품 수검 여부 (`Y` / `N`) | `"Y"` |
+| `RTN_DATE` | TEXT | 반품 자재 입고/접수 일자 | `"2025-01-25"` |
+| `CTM_DATE` | TEXT | 대고객 시정 조치 회신 데드라인 | `"2025-02-10"` |
+| `HK_FAULT_YN` | TEXT | 자사 제조 원인 귀책 확정 여부 | `"Y"` |
+| `COMP_DATE` | TEXT | 8D 대책 최종 승인 및 Closed 종결일 | `"2025-02-12"` |
+| `STATUS` | TEXT | 현재 대책 처리 상태 코드 | `"Closed"`, `"On-going"` |
+| `LOCATION` | TEXT | 고장 및 파열 손상 물리적 위치 | `"트레드 접지부"`, `"Side-wall"` |
+| `MARKET` | TEXT | 판매 및 고장 접수 국가 정보 | `"USA"`, `"Europe"`, `"Korea"` |
+| `M_CODE` | INTEGER/TEXT | 자사 완제품 파트 식별 코드 | `1033534`, `"M-255-45R19-99V"` |
+| `TYPE_NAME` | TEXT | 대분류 불량 카테고리 | `"외관 불량"`, `"Performance"` |
+| `CAT_NAME` | TEXT | 중분류 불량 유형 명칭 | `"기포 (Blister)"`, `"Lab test"` |
+| `SUB_CAT_NAME` | TEXT | 소분류 상세 불량 명칭 | `"가류 성형 기포"`, `"RR"` |
+| `D2_PROBLEM` | TEXT | 고객 클레임 현지 리포트 원문 및 불량 현상 기술 | `"Tread blister observed on GV80... "` |
+| `D0_EMERGENCY` | TEXT | 유출 방지를 위한 긴급 방어 조치 내용 | `"동일 로트 출하 보류 및 보관 재고 100% 검사"` |
+| `D4_SMMY` | TEXT | D4 단계 품질 정밀 기술 분석 요약 | `"타이어 성형 중 Air 배출 불충분"` |
+| `D4_ROOT_CAUSE` | TEXT | 발생 근본 원인 분석 결과 | `"가류 금형의 Air 배출 벤트 홀 막힘"` |
+| `D5_COUNTERMEASURE` | TEXT | 영구 재발 방지 및 시정 조치 대책 내용 | `"벤트핀 세정 주기 단축 및 성형 공정 모니터링 강화"` |
+| `D8_RESULT` | TEXT | 시정 대책 실행 후 유효성 검증 데이터 결과 | `"가류 벤트핀 세정 주기 단축으로 기포 재발 제로"` |
+| `URL` | TEXT | 사내 품질이슈 포털 개별 상세 링크 | `"https://egqms.hankooktech.com/..."` |
 
 ---
 
-### ⑤ `audit_findings` (과거 감사 지적사항 마스터)
+### ⑤ `change_history_4m` (`data/change_history_4m.json`)
+*   **설명**: 공장 내부의 설비 기구 변경, 작업 표준 개정, 수입 원자재 코드 교체 등 제조 변동점에 대한 상세 이력입니다.
+*   **스키마 구성**:
 
-*   **소스**: `documents/audit_risk_hunter.csv`
-
-| 컬럼명 | 데이터 타입 | 설명 | 예시 |
+| Key | 데이터 타입 | 설명 | 예시 |
 | :--- | :--- | :--- | :--- |
-| `TYPE` | TEXT | 감사 구분 (고객사 감사, 내부 심사 등) | `Customer Audit` |
-| `SUBJECT` | TEXT | 감사명 | `BMW VDA 6.3 Process Audit 2024` |
-| `START_DT` | TEXT | 감사 시작 일자 | `2024-05-10` |
-| `END_DT` | TEXT | 감사 종료 일자 | `2024-05-12` |
-| `OWNER_ID` | TEXT | 수검 및 개선 활동 담당자 | `이순신 팀장(대전품질)` |
-| `REG_DT` | TEXT | 지적사항 등록일 | `2024-05-15` |
-| `COMP_DT` | TEXT | 시정 대책 종결일 | `2024-06-20` |
-| `STATUS` | TEXT | 개선 완료 상태 | `Closed` |
-| `PLANT` | TEXT | 대상 수검 공장 | `DP` |
-| `CAR_MAKER` | TEXT | 오디터 완성차 고객사 | `BMW` |
-| `PROJECT` | TEXT | 해당 부품 개발 프로젝트 | `G45` |
-| `M_CODE` | TEXT | 해당 타이어 규격 파트 코드 | `M-225-50R18` |
-| `POINT_OUT` | TEXT | 오디터 코멘트 및 부적합 현상 (지적사항) | `Mixing 공정 투입 오일의 탱크 잔량 모니터링 미흡` |
-| `ROOT_CAUSE_ANALYSIS` | TEXT | 부적합 근본 원인 분석 | `탱크 레벨 센서의 오차 보정 주기 누락` |
-| `COUNTER_MEASURE` | TEXT | 개선 및 재발 방지 조치 내용 | `일일 정밀 교정 지침 제정 및 주간 체크리스트 보완` |
-| `URL` | TEXT | 사내 글로벌 Audit 시스템 링크 | `http://audit.hunter.com/issue/detail?seq=731` |
+| `DOC_NO` | TEXT (PK) | 4M 변동점 신청 고유 문서 번호 | `"MANA-DOC-2026-00123"`, `"4M-2025-DP-0024"` |
+| `PLANT` | TEXT | 변동 대상 자사 공장 코드 | `"HP"`, `"KP"`, `"DP"` |
+| `PURPOSE` | TEXT | 변경 추진 대표 목적 분류 | `"The others"`, `"Improve Quality"`, `"Cost Down"` |
+| `SUBJECT` | TEXT | 4M 변동점 추진 핵심 제목 | `"BYD 215/65R16V IK41A HS → HM 生产变更..."` |
+| `STATUS` | TEXT | 4M 신청 관리 결재 승인 상태 | `"Complete"`, `"Approved"`, `"Request"` |
+| `PROGRESS` | TEXT | 변경 수검 검증 프로세스 단계 | `"Complete"`, `"양산 적용 및 검증"` |
+| `REQUESTER` | INTEGER/TEXT | 신청자 사번 또는 소속 성명 | `81100266`, `"홍길동 과장(대전성형기술팀)"` |
+| `REG_DATE` | TEXT | 변경 승인 최초 등록 일자 | `"2026-05-22"`, `"2025-02-15"` |
+| `COMP_DATE` | TEXT | 최종 검증 및 사후 승인 완료일 | `"2026-05-22"`, `"2025-03-10"` |
+| `URL` | TEXT | 사내 글로벌 4M 변동점 시스템 개별 링크 | `"https://egqms.hankooktech.com/..."` |
+| `CHANGE_ITEM` | TEXT | 변경 대상 4M 상세 항목 카테고리 | `"Building Set"`, `"설비 기구부 변경"` |
+| `CHANGE_CONTENT` | TEXT | 변경 전후 세부 물리적/공정 기술 대조 내용 | `"HS → HM 生产变更邀请"`, `"롤러 재질 우레탄에서 스틸로 변경"` |
+| `MTL` | INTEGER/TEXT | 연관 자재 분류 코드 | `1`, `"MTL-RUBBER-012A"` |
 
 ---
 
-### ⑥ `users` (사용자 마스터 및 권한 테이블)
+### ⑥ `audit_findings` (`data/audit_findings.json`)
+*   **설명**: 완성차 OEM 및 제3자 전문 심사 위원이 제기한 과거 공정 감사 부적합 지적사항 목록입니다.
+*   **스키마 구성**:
 
-*   **설명**: 플랫폼에 로그인 및 역할 전환(RBAC)을 보장하기 위한 사용자 마스터 정보 테이블입니다. (정적 `data/users.json` 데이터셋과 1:1 대응)
-*   **소스**: `data/users.json`
-
-| 컬럼명 | 데이터 타입 | 설명 | 예시 |
+| Key | 데이터 타입 | 설명 | 예시 |
 | :--- | :--- | :--- | :--- |
-| `id` | INTEGER | 사용자 일련번호 (PK) | `1` |
-| `username` | TEXT | 로그인 ID | `admin` |
-| `password` | TEXT | 패스워드 (가상) | `admin123` |
-| `name` | TEXT | 사용자 성명 | `박정호 수석` |
-| `role` | TEXT | 역할 권한 (`admin`, `manager`, `viewer`) | `admin` |
-| `role_name` | TEXT | 표시 직책/역할명 | `Lead Auditor` |
-| `badge` | TEXT | UI에 표시할 뱃지 텍스트 | `ADMIN` |
-| `avatar_color` | TEXT | 프로필 아바타 배경 색상 (HSL/HEX) | `#ff3b30` |
-| `department` | TEXT | 소속 부서 | `품질보증그룹` |
+| `TYPE` | TEXT | 감사 성격 구분 종류 | `"Project"`, `"Customer Audit"`, `"VDA 6.3"` |
+| `SUBJECT` | TEXT | 감사 공식 명칭 또는 평가 코드 | `"2026-BMW-G50-01"`, `"Benz V520 Process Audit"` |
+| `START_DT` | TEXT | 감사 개시 시작 일자 | `"2026-05-21"`, `"2024-05-10"` |
+| `END_DT` | TEXT | 감사 평가 최종 종료일 | `"2026-05-21"`, `"2024-05-12"` |
+| `OWNER_ID` | INTEGER/TEXT | 수검 및 개선 활동 사내 귀책 담당자 | `21300315`, `"이순신 팀장(대전품질)"` |
+| `REG_DT` | TEXT | 지적사항 시스템 최초 등록일 | `"2026-05-21"` |
+| `COMP_DT` | TEXT | 대책 보완 및 최종 Close 합격 완료일 | `"2026-05-21"` |
+| `STATUS` | TEXT | 지적 건 개선 프로세스 처리 상태 | `"On-going"`, `"Closed"`, `"Overdue"` |
+| `PLANT` | TEXT | 오디트 수검을 받은 대상 공장 코드 | `"MP"`, `"JP"`, `"DP"` |
+| `CAR_MAKER` | TEXT | 심사를 주관한 오디터 고객 완성차 명칭 | `"BMW"`, `"Benz"`, `"Audi"` |
+| `PROJECT` | TEXT | 수검 대상 타이어 부품 개발 프로젝트명 | `"G50"`, `"V520"`, `"G45"` |
+| `M_CODE` | TEXT | 지적 대상 타이어 규격 파트 코드 | `"1036705"`, `"M-225-50R18"` |
+| `POINT_OUT` | TEXT | **[부적합 지적 현상]** 오디터 코멘트 및 구체적 지적 내용 | `"압출 튜브 냉각수 온도 조절 장치의 제어 편차가 ±5°C 이상 발생"` |
+| `ROOT_CAUSE_ANALYSIS` | TEXT | 지적 사항 유발 근본 제조 원인 분석 | `"자동 유량 조절 피드백 밸브의 제어 응답 속도 저하 및 오작동"` |
+| `COUNTER_MEASURE` | TEXT | 시정 및 예방 조치 재발 방지 대책 | `"정밀 비례 전자 유량 제어 밸브로 전면 교체 적용"` |
+| `URL` | TEXT | 사내 글로벌 Audit 시스템 지적사항 상세 링크 | `"https://egqms.hankooktech.com/..."` |
 
 ---
 
-## 🧠 4. 현장 이력(DB) 기반 AI Checklist 추출 엔진 설계
+### ⑦ `internal_audit_sheets` (`data/oe_quality_assessment_details.json`)
+*   **설명**: **[★사용자 핵심 추가 데이터]** 공장별 자체 공정 감사(Self-Audit) 및 주기적인 내부 상시 진단을 통해 식별된 점검 상세 리스트 및 현장 개선 조치 기록입니다.
+*   **스키마 구성**:
 
-마스터 데이터(`change_history_4m`, `quality_issues_qi`, `audit_findings`)를 기반으로 AI를 가동하여 Checklist 질문과 대응 방안을 동적으로 생성하는 아키텍처와 로직 설계입니다.
-
-### ⚙️ AI 파싱 로직 및 소스별 파라미터 매핑
-
-```mermaid
-graph TD
-    subgraph AI_Input [AI 주입 데이터]
-        QI["**QI 데이터**<br>불량현상(D2) + 원인(D4) + 대책(D5)"]
-        M4["**4M 데이터**<br>변경항목 + 변경내용 + 변경목적"]
-        AUD["**AUDIT 데이터**<br>지적내용(Point out) + 대책"]
-    end
-
-    subgraph LLM_Engine [LLM API Prompt Engine]
-        Prompt["**프로페셔널 오디터 프롬프트**<br>현장 검증 중심의 질문지 설계 및 구체적 증빙 유형 추출"]
-    end
-
-    subgraph Unified_Checklist [최종 통합 Checklist]
-        UC["**unified_audit_checklists**<br>• Source Type 기입<br>• Plant Code 보존 및 매핑<br>• 질문 / 대책 / 증빙 추출"]
-    end
-
-    QI -->|주입| Prompt
-    M4 -->|주입| Prompt
-    AUD -->|주입| Prompt
-    Prompt -->|결과물 정제| UC
-```
-
-### 📝 LLM 분석 프롬프트 설계서 (Prompt Template)
-
-```text
-[Role]
-당신은 IATF 16949 및 VDA 6.3을 전문으로 하는 자동차 산업 최고의 수석 품질 오디터(Lead Auditor)입니다.
-
-[Context]
-제조 공장의 과거 원천 데이터를 바탕으로, 감사원이 현장에서 확인하고 협력사가 제시해야 할 핵심 '감사 질문(Audit Question)'과 '합치 증빙 자료(Evidence of Compliance)'를 구조화해야 합니다.
-
-[Input Data]
-- 소스 구분: {source_type} (QI / 4M / AUDIT)
-- 원천 관리번호: {DOC_NO}
-- 공장 코드: {PLANT}
-- 연관 제조공정 카테고리: {process_category}
-- 주요 이력 텍스트: {raw_text}
-
-[Extraction Rules]
-1. Audit Question: 공장 감사원이 작업자 또는 관리자에게 던질 수 있는, 예/아니오로 끝나지 않는 "열린 심층 질문(Open-ended verification question)" 형태로 설계하세요.
-2. Evidence of Compliance: 수검 부서가 질문에 대한 대응으로 현장에서 반드시 제시해야 하는 구체적인 가공 기록서, 모니터링 로그, 검교정 성적서, 작업 표준서(SOP)를 명확한 명칭으로 설계하세요.
-3. Audit Method: 현장 감사 기법을 지정하세요 (예: 작업자 인터뷰, 설비 실물 매개변수 점검, 이력 대장 검토 등).
-4. Related 4M: Man, Machine, Material, Method 중 가장 관계 깊은 원인을 하나 지정하세요.
-
-[Output JSON Format]
-{
-  "section": "공정 카테고리 명칭",
-  "requirement": "과거 실패/변경 핵심 요약문",
-  "audit_question": "실제 현장 감사 검증 질문",
-  "evidence_compliance": "반드시 확보해야 하는 가혹 증빙 서류명",
-  "audit_method": "구체적인 감사 행위 및 기법",
-  "related_4m": "4M 요소 중 택 1",
-  "priority": "High / Medium"
-}
-```
+| Key | 데이터 타입 | 설명 | 예시 |
+| :--- | :--- | :--- | :--- |
+| `id` | INTEGER (PK) | 내부 감사 평가 항목 고유 번호 | `1`, `7` |
+| `plant` | TEXT | 자체 진단을 실행한 자사 공장 코드 | `"CP"`, `"DP"`, `"KP"` |
+| `process` | TEXT | 대상 점검 제조 물리 공정 대분류 | `"Incoming"`, `"Mixing"`, `"Curing"`, `"Inspection"` |
+| `section_no` | INTEGER | 내부 심사 평가 영역 섹션 고유 번호 | `1` (공정관리), `2` (시스템관리) |
+| `category` | TEXT | 진단 성격 대분류 구분 | `"Process"`, `"System"` |
+| `item_no` | INTEGER | 각 공정 세부 점검 항목 일련번호 | `1`, `2`, `7` |
+| `area` | TEXT | 진단 대상 물리적 세부 공간 및 업무 도메인 | `"Preparation"`, `"Inspection"`, `"NCF handling"` |
+| `check_item` | TEXT | 자체 감사원이 평가 체크 시 사용한 점검 기준 질의 | `"Do you have any separated area for NG parts? ..."` |
+| `guidance` | TEXT | 현장에서 수검 시 제시되어야 할 가이드라인 및 기준 | `"- MR zone : separated & fenced zone with locking system"` |
+| `findings` | TEXT | **[자체 진단 지적 현상]** 현장 실사 및 면담을 통한 실질적 위반/관찰 이력 | `"MR zone 존재, 펜스 및 현황판 관리 양호. 펜스 시건장치 부족..."` |
+| `score` | TEXT/INTEGER | 평가 항목 획득 점수 (10점 만점 기준) | `"10"`, `"8"`, `"6"` |
 
 ---
 
-## 📈 5. 공장별 위험도(Plant Risk) 계량화 및 반영 모델
+### ⑧ `unified_audit_checklists` (`data/audit_checklists.json`)
+*   **설명**: 규격서(DOCUMENT) 및 과거 4대 제조 이력(QI, 4M, Audit Findings, 내부 Audit 지적)을 AI가 수석 감사원 시각으로 기하학적으로 연계하여 동적 변환한 최종 통합 질문 데이터베이스입니다.
+*   **스키마 구성**:
 
-통합 체크리스트가 출력될 때 특정 공장의 리스크를 실시간 가중치로 반영하는 계산 메커니즘입니다.
+| Key | 데이터 타입 | 설명 | 예시 |
+| :--- | :--- | :--- | :--- |
+| `id` | INTEGER (PK) | 최종 체크리스트 질문지 고유 번호 | `1` |
+| `source_type` | TEXT | 질문이 기원한 소스 구분 (`DOCUMENT`, `DATABASE_QI`, `DATABASE_4M`, `DATABASE_AUDIT`, `DATABASE_INTERNAL_AUDIT` 등) | `"DOCUMENT"`, `"DATABASE_QI"` |
+| `source_id` | TEXT | 최초 기원 원천 문서코드 및 이력 관리번호 | `"LAH 893 010"`, `"QI-2025-0812"` |
+| `plant_code` | TEXT | 적용 가용 대상 자사 공장 코드 | `"ALL"` (전사공통), `"KP"`, `"DP"` |
+| `customer` | TEXT | 연관 고객사 완성차 브랜드 명칭 | `"Audi"`, `"Hyundai"`, `"BMW"` |
+| `doc_code` | TEXT | 원본 수검 규격 문서 코드 (이력 기반의 경우 `null` 가능) | `"LAH 893 010"`, `"ES52930-01"` |
+| `doc_name` | TEXT | 원본 수검 규격 공식 명칭 또는 관련 표준 제목 | `"Audi LAH 893 010 Q Lastenheft der AUDI AG..."` |
+| `section` | TEXT | 세부 점검 조항 및 공정 단계 | `"Clause 1.0 (General Specifications)"`, `"Curing (가황공정)"` |
+| `requirement` | TEXT | 원천 표준 규격 조항 요약문 또는 과거 발생 실패/지적 현상 핵심 기술 | `"가류 후 기포(Blister) 발생 및 필드 반품 클레임 제기"` |
+| `audit_question` | TEXT | **[AI 제안]** 공감 감사원이 현장에서 작업자에게 질의해야 할 개방형 질문 | `"벤트핀 막힘 유무를 교대조별로 전수 확인하는 실시간 프로세스가 작동합니까?"` |
+| `evidence_compliance` | TEXT | **[AI 제안]** 수검팀이 대응으로 반드시 제시해야 할 실제 실물 SOP/대장 명칭 | `"설비별 벤트핀 점검 체크리스트 및 주간 금형 세정 일지"` |
+| `audit_method` | TEXT | 감사 행위 방식 기법 지정 | `"치수 측정 장비 실사 및 치수 성적서 대조 검토 (Inspection)"` |
+| `requirement_type` | TEXT | 요구사항의 기능적 카테고리 분류 | `"검사"`, `"재발방지 (Recurrence Prevention)"` |
+| `process_category` | TEXT | 연관 15대 표준 공정 카테고리 지정 | `"Inspection"`, `"Curing"` |
+| `related_4m` | TEXT | 4M의 가장 근본적인 연관 원인 차원 | `"Method"`, `"Machine"` |
+| `priority` | TEXT | 리스크에 따른 점검 중요도 등급 | `"High"`, `"Medium"`, `"Low"` |
+| `plant_risk_score` | REAL | 실시간 계산된 공장별 공정 위험 가중 점수 (0.0 ~ 5.0) | `4.5`, `0.0` |
+| `processed_at` | TEXT | 데이터 해석 및 적재 완료 시점 | `"2026-05-28 15:19:56"` |
 
-### 📐 공장 위험 가중치 점수 (`plant_risk_score`) 산출 공식
+---
 
-특정 공장($P$)의 특정 공정 카테고리($C$)에 대한 리스크 가중치($R_{P,C}$)는 과거 1년간 발생한 이벤트 빈도와 유형별 중요도를 곱한 누적 가중치로 동적 연산됩니다.
+## 📈 4. 공장별 위험도(Plant Risk Score) 연산 동적 맵
 
-$$R_{P,C} = \min \left( 5.0, \;\; w_{\text{QI}} \times N_{\text{QI}}(P, C) + w_{\text{4M}} \times N_{\text{4M}}(P, C) + w_{\text{Audit}} \times N_{\text{Audit}}(P, C) \right)$$
+플랫폼 대시보드 및 체크리스트의 우선순위는 **8대 JSON 데이터베이스의 연간 이벤트 누적치**를 바탕으로 실시간 동적 계산되어 정합성을 유지합니다.
 
-*   **$N(P,C)$**: 공장 $P$의 공정 $C$와 관련된 연간 레코드 건수
-*   **유형별 가중치 상수 ($w$)**:
+$$R_{P,C} = \min \left( 5.0, \;\; w_{\text{QI}} \times N_{\text{QI}}(P, C) + w_{\text{4M}} \times N_{\text{4M}}(P, C) + w_{\text{Audit}} \times N_{\text{Audit}}(P, C) + w_{\text{Internal}} \times N_{\text{Internal}}(P, C) \right)$$
+
+*   $N(P,C)$: 특정 공장 $P$의 특정 공정 $C$에 대한 연간 등록 건수
+*   **유형별 가중치 계수 ($w$)**:
     *   $w_{\text{QI}}$ (품질이슈 중요도) = **0.3** (고객 클레임 직결)
+    *   $w_{\text{Audit}}$ (과거 감사 지적사항 리스크) = **0.2** (수검 재발 방지 대상)
+    *   $w_{\text{Internal}}$ (내부 Audit 시트 지적 가중치) = **0.15** (상시 위배 사항)
     *   $w_{\text{4M}}$ (공정변경 위험도) = **0.1** (변경 초기 안정화 리스크)
-    *   $w_{\text{Audit}}$ (미결 지적사항 리스크) = **0.2** (감사 반복 재발 위험)
 
-### 🚀 공장별 리스크 반영 동작 시나리오 (예시)
+이 공식을 통해 계산된 점수($R_{P,C}$)가 **3.5점을 상회하는 위험 공정 조항**은 `unified_audit_checklists`가 화면에 로드될 때 자동으로 우선순위가 **`High`** 등급으로 상향 조정되며, 대시보드의 실시간 경고 지도에 적색 글로우 애니메이션 마커와 함께 경보 보드로 팝업됩니다.
 
-*   **상황**: 대전공장(`DP`)의 **Curing(가류공정)**에서 최근 1년간 품질이슈가 10건, 공정 변경이 5건, 과거 지적사항이 2건 누적되어 있는 상태입니다.
-*   **연산**:
-    $$R_{\text{DP}, \text{Curing}} = (0.3 \times 10) + (0.1 \times 5) + (0.2 \times 2) = 3.0 + 0.5 + 0.4 = 3.9$$
-*   **시스템 적용**:
-    대전공장(`DP`)에 대한 가류공정 심사 체크리스트를 대시보드에서 조회하거나 내보내기할 시, `plant_risk_score`가 **3.9**로 최고 수준에 달하므로:
-    1.  가류공정 관련 체크리스트 조항의 **우선순위(Priority)가 자동으로 `High`로 격상**되어 최상단에 배치됩니다.
-    2.  대시보드 화면에 **"⚠️ 대전공장 가류공정 집중 Verifying 권장 (과거 실패 이력 존재)"** 경고 마이크로 마커가 동적 시각화됩니다.
-
----
-
-## 🛠️ 6. 향후 데이터베이스 빌드 및 갱신 프로세스
-
-두 가지 형태의 체크리스트가 통합 병합될 수 있도록 향후 적용될 `build_database.py` 파이프라인의 통합 동기화 슈도코드(Pseudo-code) 가이드입니다.
-
-```python
-# build_database.py 고도화 파이프라인 개념 예시
-
-def build_pipeline():
-    # Step 1: 규격서 폴더 파싱 및 규격 기반 체크리스트 추출 (DOCUMENT)
-    # documents/audit_checklists.csv 생성 완료
-    run_oe_manager_sync()
-    
-    # Step 2: raw DB 테이블 적재
-    load_raw_histories_to_db()
-    
-    # Step 3: [NEW] DB 이력 기반 AI Checklist 추출 프로세스 실행
-    # change_history_4m, quality_issues_qi, audit_findings를 읽고
-    # AI 추출 엔진(Gemini API)을 구동하여 'documents/db_checklists_extracted.csv' 생성
-    extract_checklists_from_database_by_ai()
-    
-    # Step 4: 공장별 리스크 가중치(plant_risk_score) 연산 및 병합
-    # 두 개의 CSV를 읽어 단일 unified_audit_checklists 테이블에 INSERT
-    merge_checklists_and_calculate_plant_risk(
-        doc_csv='documents/audit_checklists.csv',
-        db_csv='documents/db_checklists_extracted.csv',
-        target_table='unified_audit_checklists'
-    )
-```
-
-> [!IMPORTANT]
-> 통합 테이블 설계의 완성으로, 향후 플랫폼 프론트엔드(`app.py`)는 `oe_audit_checklists`가 아닌 통합된 `unified_audit_checklists` 단 하나의 테이블만을 SELECT 쿼리함으로써 전사 규격서 내용과 공장 현장의 4M/QI/AUDIT 기반 위험 질문들을 통합 다운로드 및 시각화 검색할 수 있는 확장 기반을 확보하게 되었습니다.

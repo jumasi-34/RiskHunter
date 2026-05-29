@@ -3833,11 +3833,11 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
     const typingId = `typing-${Date.now()}`;
     const typingHTML = `
       <div class="message message-bot" id="${typingId}">
-        <div class="message-content" style="display: flex; align-items: center; gap: 4px; padding: 10px 14px;">
-          <span style="font-size: 12px; color: var(--text-secondary); font-style: italic;">추론 중</span>
-          <span class="typing-dot" style="width: 4px; height: 4px; background: var(--brand-blue); border-radius: 50%; animation: pulse 1s infinite 0s;"></span>
-          <span class="typing-dot" style="width: 4px; height: 4px; background: var(--brand-blue); border-radius: 50%; animation: pulse 1s infinite 0.2s;"></span>
-          <span class="typing-dot" style="width: 4px; height: 4px; background: var(--brand-blue); border-radius: 50%; animation: pulse 1s infinite 0.4s;"></span>
+        <div class="message-content" style="display: flex; align-items: center; gap: 6px; padding: 10px 14px;">
+          <span style="font-size: 12px; color: #cbd5e1; font-style: italic;">추론 중</span>
+          <span class="typing-dot" style="width: 4px; height: 4px; background: #38bdf8; border-radius: 50%; animation: pulse 1s infinite 0s;"></span>
+          <span class="typing-dot" style="width: 4px; height: 4px; background: #38bdf8; border-radius: 50%; animation: pulse 1s infinite 0.2s;"></span>
+          <span class="typing-dot" style="width: 4px; height: 4px; background: #38bdf8; border-radius: 50%; animation: pulse 1s infinite 0.4s;"></span>
         </div>
       </div>
     `;
@@ -4048,6 +4048,15 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
         console.log(`[Global Filter] Filters Reset to ALL`);
         this.showToast('모든 글로벌 필터가 초기화되었습니다.', 'success');
         this.onGlobalFilterChange();
+      });
+    }
+
+    // 8. 🔐 권한 제한 안내 모달 닫기 이벤트 바인딩
+    const btnClosePermissionModal = document.getElementById('btn-close-permission-modal');
+    const permissionModal = document.getElementById('permission-modal');
+    if (btnClosePermissionModal && permissionModal) {
+      btnClosePermissionModal.addEventListener('click', () => {
+        permissionModal.classList.add('hidden');
       });
     }
   },
@@ -4397,9 +4406,9 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
       const statusBadge = u.status === 'Active' ? '<span class="badge badge-success">활성</span>' : '<span class="badge badge-danger">잠금</span>';
 
       const roleBadges = {
-        'admin': `<span class="popover-badge" style="background-color: #ff3b3015; color: #ff3b30; border: 1px solid #ff3b3030; font-size: 11px; padding: 2px 6px;">ADMIN</span>`,
-        'manager': `<span class="popover-badge" style="background-color: #00c8ff15; color: #00c8ff; border: 1px solid #00c8ff30; font-size: 11px; padding: 2px 6px;">MANAGER</span>`,
-        'viewer': `<span class="popover-badge" style="background-color: #a1a1a115; color: #a1a1a1; border: 1px solid #a1a1a130; font-size: 11px; padding: 2px 6px;">VIEWER</span>`
+        'admin': `<span class="popover-badge" style="background-color: #ef444415; color: #dc2626; border: 1px solid #ef444430; font-size: 11px; padding: 2px 6px;">ADMIN</span>`,
+        'manager': `<span class="popover-badge" style="background-color: #0284c715; color: #0369a1; border: 1px solid #0284c730; font-size: 11px; padding: 2px 6px;">MANAGER</span>`,
+        'viewer': `<span class="popover-badge" style="background-color: #64748b15; color: #475569; border: 1px solid #64748b30; font-size: 11px; padding: 2px 6px;">VIEWER</span>`
       };
 
       tr.innerHTML = `
@@ -4512,16 +4521,16 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
         <td style="padding: 14px 18px; font-weight: 600; color: var(--text-primary); vertical-align: middle;">${row.category}</td>
         <td style="padding: 14px 18px; color: var(--text-primary); vertical-align: middle;">${row.detail}</td>
         <td style="padding: 14px 18px; text-align: center; vertical-align: middle;">
-          <span style="font-weight: 700; color: ${row.admin === 'O' ? '#10b981' : '#ef4444'}; font-size: 15px;">${row.admin}</span>
+          <span style="font-weight: 700; color: ${row.admin === 'O' ? '#059669' : '#dc2626'}; font-size: 15px;">${row.admin}</span>
         </td>
         <td style="padding: 14px 18px; text-align: center; vertical-align: middle;">
-          <span style="font-weight: 700; color: ${row.manager === 'O' ? '#10b981' : '#ef4444'}; font-size: 15px;">${row.manager}</span>
+          <span style="font-weight: 700; color: ${row.manager === 'O' ? '#059669' : '#dc2626'}; font-size: 15px;">${row.manager}</span>
         </td>
         <td style="padding: 14px 18px; text-align: center; vertical-align: middle;">
-          <span style="font-weight: 700; color: ${row.user === 'O' ? '#10b981' : '#ef4444'}; font-size: 15px;">${row.user}</span>
+          <span style="font-weight: 700; color: ${row.user === 'O' ? '#059669' : '#dc2626'}; font-size: 15px;">${row.user}</span>
         </td>
         <td style="padding: 14px 18px; text-align: center; vertical-align: middle;">
-          <span style="font-weight: 700; color: ${row.viewer === 'O' ? '#10b981' : '#ef4444'}; font-size: 15px;">${row.viewer}</span>
+          <span style="font-weight: 700; color: ${row.viewer === 'O' ? '#059669' : '#dc2626'}; font-size: 15px;">${row.viewer}</span>
         </td>
       `;
 

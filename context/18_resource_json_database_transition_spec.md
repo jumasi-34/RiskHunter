@@ -221,22 +221,22 @@ flowchart TD
 ```json
 [
   {
-    "TYPE": "Customer Audit",
-    "SUBJECT": "BMW VDA 6.3 Process Audit 2024",
-    "START_DT": "2024-05-10",
-    "END_DT": "2024-05-12",
-    "OWNER_ID": "이순신 팀장(대전품질)",
-    "REG_DT": "2024-05-15",
-    "COMP_DT": "2024-06-20",
-    "STATUS": "Closed",
-    "PLANT": "DP",
+    "TYPE": "Project",
+    "SUBJECT": "2026-BMW-G50-01",
+    "START_DT": "2026-05-21",
+    "END_DT": "2026-05-21",
+    "OWNER_ID": 21300315,
+    "REG_DT": "2026-05-21",
+    "COMP_DT": "2026-05-21",
+    "STATUS": "On-going",
+    "PLANT": "MP",
     "CAR_MAKER": "BMW",
-    "PROJECT": "G45",
-    "FINDING_DESC": "압출 튜브 냉각수 온도 조절 장치의 제어 편차가 ±5°C 이상 발생하여 타이어 반제품 수축 산포 제어가 불가함",
-    "ROOT_CAUSE": "자동 유량 조절 피드백 밸브의 제어 응답 속도 저하 및 오작동",
-    "ACTION_PLAN": "정밀 비례 전자 유량 제어 밸브(Proportional Valve)로 전면 교체 적용",
-    "COMP_EVIDENCE": "신규 전자 비례 밸브 부품 설치 사진 및 압출 수축 편차 일별 데이터 대장",
-    "GRADE": "Major"
+    "PROJECT": "G50",
+    "M_CODE": "1036705",
+    "POINT_OUT": "압출 튜브 냉각수 온도 조절 장치의 제어 편차가 ±5°C 이상 발생하여 타이어 반제품 수축 산포 제어가 불가함",
+    "ROOT_CAUSE_ANALYSIS": "자동 유량 조절 피드백 밸브의 제어 응답 속도 저하 및 오작동",
+    "COUNTER_MEASURE": "정밀 비례 전자 유량 제어 밸브로 전면 교체 적용",
+    "URL": "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?callid=filter&cqmsCustomerAuditSeq=5251BBFB044EE57CE0633C071FCA87F3"
   }
 ]
 ```
@@ -250,22 +250,26 @@ flowchart TD
 ```json
 [
   {
-    "user_id": "auditor01",
-    "user_name": "김감사 부장",
-    "department": "글로벌품질보증그룹",
-    "role": "Auditor",
-    "permissions": ["READ", "WRITE", "RUN_AUDIT"],
-    "assigned_plants": ["DP", "KP", "JP"],
-    "last_login": "2026-05-28 14:30:22"
+    "id": 1,
+    "username": "admin",
+    "password": "admin123",
+    "name": "박정호 수석",
+    "role": "admin",
+    "role_name": "Lead Auditor",
+    "badge": "ADMIN",
+    "avatar_color": "#ff3b30",
+    "department": "품질보증그룹"
   },
   {
-    "user_id": "admin01",
-    "user_name": "최관리 팀장",
-    "department": "IT정보보안팀",
-    "role": "Admin",
-    "permissions": ["READ", "WRITE", "RUN_AUDIT", "DB_ADMIN"],
-    "assigned_plants": ["ALL"],
-    "last_login": "2026-05-28 15:01:05"
+    "id": 2,
+    "username": "manager",
+    "password": "manager123",
+    "name": "이현우 책임",
+    "role": "manager",
+    "role_name": "Quality Manager",
+    "badge": "MANAGER",
+    "avatar_color": "#ef4444",
+    "department": "품질기획팀"
   }
 ]
 ```
