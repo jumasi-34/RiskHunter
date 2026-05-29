@@ -113,12 +113,14 @@ const app = {
       barCompliance: null // Sub-Tab 2
     },
 
-    // 글로벌 공통 필터 상태 값 (Plant, Customer, Process)
+    // 글로벌 공통 필터 상태 값 (Plant, Customer, Process) -> Dashboard용 필터 상태 값으로 사용
     selectedPlant: 'ALL',
     selectedCustomer: 'ALL',
     selectedProcess: 'ALL',
     
     // 라이브러리 인터랙션용 필터 및 상태 값
+    librarySelectedPlant: 'ALL',
+    librarySelectedCustomer: 'ALL',
     checklistFilterProcess: 'ALL',
     checklistSearchQuery: '',
     checklistCurrentPage: 1,
@@ -133,7 +135,7 @@ const app = {
   },
 
   // 초기화 핸들러 (Initialization)
-  init() {
+  async init() {
     console.log("🏁 RiskHunter Phase 6 Core Engine Initializing...");
     
     // 로컬스토리지에서 다국어 세팅 복구
@@ -164,12 +166,12 @@ const app = {
       globalLangSelect.value = this.state.currentLang;
     }
     
-    // 4. 권한 기반 UI 요소 상태 제어 및 탭 동기화
+    // 4. 비동기 정적 데이터 로딩 및 가상 데이터베이스 초기화 (순서 변경 및 await 적용)
+    await this.initDatabase();
+
+    // 5. 권한 기반 UI 요소 상태 제어 및 탭 동기화
     this.applyPermissionToUI();
     this.switchTab(this.state.currentTab);
-
-    // 5. 비동기 정적 데이터 로딩 및 가상 데이터베이스 초기화
-    this.initDatabase();
     
     console.log("🚀 Phase 6: Library & Floating Assistant Engine Initialized!");
   },
@@ -255,8 +257,8 @@ const app = {
 
       console.log(`✅ Loaded ${this.state.auditChecklists.length} checklists, ${this.state.documentLibrary.length} documents, ${this.state.auditFindings.length} findings, ${this.state.changeHistory4m.length} 4M changes, ${this.state.qualityIssues.length} quality issues, and common master resources.`);
       
-      // 글로벌 필터 동적 생성 (Phase 1)
-      this.initGlobalFilters();
+      // 로컬 필터 동적 생성 (Dashboard, Library)
+      this.initLocalFilters();
 
       // 데이터 사전 가공 및 공정-4M 매핑 (Phase 2)
       this.preProcessData();
@@ -289,44 +291,41 @@ const app = {
     }
   },
 
-  // 🛠️ 글로벌 공통 필터 바 동적 생성 (Phase 1)
-  initGlobalFilters() {
-    console.log("🛠️ Initializing Global Filters...");
-    
-    // 1. 대상 공장 (filter-plant) 생성
-    const filterPlantSelect = document.getElementById('filter-plant');
-    if (filterPlantSelect && this.state.commonCodes && this.state.commonCodes.plants) {
-      filterPlantSelect.innerHTML = '';
+  // 🛠️ 대시보드 및 라이브러리 로컬 필터 바 동적 생성
+  initLocalFilters() {
+    console.log("🛠️ Initializing Local Filters for Dashboard and Library...");
+
+    // 1. 공장 목록 생성 헬퍼 함수
+    const populatePlants = (selectEl) => {
+      if (!selectEl || !this.state.commonCodes || !this.state.commonCodes.plants) return;
+      selectEl.innerHTML = '';
       
-      // 'ALL'을 첫 번째 옵션으로 처리하기 위해 분리 정렬
       const plants = this.state.commonCodes.plants.filter(p => p.is_active);
       const allPlant = plants.find(p => p.code === 'ALL');
       const regularPlants = plants.filter(p => p.code !== 'ALL');
       
-      // "ALL" (전체 공장) 배치
       const allOption = document.createElement('option');
       allOption.value = 'ALL';
       allOption.textContent = allPlant ? `${allPlant.name} (ALL)` : '전체 공장 (ALL)';
-      filterPlantSelect.appendChild(allOption);
+      selectEl.appendChild(allOption);
       
-      // 나머지 공장들 배치
       regularPlants.forEach(plant => {
         const opt = document.createElement('option');
         opt.value = plant.code;
         opt.textContent = `${plant.name} (${plant.code})`;
-        filterPlantSelect.appendChild(opt);
+        selectEl.appendChild(opt);
       });
-    }
+    };
 
-    // 2. 완성차 고객사 (filter-customer) 생성
-    const filterCustomerSelect = document.getElementById('filter-customer');
-    if (filterCustomerSelect) {
-      filterCustomerSelect.innerHTML = '';
+    // 2. 완성차 고객사 생성 헬퍼 함수
+    const populateCustomers = (selectEl) => {
+      if (!selectEl) return;
+      selectEl.innerHTML = '';
       
       const allOpt = document.createElement('option');
       allOpt.value = 'ALL';
       allOpt.textContent = '전체 고객사 (ALL)';
-      filterCustomerSelect.appendChild(allOpt);
+      selectEl.appendChild(allOpt);
 
       const customerSet = new Set();
       if (this.state.documentLibrary) {
@@ -344,58 +343,54 @@ const app = {
         });
       }
 
-      // 알파벳 순 정렬
       const sortedCustomers = Array.from(customerSet).sort();
       sortedCustomers.forEach(cust => {
         const opt = document.createElement('option');
         opt.value = cust;
         opt.textContent = cust;
-        filterCustomerSelect.appendChild(opt);
+        selectEl.appendChild(opt);
       });
-    }
+    };
 
-    // 3. 대상 제조 공정 (filter-process) 생성
-    const filterProcessSelect = document.getElementById('filter-process');
-    if (filterProcessSelect && this.state.commonCodes) {
-      filterProcessSelect.innerHTML = '';
-      
-      // 기본 "전체 공정" 옵션
+    // 3. 대상 제조 공정 생성 헬퍼 함수
+    const populateProcesses = (selectEl) => {
+      if (!selectEl || !this.state.commonCodes || !this.state.commonCodes.processes) return;
+      selectEl.innerHTML = '';
+
       const allOpt = document.createElement('option');
       allOpt.value = 'ALL';
       allOpt.textContent = '전체 공정 (ALL)';
-      filterProcessSelect.appendChild(allOpt);
+      selectEl.appendChild(allOpt);
 
-      // 제조 공정 (Processes) optgroup
-      if (this.state.commonCodes.processes && this.state.commonCodes.processes.length > 0) {
-        const mfgGroup = document.createElement('optgroup');
-        mfgGroup.label = '제조 공정 (Processes)';
-        this.state.commonCodes.processes.forEach(proc => {
-          const opt = document.createElement('option');
-          opt.value = proc.code;
-          opt.textContent = `${proc.name} (${proc.code})`;
-          mfgGroup.appendChild(opt);
-        });
-        filterProcessSelect.appendChild(mfgGroup);
-      }
+      const mfgProcs = this.state.commonCodes.processes || [];
+      mfgProcs.forEach(proc => {
+        const opt = document.createElement('option');
+        opt.value = proc.code;
+        opt.textContent = `${proc.name} (${proc.code})`;
+        selectEl.appendChild(opt);
+      });
+    };
 
-      // 관리 영역 (System Categories) optgroup
-      if (this.state.commonCodes.categories && this.state.commonCodes.categories.length > 0) {
-        const systemGroup = document.createElement('optgroup');
-        systemGroup.label = '관리 영역 (Categories)';
-        this.state.commonCodes.categories.forEach(cat => {
-          const opt = document.createElement('option');
-          opt.value = cat.code;
-          opt.textContent = `${cat.name} (${cat.code})`;
-          systemGroup.appendChild(opt);
-        });
-        filterProcessSelect.appendChild(systemGroup);
-      }
-    }
+    // 대시보드 필터 엘리먼트 바인딩 및 생성
+    const dbPlantSelect = document.getElementById('dashboard-filter-plant');
+    const dbCustomerSelect = document.getElementById('dashboard-filter-customer');
+    const dbProcessSelect = document.getElementById('dashboard-filter-process');
+    populatePlants(dbPlantSelect);
+    populateCustomers(dbCustomerSelect);
+    populateProcesses(dbProcessSelect);
 
-    // 초기 필터 선택값 반영
-    if (filterPlantSelect) filterPlantSelect.value = this.state.selectedPlant;
-    if (filterCustomerSelect) filterCustomerSelect.value = this.state.selectedCustomer;
-    if (filterProcessSelect) filterProcessSelect.value = this.state.selectedProcess;
+    // 라이브러리 필터 엘리먼트 바인딩 및 생성
+    const libPlantSelect = document.getElementById('library-filter-plant');
+    const libCustomerSelect = document.getElementById('library-filter-customer');
+    populatePlants(libPlantSelect);
+    populateCustomers(libCustomerSelect);
+
+    // 초기 필터 선택값 반영 (상태값 연동)
+    if (dbPlantSelect) dbPlantSelect.value = this.state.selectedPlant;
+    if (dbCustomerSelect) dbCustomerSelect.value = this.state.selectedCustomer;
+    if (dbProcessSelect) dbProcessSelect.value = this.state.selectedProcess || 'ALL';
+    if (libPlantSelect) libPlantSelect.value = this.state.librarySelectedPlant || 'ALL';
+    if (libCustomerSelect) libCustomerSelect.value = this.state.librarySelectedCustomer || 'ALL';
   },
 
   // 👥 역할 계정 전환 팝오버 리스트 렌더링
@@ -1463,14 +1458,9 @@ const app = {
     this.renderPlantRiskScreen();
   },
 
-  // 3) 전체 리스크 화면 통합 렌더러
+    // 3) 전체 리스크 화면 통합 렌더러
   renderPlantRiskScreen() {
     console.log("🏭 Rendering Plant Risk Screen...");
-
-    // 글로벌 필터 selectedPlant가 'ALL'이 아니면 해당 공장을 강제 활성 공장으로 싱크
-    if (this.state.selectedPlant && this.state.selectedPlant !== 'ALL') {
-      this.state.plantRiskActivePlant = this.state.selectedPlant;
-    }
 
     const activePlantCode = this.state.plantRiskActivePlant || 'DP';
     const activeSubtab = this.state.activePlantRiskSubtab || 'risk-compass';
@@ -2552,7 +2542,8 @@ const app = {
     const pName = (this.state.commonCodes?.plants || []).find(p => p.code === plant)?.name || plant;
     this.logAction(null, `신규 지적사항 등록: [${pName}] [${newDocNo}] ${subject} (담당: ${owner})`, 'action');
 
-    this.onGlobalFilterChange();
+    this.renderPlantRiskScreen();
+    this.renderDashboard();
   },
 
   // 💡 ⑤ 11대 공정 리본 필터 렌더러
@@ -3930,18 +3921,17 @@ const app = {
     let list = this.state.auditChecklists || [];
     
     // 🛡️ 제조공정 필터 제거에 따른 Null Guard 설계 (Zero Crash Policy)
-    const selectedPlant = this.state.selectedPlant || 'ALL';
-    const selectedCustomer = this.state.selectedCustomer || 'ALL';
-    const selectedProcess = this.state.selectedProcess || 'ALL';
+    const selectedPlant = this.state.librarySelectedPlant || 'ALL';
+    const selectedCustomer = this.state.librarySelectedCustomer || 'ALL';
     const filterProcess = this.state.checklistFilterProcess || 'ALL';
 
-    // 글로벌 필터 적용 (Phase 1)
+    // 라이브러리 로컬 필터 적용 (Plant)
     if (selectedPlant !== 'ALL') {
       const plant = selectedPlant.toLowerCase();
       list = list.filter(item => (item.plant_code || '').toLowerCase() === plant || (item.plant_code || '').toLowerCase() === 'all');
     }
     
-    // 완성차 계층형 매핑 마스터 (Smart OEM Hierarchy) 반영
+    // 완성차 계층형 매핑 마스터 (Smart OEM Hierarchy) 반영 (Customer)
     if (selectedCustomer !== 'ALL') {
       let targetOems = [selectedCustomer];
       if (OEM_MASTER[selectedCustomer] && OEM_MASTER[selectedCustomer].subs) {
@@ -3949,11 +3939,6 @@ const app = {
       }
       const lowerTargetOems = targetOems.map(o => o.toLowerCase());
       list = list.filter(item => lowerTargetOems.includes((item.customer || '').toLowerCase()));
-    }
-
-    if (selectedProcess !== 'ALL') {
-      const process = selectedProcess.toLowerCase();
-      list = list.filter(item => (item.process_category || '').toLowerCase() === process);
     }
     
     // 1. 공정 분류 로컬 필터 (Process & Category 스펙 반영)
@@ -4257,9 +4242,9 @@ const app = {
 
     let list = this.state.documentLibrary || [];
     
-    // 글로벌 고객사 필터 적용 (Phase 1)
-    if (this.state.selectedCustomer && this.state.selectedCustomer !== 'ALL') {
-      const customer = this.state.selectedCustomer.toLowerCase();
+    // 라이브러리 로컬 고객사 필터 적용
+    if (this.state.librarySelectedCustomer && this.state.librarySelectedCustomer !== 'ALL') {
+      const customer = this.state.librarySelectedCustomer.toLowerCase();
       list = list.filter(d => (d.customer || '').toLowerCase() === customer);
     }
     
@@ -5574,52 +5559,105 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
       });
     }
 
-    // 7. 글로벌 필터 조작 이벤트 바인딩 (Phase 1)
-    const filterPlant = document.getElementById('filter-plant');
-    const filterCustomer = document.getElementById('filter-customer');
-    const filterProcess = document.getElementById('filter-process');
-    const btnResetFilters = document.getElementById('btn-reset-filters');
+    // 7. 대시보드 및 라이브러리 로컬 필터 조작 이벤트 바인딩
+    // [A] 대시보드 로컬 필터
+    const dbFilterPlant = document.getElementById('dashboard-filter-plant');
+    const dbFilterCustomer = document.getElementById('dashboard-filter-customer');
+    const dbFilterProcess = document.getElementById('dashboard-filter-process');
+    const btnResetDbFilters = document.getElementById('btn-reset-dashboard-filters');
 
-    if (filterPlant) {
-      filterPlant.addEventListener('change', (e) => {
+    if (dbFilterPlant) {
+      dbFilterPlant.addEventListener('change', (e) => {
         this.state.selectedPlant = e.target.value;
-        console.log(`[Global Filter] Plant Changed: ${this.state.selectedPlant}`);
-        this.showToast(`대상 공장이 ${e.target.options[e.target.selectedIndex].text}(으)로 필터링되었습니다.`);
-        this.onGlobalFilterChange();
+        console.log(`[Dashboard Filter] Plant Changed: ${this.state.selectedPlant}`);
+        this.showToast(`[대시보드] 대상 공장이 ${e.target.options[e.target.selectedIndex].text}(으)로 필터링되었습니다.`);
+        this.renderDashboard();
       });
     }
 
-    if (filterCustomer) {
-      filterCustomer.addEventListener('change', (e) => {
+    if (dbFilterCustomer) {
+      dbFilterCustomer.addEventListener('change', (e) => {
         this.state.selectedCustomer = e.target.value;
-        console.log(`[Global Filter] Customer Changed: ${this.state.selectedCustomer}`);
-        this.showToast(`고객사가 ${e.target.value === 'ALL' ? '전체 고객사' : e.target.value}(으)로 필터링되었습니다.`);
-        this.onGlobalFilterChange();
+        console.log(`[Dashboard Filter] Customer Changed: ${this.state.selectedCustomer}`);
+        this.showToast(`[대시보드] 고객사가 ${e.target.value === 'ALL' ? '전체 고객사' : e.target.value}(으)로 필터링되었습니다.`);
+        this.renderDashboard();
       });
     }
 
-    if (filterProcess) {
-      filterProcess.addEventListener('change', (e) => {
+    if (dbFilterProcess) {
+      dbFilterProcess.addEventListener('change', (e) => {
         this.state.selectedProcess = e.target.value;
-        console.log(`[Global Filter] Process Changed: ${this.state.selectedProcess}`);
-        this.showToast(`제조 공정이 ${e.target.options[e.target.selectedIndex].text}(으)로 필터링되었습니다.`);
-        this.onGlobalFilterChange();
+        console.log(`[Dashboard Filter] Process Changed: ${this.state.selectedProcess}`);
+        this.showToast(`[대시보드] 대상 제조 공정이 ${e.target.options[e.target.selectedIndex].text}(으)로 필터링되었습니다.`);
+        this.renderDashboard();
       });
     }
 
-    if (btnResetFilters) {
-      btnResetFilters.addEventListener('click', () => {
+    if (btnResetDbFilters) {
+      btnResetDbFilters.addEventListener('click', () => {
         this.state.selectedPlant = 'ALL';
         this.state.selectedCustomer = 'ALL';
         this.state.selectedProcess = 'ALL';
         
-        if (filterPlant) filterPlant.value = 'ALL';
-        if (filterCustomer) filterCustomer.value = 'ALL';
-        if (filterProcess) filterProcess.value = 'ALL';
+        if (dbFilterPlant) dbFilterPlant.value = 'ALL';
+        if (dbFilterCustomer) dbFilterCustomer.value = 'ALL';
+        if (dbFilterProcess) dbFilterProcess.value = 'ALL';
         
-        console.log(`[Global Filter] Filters Reset to ALL`);
-        this.showToast('모든 글로벌 필터가 초기화되었습니다.', 'success');
-        this.onGlobalFilterChange();
+        console.log(`[Dashboard Filter] Filters Reset to ALL`);
+        this.showToast('[대시보드] 필터가 전체(ALL)로 초기화되었습니다.', 'success');
+        this.renderDashboard();
+      });
+    }
+
+    // [B] 라이브러리 로컬 필터
+    const libFilterPlant = document.getElementById('library-filter-plant');
+    const libFilterCustomer = document.getElementById('library-filter-customer');
+    const btnResetLibFilters = document.getElementById('btn-reset-library-filters');
+
+    if (libFilterPlant) {
+      libFilterPlant.addEventListener('change', (e) => {
+        this.state.librarySelectedPlant = e.target.value;
+        this.state.checklistCurrentPage = 1;
+        console.log(`[Library Filter] Plant Changed: ${this.state.librarySelectedPlant}`);
+        this.showToast(`[라이브러리] 대상 공장이 ${e.target.options[e.target.selectedIndex].text}(으)로 필터링되었습니다.`);
+        
+        this.renderProcessSummary();
+        this.renderChecklistTable();
+        this.renderDocumentLibrary();
+        this.renderRequirementMapping();
+      });
+    }
+
+    if (libFilterCustomer) {
+      libFilterCustomer.addEventListener('change', (e) => {
+        this.state.librarySelectedCustomer = e.target.value;
+        this.state.checklistCurrentPage = 1;
+        console.log(`[Library Filter] Customer Changed: ${this.state.librarySelectedCustomer}`);
+        this.showToast(`[라이브러리] 고객사가 ${e.target.value === 'ALL' ? '전체 고객사' : e.target.value}(으)로 필터링되었습니다.`);
+        
+        this.renderProcessSummary();
+        this.renderChecklistTable();
+        this.renderDocumentLibrary();
+        this.renderRequirementMapping();
+      });
+    }
+
+    if (btnResetLibFilters) {
+      btnResetLibFilters.addEventListener('click', () => {
+        this.state.librarySelectedPlant = 'ALL';
+        this.state.librarySelectedCustomer = 'ALL';
+        this.state.checklistCurrentPage = 1;
+        
+        if (libFilterPlant) libFilterPlant.value = 'ALL';
+        if (libFilterCustomer) libFilterCustomer.value = 'ALL';
+        
+        console.log(`[Library Filter] Filters Reset to ALL`);
+        this.showToast('[라이브러리] 필터가 전체(ALL)로 초기화되었습니다.', 'success');
+        
+        this.renderProcessSummary();
+        this.renderChecklistTable();
+        this.renderDocumentLibrary();
+        this.renderRequirementMapping();
       });
     }
 
