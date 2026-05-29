@@ -68,6 +68,7 @@ const app = {
     currentTab: 'dashboard',
     currentLang: 'KO', // 글로벌 다국어 서비스 상태 기본값 ('KO' | 'EN' | 'ZH')
     plantRiskActivePlant: 'DP', // Phase 4 활성 공장 기본값
+    activePlantRiskSubtab: 'risk-compass', // 기본 서브 탭
     currentUser: { name: '박정호 수석', role: 'admin', dept: '품질보증부', badge: 'ADMIN', color: '#ef4444' },
     currentRole: 'admin', // 기본 역할: 최고관리자 (admin)
     users: [
@@ -106,7 +107,10 @@ const app = {
     charts: {
       plantRisk: null,
       processRisk: null,
-      plantSelected: null // Doughnut 차트 전환 시 선택된 공장 코드 보존용 (e.g. 'DP')
+      plantSelected: null, // Doughnut 차트 전환 시 선택된 공장 코드 보존용 (e.g. 'DP')
+      radarRiskCompass: null, // Sub-Tab 1
+      scatterSystemMap: null, // Sub-Tab 2
+      barCompliance: null // Sub-Tab 2
     },
 
     // 글로벌 공통 필터 상태 값 (Plant, Customer, Process)
@@ -1444,6 +1448,17 @@ const app = {
       };
     }
 
+    // 💡 3중 서브 탭 클릭 이벤트 바인딩
+    const subTabButtons = document.querySelectorAll('#tab-plant-risk-action .sub-tab-btn');
+    subTabButtons.forEach(btn => {
+      btn.onclick = (e) => {
+        e.preventDefault();
+        const subtabId = btn.getAttribute('data-subtab');
+        this.state.activePlantRiskSubtab = subtabId;
+        this.renderPlantRiskScreen();
+      };
+    });
+
     // 화면 첫 렌더링
     this.renderPlantRiskScreen();
   },
@@ -1458,20 +1473,639 @@ const app = {
     }
 
     const activePlantCode = this.state.plantRiskActivePlant || 'DP';
+    const activeSubtab = this.state.activePlantRiskSubtab || 'risk-compass';
 
-    // 1. 공장별 리스크 매트릭스 카드 리스트 렌더링
-    this.renderPlantRiskMatrix(activePlantCode);
+    // 1. 서브 탭 버튼 스타일 및 활성화 상태 싱크
+    const subTabButtons = document.querySelectorAll('#tab-plant-risk-action .sub-tab-btn');
+    subTabButtons.forEach(btn => {
+      if (btn.getAttribute('data-subtab') === activeSubtab) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
 
-    // 2. 과거 3개년 오디트 이력 타임라인 렌더링
-    this.renderPlantAuditHistory(activePlantCode);
+    // 2. 서브 탭 본문 패널 노출 싱크
+    const subPanes = document.querySelectorAll('#tab-plant-risk-action .sub-tab-pane');
+    subPanes.forEach(pane => {
+      const paneSubtabId = pane.id.replace('subtab-', '');
+      if (paneSubtabId === activeSubtab) {
+        pane.classList.add('active-sub-pane');
+      } else {
+        pane.classList.remove('active-sub-pane');
+      }
+    });
 
-    // 3. 부적합 및 지적사항 조치 현황 보드 테이블 렌더링
-    this.renderCorrectiveActionBoard(activePlantCode);
+    // 3. 서브 탭별 화면 분기 렌더링
+    if (activeSubtab === 'risk-compass') {
+      this.renderRiskCompassTab(activePlantCode);
+    } else if (activeSubtab === 'system-level') {
+      this.renderSystemLevelTab(activePlantCode);
+    } else if (activeSubtab === 'custom-audit') {
+      this.renderCustomAuditTab(activePlantCode);
+    }
 
-    // 4. 아이콘 다시 드로잉
+    // 4. Lucide 아이콘 다시 드로잉
     if (typeof lucide !== 'undefined') {
       lucide.createIcons();
     }
+  },
+
+  // ================= Sub-Tab 1: Integrated Risk Compass 렌더링 =================
+  renderRiskCompassTab(activePlantCode) {
+    console.log(`🧭 Rendering Risk Compass sub-tab for plant: ${activePlantCode}`);
+
+    // ① 품질 인프라 수위 (System Level) 계산
+    const plantItems = (this.state.oeQualityAssessmentDetails || []).filter(item => item.plant === activePlantCode);
+    const validSystemItems = plantItems.filter(item => {
+      if (item.category === 'Process') return false;
+      if (!item.score || item.score.toString().trim().toUpperCase() === 'N/A') return false;
+      return true;
+    });
+    let systemLevel = 100.0;
+    if (validSystemItems.length > 0) {
+      const sumScores = validSystemItems.reduce((sum, item) => sum + parseFloat(item.score), 0);
+      systemLevel = (sumScores / (validSystemItems.length * 10)) * 100;
+    }
+
+    // ② 현장 실사 합격률 (Assessment Score) 계산
+    const validAssessmentItems = plantItems.filter(item => {
+      if (item.category !== 'Process') return false;
+      if (!item.score || item.score.toString().trim().toUpperCase() === 'N/A') return false;
+      return true;
+    });
+    let assessmentScore = 100.0;
+    if (validAssessmentItems.length > 0) {
+      const sumScores = validAssessmentItems.reduce((sum, item) => sum + parseFloat(item.score), 0);
+      assessmentScore = (sumScores / (validAssessmentItems.length * 10)) * 100;
+    }
+
+    // ③ 품질 불만 이슈 패널티 (Issues Penalty Score) 계산
+    const plantIssuesCount = (this.state.qualityIssues || []).filter(item => item.PLANT === activePlantCode).length;
+    const issuesPenalty = Math.min(100, plantIssuesCount * 10);
+
+    // ④ 종합 품질 리스크 지수 (CRI) 계산
+    const cri = 0.4 * (100 - systemLevel) + 0.3 * (100 - assessmentScore) + 0.3 * issuesPenalty;
+
+    // UI LCD 패널 노티스 및 값 세팅
+    const criValueNode = document.getElementById('cri-value');
+    const criStatusNode = document.getElementById('cri-status');
+    const criSystemNode = document.getElementById('cri-system');
+    const criAssessmentNode = document.getElementById('cri-assessment');
+    const criIssuesNode = document.getElementById('cri-issues');
+    const criLcdCard = document.getElementById('cri-lcd-card');
+
+    if (criValueNode) criValueNode.textContent = cri.toFixed(1);
+    if (criSystemNode) criSystemNode.textContent = systemLevel.toFixed(1) + '%';
+    if (criAssessmentNode) criAssessmentNode.textContent = assessmentScore.toFixed(1) + '%';
+    if (criIssuesNode) criIssuesNode.textContent = issuesPenalty.toFixed(0) + '점';
+
+    let statusText = 'LOW RISK';
+    let themeColor = '#00ff66'; // Neon Green
+    let glowStyle = '0 0 15px rgba(0, 255, 102, 0.35)';
+
+    if (cri >= 41.1) {
+      statusText = 'CRITICAL HIGH RISK';
+      themeColor = '#ff0055'; // Neon Pink
+      glowStyle = '0 0 15px rgba(255, 0, 85, 0.35)';
+    } else if (cri >= 38.1) {
+      statusText = 'MODERATE RISK';
+      themeColor = '#ffb800'; // Neon Yellow
+      glowStyle = '0 0 15px rgba(255, 184, 0, 0.35)';
+    }
+
+    if (criStatusNode) {
+      criStatusNode.textContent = statusText;
+      criStatusNode.style.color = themeColor;
+    }
+    if (criValueNode) {
+      criValueNode.style.color = themeColor;
+      criValueNode.style.textShadow = `0 0 10px ${themeColor}80`;
+    }
+    if (criLcdCard) {
+      criLcdCard.style.borderColor = themeColor;
+      criLcdCard.style.boxShadow = glowStyle;
+    }
+
+    // ⑤ 10대 공정 진단 레이더 차트 렌더링
+    const processList = ['Incoming', 'Mixing', 'Extruding', 'Calendering', 'Cutting', 'Bead', 'Building', 'Curing', 'Inspection', 'Shipping'];
+    const plantData = [];
+    const globalData = [];
+    const allAssessmentItems = this.state.oeQualityAssessmentDetails || [];
+
+    processList.forEach(proc => {
+      const factoryItems = allAssessmentItems.filter(item => 
+        item.plant === activePlantCode && 
+        (item.process || '').toLowerCase() === proc.toLowerCase() &&
+        item.score && item.score.toString().trim().toUpperCase() !== 'N/A'
+      );
+      let factoryScore = 0;
+      if (factoryItems.length > 0) {
+        const sum = factoryItems.reduce((total, item) => total + parseFloat(item.score), 0);
+        factoryScore = (sum / (factoryItems.length * 10)) * 100;
+      }
+      plantData.push(factoryScore);
+
+      const globalItems = allAssessmentItems.filter(item => 
+        (item.process || '').toLowerCase() === proc.toLowerCase() &&
+        item.score && item.score.toString().trim().toUpperCase() !== 'N/A'
+      );
+      let globalScore = 0;
+      if (globalItems.length > 0) {
+        const sum = globalItems.reduce((total, item) => total + parseFloat(item.score), 0);
+        globalScore = (sum / (globalItems.length * 10)) * 100;
+      }
+      globalData.push(globalScore);
+    });
+
+    const ctxRadar = document.getElementById('chart-radar-risk-compass');
+    if (ctxRadar && typeof Chart !== 'undefined') {
+      if (this.state.charts.radarRiskCompass) {
+        this.state.charts.radarRiskCompass.destroy();
+        this.state.charts.radarRiskCompass = null;
+      }
+
+      const plantObj = (this.state.commonCodes.plants || []).find(p => p.code === activePlantCode);
+      const plantName = plantObj ? plantObj.name : activePlantCode;
+
+      this.state.charts.radarRiskCompass = new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+          labels: processList.map(p => {
+            const koName = {
+              'Incoming': '수입검사',
+              'Mixing': '정련',
+              'Extruding': '압출',
+              'Calendering': '압연',
+              'Cutting': '재단',
+              'Bead': '비드',
+              'Building': '성형',
+              'Curing': '가류',
+              'Inspection': '완성검사',
+              'Shipping': '물류출하'
+            }[p] || p;
+            return `${koName} (${p})`;
+          }),
+          datasets: [
+            {
+              label: `${plantName} 공장 수준`,
+              data: plantData,
+              fill: true,
+              backgroundColor: 'rgba(0, 242, 254, 0.15)',
+              borderColor: '#00f2fe',
+              pointBackgroundColor: '#00f2fe',
+              pointBorderColor: '#fff',
+              pointHoverBackgroundColor: '#fff',
+              pointHoverBorderColor: '#00f2fe',
+              borderWidth: 2
+            },
+            {
+              label: '글로벌 8대 공장 평균',
+              data: globalData,
+              fill: true,
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              borderColor: 'rgba(255, 255, 255, 0.4)',
+              pointBackgroundColor: 'rgba(255, 255, 255, 0.6)',
+              pointBorderColor: '#fff',
+              pointHoverBackgroundColor: '#fff',
+              pointHoverBorderColor: 'rgba(255, 255, 255, 0.4)',
+              borderWidth: 1.5,
+              borderDash: [4, 4]
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#94a3b8',
+                font: { family: 'Rajdhani, Inter', size: 11, weight: '600' }
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.dataset.label}: ${context.raw.toFixed(1)}%`;
+                }
+              }
+            }
+          },
+          scales: {
+            r: {
+              angleLines: {
+                color: 'rgba(255, 255, 255, 0.08)'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.08)'
+              },
+              pointLabels: {
+                color: '#94a3b8',
+                font: { family: 'Inter', size: 10, weight: '600' }
+              },
+              ticks: {
+                color: '#64748b',
+                backdropColor: 'transparent',
+                font: { family: 'Rajdhani', size: 9 },
+                stepSize: 20
+              },
+              min: 0,
+              max: 100
+            }
+          }
+        }
+      });
+    }
+
+    // ⑥ 10대 공정별 품질 매트릭스 히트맵 렌더링
+    const plantCodes = ['KP', 'DP', 'JP', 'CP', 'HP', 'IP', 'MP', 'TP'];
+    const matrix = {};
+    processList.forEach(proc => {
+      matrix[proc] = {};
+      plantCodes.forEach(plt => {
+        const items = allAssessmentItems.filter(item => 
+          item.plant === plt && 
+          (item.process || '').toLowerCase() === proc.toLowerCase() &&
+          item.score && item.score.toString().trim().toUpperCase() !== 'N/A'
+        );
+        if (items.length > 0) {
+          const sum = items.reduce((total, item) => total + parseFloat(item.score), 0);
+          matrix[proc][plt] = (sum / (items.length * 10)) * 100;
+        } else {
+          matrix[proc][plt] = 'N/A';
+        }
+      });
+    });
+
+    const heatmapBox = document.getElementById('heatmap-matrix-box');
+    if (heatmapBox) {
+      let html = `
+        <table class="data-table" style="width: 100%; border-collapse: separate; border-spacing: 4px; font-size: 11.5px; text-align: center;">
+          <thead>
+            <tr>
+              <th style="padding: 8px; text-align: left; color: var(--text-secondary); background: rgba(255,255,255,0.01); border-radius: 4px;">제조 공정</th>
+      `;
+      
+      plantCodes.forEach(plt => {
+        const isSelected = plt === activePlantCode;
+        const highlightStyle = isSelected ? 'border: 1px solid #00f2fe; color: #00f2fe; background: rgba(0, 242, 254, 0.1); font-weight: 800;' : 'color: var(--text-secondary);';
+        html += `<th style="padding: 8px; ${highlightStyle} border-radius: 4px;">${plt}</th>`;
+      });
+      html += `</tr></thead><tbody>`;
+      
+      processList.forEach(proc => {
+        const koName = {
+          'Incoming': '수입검사',
+          'Mixing': '정련',
+          'Extruding': '압출',
+          'Calendering': '압연',
+          'Cutting': '재단',
+          'Bead': '비드',
+          'Building': '성형',
+          'Curing': '가류',
+          'Inspection': '완성검사',
+          'Shipping': '물류출하'
+        }[proc] || proc;
+        
+        html += `
+          <tr>
+            <td style="padding: 8px; text-align: left; font-weight: 700; color: var(--text-primary); background: rgba(255,255,255,0.02); border-radius: 4px; width: 120px;">
+              ${koName} <span style="font-size: 9px; color: var(--text-muted-light); font-weight: 400; display: block;">${proc}</span>
+            </td>
+        `;
+        
+        plantCodes.forEach(plt => {
+          const isSelected = plt === activePlantCode;
+          const val = matrix[proc][plt];
+          
+          let cellStyle = '';
+          let cellText = '';
+          
+          if (val === 'N/A') {
+            cellStyle = 'background: rgba(255,255,255,0.03); color: var(--text-muted-light); border: 1px solid rgba(255,255,255,0.05);';
+            cellText = 'N/A';
+          } else {
+            cellText = val.toFixed(0) + '%';
+            if (val >= 95) {
+              cellStyle = 'background: rgba(0, 255, 102, 0.15); color: #00ff66; border: 1px solid rgba(0, 255, 102, 0.3);';
+            } else if (val >= 90) {
+              cellStyle = 'background: rgba(0, 191, 255, 0.15); color: #00bfff; border: 1px solid rgba(0, 191, 255, 0.3);';
+            } else if (val >= 85) {
+              cellStyle = 'background: rgba(255, 184, 0, 0.15); color: #ffb800; border: 1px solid rgba(255, 184, 0, 0.3);';
+            } else {
+              cellStyle = 'background: rgba(255, 0, 85, 0.18); color: #ff0055; border: 1px solid rgba(255, 0, 85, 0.3);';
+            }
+          }
+          
+          if (isSelected) {
+            cellStyle += ' box-shadow: 0 0 8px rgba(0, 242, 254, 0.5); border-color: #00f2fe !important; font-weight: 800;';
+          }
+          
+          html += `<td style="padding: 8px; ${cellStyle} border-radius: 4px;">${cellText}</td>`;
+        });
+        html += `</tr>`;
+      });
+      
+      html += `</tbody></table>`;
+      heatmapBox.innerHTML = html;
+    }
+  },
+
+  // ================= Sub-Tab 2: OE Quality System Level 렌더링 =================
+  renderSystemLevelTab(activePlantCode) {
+    console.log(`📈 Rendering System Level sub-tab for plant: ${activePlantCode}`);
+
+    const processList = ['Incoming', 'Mixing', 'Extruding', 'Calendering', 'Cutting', 'Bead', 'Building', 'Curing', 'Inspection', 'Shipping'];
+    const allAssessmentItems = this.state.oeQualityAssessmentDetails || [];
+
+    const perfectData = [];
+    const warningData = [];
+    const criticalData = [];
+    const complianceData = [];
+
+    processList.forEach(p => {
+      const pItems = allAssessmentItems.filter(item => 
+        item.plant === activePlantCode && 
+        (item.process || '').toLowerCase() === p.toLowerCase() &&
+        item.score && item.score.toString().trim().toUpperCase() !== 'N/A'
+      );
+      
+      const infraItems = pItems.filter(item => item.category !== 'Process');
+      let infraScore = 100.0;
+      if (infraItems.length > 0) {
+        const sum = infraItems.reduce((total, item) => total + parseFloat(item.score), 0);
+        infraScore = (sum / (infraItems.length * 10)) * 100;
+      }
+      
+      const procItems = pItems.filter(item => item.category === 'Process');
+      let procScore = 100.0;
+      if (procItems.length > 0) {
+        const sum = procItems.reduce((total, item) => total + parseFloat(item.score), 0);
+        procScore = (sum / (procItems.length * 10)) * 100;
+      }
+      
+      const koName = {
+        'Incoming': '수입검사',
+        'Mixing': '정련',
+        'Extruding': '압출',
+        'Calendering': '압연',
+        'Cutting': '재단',
+        'Bead': '비드',
+        'Building': '성형',
+        'Curing': '가류',
+        'Inspection': '완성검사',
+        'Shipping': '물류출하'
+      }[p] || p;
+      
+      const pt = { x: infraScore, y: procScore, label: `${koName} (${p})` };
+      
+      if (infraScore >= 80 && procScore >= 80) {
+        perfectData.push(pt);
+      } else if (infraScore >= 60 && procScore >= 60) {
+        warningData.push(pt);
+      } else {
+        criticalData.push(pt);
+      }
+
+      // Bar Chart compliance
+      let overallScore = 0;
+      if (pItems.length > 0) {
+        const sum = pItems.reduce((total, item) => total + parseFloat(item.score), 0);
+        overallScore = (sum / (pItems.length * 10)) * 100;
+      }
+      complianceData.push(overallScore);
+    });
+
+    // 1. 2D Scatter Chart (System Map)
+    const ctxScatter = document.getElementById('chart-scatter-system-map');
+    if (ctxScatter && typeof Chart !== 'undefined') {
+      if (this.state.charts.scatterSystemMap) {
+        this.state.charts.scatterSystemMap.destroy();
+        this.state.charts.scatterSystemMap = null;
+      }
+
+      const leaderLinePlugin = {
+        id: 'leaderLinePlugin',
+        afterDatasetsDraw(chart, args, options) {
+          const { ctx, scales: { x, y } } = chart;
+          ctx.save();
+          
+          chart.data.datasets.forEach((dataset, datasetIndex) => {
+            const meta = chart.getDatasetMeta(datasetIndex);
+            meta.data.forEach((point, index) => {
+              const dataPoint = dataset.data[index];
+              if (!dataPoint) return;
+              const label = dataPoint.label;
+              const { x: px, y: py } = point;
+              
+              const chartCenterX = (x.min + x.max) / 2;
+              const isLeftHemisphere = dataPoint.x < chartCenterX;
+              
+              const dx = isLeftHemisphere ? 40 : -40;
+              const dy = 25;
+              const tx = px + dx;
+              const ty = py + dy;
+              
+              ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(px, py);
+              ctx.lineTo(tx, ty);
+              ctx.stroke();
+              
+              ctx.fillStyle = '#f8fafc';
+              ctx.font = 'bold 10px Inter, "맑은 고딕"';
+              ctx.textAlign = isLeftHemisphere ? 'left' : 'right';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(label, tx + (isLeftHemisphere ? 4 : -4), ty);
+            });
+          });
+          ctx.restore();
+        }
+      };
+
+      this.state.charts.scatterSystemMap = new Chart(ctxScatter, {
+        type: 'scatter',
+        plugins: [leaderLinePlugin],
+        data: {
+          datasets: [
+            {
+              label: 'Perfect (안정 우수)',
+              data: perfectData,
+              backgroundColor: '#00ff66',
+              borderColor: '#00ff66',
+              pointRadius: 6,
+              pointHoverRadius: 8
+            },
+            {
+              label: 'Warning (보완 필요)',
+              data: warningData,
+              backgroundColor: '#ffb800',
+              borderColor: '#ffb800',
+              pointRadius: 6,
+              pointHoverRadius: 8
+            },
+            {
+              label: 'Critical (고위험 취약)',
+              data: criticalData,
+              backgroundColor: '#ff0055',
+              borderColor: '#ff0055',
+              pointRadius: 6,
+              pointHoverRadius: 8
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#94a3b8',
+                font: { family: 'Rajdhani, Inter', size: 11, weight: '600' }
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.raw.label}: Infra ${context.raw.x.toFixed(1)}%, Compliance ${context.raw.y.toFixed(1)}%`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              min: 30,
+              max: 110,
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { family: 'Rajdhani', size: 10 },
+                callback: function(value) {
+                  return value > 100 ? '' : value + '%';
+                }
+              },
+              title: {
+                display: true,
+                text: 'Infrastructure Score (%)',
+                color: '#94a3b8',
+                font: { family: 'Rajdhani', size: 11, weight: 'bold' }
+              }
+            },
+            y: {
+              min: 30,
+              max: 110,
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { family: 'Rajdhani', size: 10 },
+                callback: function(value) {
+                  return value > 100 ? '' : value + '%';
+                }
+              },
+              title: {
+                display: true,
+                text: 'Process Compliance (%)',
+                color: '#94a3b8',
+                font: { family: 'Rajdhani', size: 11, weight: 'bold' }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 2. Bar Chart (Process Compliance)
+    const barColors = complianceData.map(val => {
+      if (val >= 95) return 'rgba(0, 255, 102, 0.7)'; // Perfect Neon Green
+      if (val >= 85) return 'rgba(255, 184, 0, 0.7)'; // Warning Neon Yellow
+      return 'rgba(255, 0, 85, 0.7)'; // Critical Neon Pink
+    });
+    
+    const barBorders = complianceData.map(val => {
+      if (val >= 95) return '#00ff66';
+      if (val >= 85) return '#ffb800';
+      return '#ff0055';
+    });
+
+    const ctxBar = document.getElementById('chart-bar-compliance');
+    if (ctxBar && typeof Chart !== 'undefined') {
+      if (this.state.charts.barCompliance) {
+        this.state.charts.barCompliance.destroy();
+        this.state.charts.barCompliance = null;
+      }
+      
+      this.state.charts.barCompliance = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: processList.map(p => {
+            return {
+              'Incoming': '수입검사',
+              'Mixing': '정련',
+              'Extruding': '압출',
+              'Calendering': '압연',
+              'Cutting': '재단',
+              'Bead': '비드',
+              'Building': '성형',
+              'Curing': '가류',
+              'Inspection': '완성검사',
+              'Shipping': '물류출하'
+            }[p] || p;
+          }),
+          datasets: [{
+            label: '현장 실사 부합도 (%)',
+            data: complianceData,
+            backgroundColor: barColors,
+            borderColor: barBorders,
+            borderWidth: 1.5,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `부합도: ${context.raw.toFixed(1)}%`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                color: '#94a3b8',
+                font: { family: 'Inter', size: 10, weight: '600' }
+              }
+            },
+            y: {
+              min: 30,
+              max: 100,
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { family: 'Rajdhani', size: 10 },
+                stepSize: 10,
+                callback: function(value) { return value + '%'; }
+              }
+            }
+          }
+        }
+      });
+    }
+  },
+
+  // ================= Sub-Tab 3: AI Custom Audit 렌더링 =================
+  renderCustomAuditTab(activePlantCode) {
+    console.log(`🤖 Rendering AI Custom Audit sub-tab for plant: ${activePlantCode}`);
+
     const activeCustomer = this.state.tab3Customer || 'BMW';
     const activeProcess = this.state.tab3Process || 'ALL';
 
@@ -1491,22 +2125,17 @@ const app = {
     const endDateInput = document.getElementById('tab3-end-date');
     if (endDateInput) endDateInput.value = this.state.tab3EndDate;
 
-    // 💡 11대 공정 리본 필터 렌더링 추가
+    // ① 11대 공정 리본 필터 렌더링
     this.renderProcessRibbon();
 
-    // 1. 상단 테이블: 완성차 고객사 감사 지적 이력 기반 맞춤형 체크시트 렌더링
+    // ② 상단 테이블: 완성차 고객사 감사 지적 이력 기반 맞춤형 체크시트 렌더링
     this.renderCustomerAuditChecklist(activePlantCode, activeCustomer, activeProcess);
 
-    // 2. 하단 실사 취약점 & 우수 조항 테이블 렌더링 (6점 이하 / 8점 이상 구조)
+    // ③ 하단 실사 취약점 & 우수 조항 테이블 렌더링 (6점 이하 / 8점 이상 구조)
     this.renderQualityAssessmentDetails(activePlantCode, activeProcess);
 
-    // 3. AI 권고 Operational Actions 피드 렌더링 (CRI 및 8D 요약본 매칭)
+    // ④ AI 권고 Operational Actions 피드 렌더링 (CRI 및 8D 요약본 매칭)
     this.renderTab3AIRecommendations(activePlantCode, activeProcess);
-
-    // 4. Lucide 아이콘 다시 드로잉
-    if (typeof lucide !== 'undefined') {
-      lucide.createIcons();
-    }
   },
 
   // ① 상단 테이블: 완성차 고객사 감사 지적 이력 기반 맞춤형 체크시트 렌더링
@@ -5036,6 +5665,14 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
       this.renderChecklistTable();
       this.renderDocumentLibrary();
       this.renderRequirementMapping();
+    }
+
+    // 만약 Plant Risk & Action 탭이 활성화되어 있다면, 해당 공장을 싱크하고 실시간 화면 갱신
+    if (this.state.currentTab === 'plant-risk-action') {
+      if (this.state.selectedPlant && this.state.selectedPlant !== 'ALL') {
+        this.state.plantRiskActivePlant = this.state.selectedPlant;
+      }
+      this.renderPlantRiskScreen();
     }
   },
 
