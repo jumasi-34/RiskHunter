@@ -288,7 +288,166 @@ const app = {
           errorDetailsText.textContent = `상세 오류 내용: ${err.message || err}`;
         }
       }
+
+      // 모의 데이터 강제 구동 버튼 이벤트 바인딩
+      const btnMockFallback = document.getElementById('btn-run-mock-fallback');
+      if (btnMockFallback) {
+        btnMockFallback.onclick = (e) => {
+          e.preventDefault();
+          this.loadMockFallbacks();
+          if (errorBoundary) {
+            errorBoundary.classList.add('hidden');
+          }
+        };
+      }
     }
+  },
+
+  // 📦 CORS 우회 및 로컬 파일 구동 보안용 프리미엄 인메모리 백업 엔진
+  loadMockFallbacks() {
+    console.log("⚠️ Activating premium local mock fallback data engine...");
+    
+    // 1. commonCodes
+    this.state.commonCodes = {
+      "plants": [
+        { "code": "DP", "name": "대전공장", "location": "대한민국 대전", "desc": "국내 주요 생산 거점, 전 공정 및 특수 공정 포함", "is_active": true },
+        { "code": "KP", "name": "금산공장", "location": "대한민국 금산", "desc": "초고성능 및 특수 타이어 주력 생산 거점", "is_active": true },
+        { "code": "JP", "name": "가흥공장", "location": "중국 가흥", "desc": "중국 내수 및 아시아 수출용 제품 생산", "is_active": true },
+        { "code": "HP", "name": "강소공장", "location": "중국 강소", "desc": "중국 시장 공략 및 주요 글로벌 수출용 친환경 타이어 거점", "is_active": true },
+        { "code": "CP", "name": "중경공장", "location": "중국 중경", "desc": "중국 서부 지역 생산 거점", "is_active": true },
+        { "code": "MP", "name": "헝가리공장", "location": "헝가리 라첼마스", "desc": "유럽 완성차(BMW, Audi 등) 납품용 핵심 기지", "is_active": true },
+        { "code": "IP", "name": "인도네시아공장", "location": "인도네시아", "desc": "동남아시아 시장 및 글로벌 수출 기지", "is_active": true },
+        { "code": "TP", "name": "테네시공장", "location": "미국 테네시 클락스빌", "desc": "북미 완성차 시장 대응 핵심 거점", "is_active": true },
+        { "code": "ALL", "name": "전사 공통", "location": "-", "desc": "특정 공장에 종속되지 않고 전 공장에 일괄 적용되는 표준 자료", "is_active": true }
+      ],
+      "categories": [
+        { "code": "Design", "name": "설계/개발", "english_name": "Design & Development", "desc": "도면 관리, 제품 설계 표준, 특수 특성 지정 및 타당성 검증" },
+        { "code": "Test", "name": "시험/검증", "english_name": "Lab Test & Verification", "desc": "신뢰성 시험, 치수 측정, 재료 물리적/화학적 성능 시험" },
+        { "code": "System", "name": "품질 시스템", "english_name": "Quality System", "desc": "문서 관리, 변경 관리, 사내 변경 승인(4M), 교육 및 자격 부여" },
+        { "code": "Logistics", "name": "물류/외주창고", "english_name": "Logistics & Warehouse", "desc": "자사 완제품 창고, 원재료 창고 및 제3자 외주 물류 창고 관리" }
+      ],
+      "processes": [
+        { "code": "Incoming", "name": "수입검사", "english_name": "Incoming Inspection", "desc": "원재료/원단 입고 검사, 성적서(COA) 검증 및 부적합품 격리" },
+        { "code": "Mixing", "name": "배합", "english_name": "Mixing", "desc": "고무 가공 전 원재료 평량, 고무 컴파운드 배합 및 가공성 확인" },
+        { "code": "Extrusion", "name": "압출", "english_name": "Extrusion", "desc": "트레드, 사이드월 등 반제품 가공, 치수 및 온도 실시간 프로파일링" },
+        { "code": "Calendaring", "name": "캘린더링", "english_name": "Calendaring", "desc": "스틸/텍스타일 코드 고무 토핑, 인장강도 및 접착력 검사" },
+        { "code": "Cutting", "name": "재단", "english_name": "Cutting", "desc": "반제품 지정 각도/폭 절단, 카카스 및 벨트 반제품 가공" },
+        { "code": "Bead", "name": "비드", "english_name": "Bead", "desc": "와이어 권취, 에이프런 부착 및 비드 링 성형성 관리" },
+        { "code": "Building", "name": "성형", "english_name": "Building", "desc": "드럼상 반제품 조립, 성형 중 Air 배출 유무 및 그린타이어 외관 관리" },
+        { "code": "Curing", "name": "가류", "english_name": "Curing", "desc": "금형 가열/가압, 가류 온도/압력 프로파일 및 벤트핀 막힘 관리" },
+        { "code": "Re-work", "name": "재작업", "english_name": "Re-work", "desc": "승인된 작업 표준서에 따른 재작업 프로세스 및 승인 경로 확보" },
+        { "code": "Inspection", "name": "검사", "english_name": "Inspection", "desc": "외관 검사, 기하학적 치수 검사(Uniformity, Runout) 및 불합격품 격리" },
+        { "code": "Shipping", "name": "물류출하", "english_name": "Shipping & Logistics", "desc": "제품 포장 상태, 바코드 스캔, 적재 정비 및 출하 시 수송 안전성 검사" }
+      ]
+    };
+
+    // 2. users
+    this.state.users = [
+      { id: 1, username: "admin", password: "admin123", name: "박정호 수석", role: "admin", roleName: "Lead Auditor", badge: "ADMIN", color: "#ff3b30", dept: "품질보증그룹" },
+      { id: 2, username: "manager", password: "manager123", name: "이현우 책임", role: "manager", roleName: "Quality Manager", badge: "MANAGER", color: "#00c8ff", dept: "품질기획팀" },
+      { id: 3, username: "viewer", password: "viewer123", name: "최선미 연구원", role: "viewer", roleName: "Quality Viewer", badge: "VIEWER", color: "#4cd964", dept: "가류생산기술팀" }
+    ];
+    this.state.currentUser = this.state.users[0];
+
+    // 3. auditChecklists
+    this.state.auditChecklists = [
+      { id: 1, source_type: "DOCUMENT", source_id: "LAH 893 010", plant_code: "ALL", customer: "Audi", doc_code: "LAH 893 010", doc_name: "Audi Q Lastenheft", section: "Clause 1.0 (General Specifications)", requirement: "제품의 치수 정밀도 및 설계 도면의 중요 공차 요건 검증 성적서", audit_question: "제품의 치수 정밀도 및 설계 도면의 중요 공차 요건이 정기적인 치수 측정 성적서를 통해 확인 및 관리되고 있는가?", evidence_compliance: "Audi 승인 최신 도면 원본, 부품 풀레이아웃(Full Layout) 정밀 치수 측정 성적서.", audit_method: "치수 측정 성적서 대조 검토", requirement_type: "검사", process_category: "Inspection", related_4m: "Method", priority: "Medium", plant_risk_score: 3.2, processed_at: "2026-05-28 15:19:56" },
+      { id: 2, source_type: "DOCUMENT", source_id: "BMW GS 95001", plant_code: "ALL", customer: "BMW", doc_code: "BMW GS 95001", doc_name: "BMW GS 95001 Standard", section: "Clause 3.1 (Mixing Specifications)", requirement: "배합 컴파운드 점도 및 물성 검사 주기 준수", audit_question: "배합 컴파운드의 점도(Mooney Viscosity) 및 가류 특성이 주기적으로 모니터링되고 있으며 표준 범위를 이탈할 시 OCAP에 따라 처리되는가?", evidence_compliance: "무니 점도 측정 원본 기록지, 배합 조건 관리 일지 및 OCAP 대응서", audit_method: "배합 점도계 기록 및 OCAP 이력 확인", requirement_type: "공정", process_category: "Mixing", related_4m: "Method", priority: "High", plant_risk_score: 4.1, processed_at: "2026-05-28 15:19:56" },
+      { id: 3, source_type: "DOCUMENT", source_id: "VDA 6.3", plant_code: "ALL", customer: "Hyundai", doc_code: "VDA 6.3", doc_name: "VDA 6.3 Process Audit", section: "P6.4.4 (Maintenance of Resources)", requirement: "가류 설비의 벤트 홀 및 금형 세정 주기 수립", audit_question: "가류 금형의 벤트 홀(Vent Hole) 막힘이나 벤트핀(Vent Pin) 오작동 방지를 위한 세정 주기 및 예방 보전 일지가 주기적으로 작성되고 현장에서 준수되고 있는가?", evidence_compliance: "금형 예방 세정 주기 기준서, 벤트홀 청소 체크리스트 및 가류 조작 표준", audit_method: "현장 가류 금형 벤트홀 상태 실사 및 보전 카드 검토", requirement_type: "설비", process_category: "Curing", related_4m: "Machine", priority: "High", plant_risk_score: 4.8, processed_at: "2026-05-28 15:19:56" }
+    ];
+
+    // 4. documentLibrary
+    this.state.documentLibrary = [
+      { id: 1, doc_code: "LAH 893 010", doc_name: "Audi LAH 893 010 Q Lastenheft", customer: "Audi", register_date: "2026-01-15", version: "Rev.12", file_size: "1.4MB", file_type: "PDF" },
+      { id: 2, doc_code: "BMW GS 95001", doc_name: "BMW GS 95001 General Specifications", customer: "BMW", register_date: "2026-02-20", version: "Rev.05", file_size: "2.1MB", file_type: "PDF" },
+      { id: 3, doc_code: "VDA 6.3", doc_name: "VDA 6.3 Quality Standard for Automotive Industry", customer: "Hyundai", register_date: "2025-11-10", version: "2023 Edition", file_size: "4.8MB", file_type: "PDF" }
+    ];
+
+    // 5. auditFindings (모의 5대 공정별 지적사항 목록)
+    this.state.auditFindings = [
+      { TYPE: "Project", SUBJECT: "2026 BMW Spezial Audit", START_DT: "2026-05-10", END_DT: "2026-05-12", OWNER_ID: 1024, REG_DT: "2026-05-10", COMP_DT: "2026-05-14", STATUS: "Complete", PLANT: "DP", CAR_MAKER: "BMW", PROJECT: "G30", M_CODE: "1033501", PROCESS: "Curing", POINT_OUT_KO: "가류공정 벤트 홀(Vent Hole) 막힘 및 금형 청소 불량으로 타이어 기포 발생 우려.", ROOT_CAUSE_KO: "금형 세정 주기가 규정된 가류 횟수(500회)보다 지연된 650회 시점에 수행되어 이물질 누적.", COUNTER_MEASURE_KO: "금형 세정 주기를 최대 400회로 단축 개정하고, 벤트 핀 작동 확인용 전용 센서 설치 완료.", POINT_OUT_EN: "Risk of tire air bubbles due to blocked curing vent holes and poor mold cleaning.", ROOT_CAUSE_EN: "Mold cleaning was performed at 650 heats, delaying from the regulated 500 heats, causing residue accumulation.", COUNTER_MEASURE_EN: "Shortened mold cleaning interval to 400 heats, and installed a dedicated sensor for checking vent pin operations.", URL: "#" },
+      { TYPE: "Project", SUBJECT: "2026 Audi Audit Finding", START_DT: "2026-04-18", END_DT: "2026-04-20", OWNER_ID: 1025, REG_DT: "2026-04-19", COMP_DT: null, STATUS: "On-going", PLANT: "DP", CAR_MAKER: "Audi", PROJECT: "B10", M_CODE: "1033502", PROCESS: "Building", POINT_OUT_KO: "성형 반제품(그린타이어)의 최대 보관 허용 시간인 24시간을 초과하여 장기 체화된 자재 방치.", ROOT_CAUSE_KO: "성형 공정 입구 자재 거치 공간의 FIFO(선입선출) 구조 결여 및 식별 바코드 스캔 누락.", COUNTER_MEASURE_KO: "경사형 중력 롤러 랙을 현장에 도입하여 물리적 FIFO를 강제하고 초과 시 경보등 울리도록 인프라 개편 중.", POINT_OUT_EN: "Excessive storage of green tires on-site exceeding the maximum allowable 24 hours.", ROOT_CAUSE_EN: "Lack of physical FIFO racks at the entrance of building process and omission of barcode scanning.", COUNTER_MEASURE_EN: "Introducing inclined gravity roller racks to enforce physical FIFO, with alarm system installation in progress.", URL: "#" },
+      { TYPE: "Project", SUBJECT: "2026 Hyundai Regular Audit", START_DT: "2026-05-02", END_DT: "2026-05-03", OWNER_ID: 1026, REG_DT: "2026-05-02", COMP_DT: "2026-05-05", STATUS: "Complete", PLANT: "DP", CAR_MAKER: "Hyundai", PROJECT: "NX4", M_CODE: "1033503", PROCESS: "Mixing", POINT_OUT_KO: "정련 배합 평량(Weighing) 단계에서 오일 원재료 투입 오차(초과율 2.5%) 상한 이탈 방치.", ROOT_CAUSE_KO: "오일 정량 주입 밸브 패킹 노후화로 정지 신호 후 추가 리크 발생.", COUNTER_MEASURE_KO: "오일 투입 정량 제어 전자 밸브 교체 및 초과 시 배합 가동을 인터락(Interlock) 차단하도록 PLC 로직 개정.", POINT_OUT_EN: "Oil weighing deviation exceeded upper tolerance limit (2.5%) during mixing process.", ROOT_CAUSE_EN: "Valve packing aging in oil supply line caused leakage after stop signal.", COUNTER_MEASURE_EN: "Replaced oil electronic valve and modified PLC block to interlock and pause mixing operation if oil exceeds tolerance.", URL: "#" }
+    ];
+
+    // 6. changeHistory4m (4M 공정 변경점 이력)
+    this.state.changeHistory4m = [
+      { DOC_NO: "4M-2026-0001", PLANT: "DP", PURPOSE: "Improve Process", SUBJECT: "가류 공정 전자 스팀 밸브 교체 및 제어 로직 PLC 변경", STATUS: "Complete", PROGRESS: "Complete", REG_DATE: "2026-05-15", COMP_DATE: "2026-05-15", CHANGE_ITEM: "Machine", CHANGE_CONTENT: "스팀 제어 밸브 규격 최적화 및 PLC 응답 속도 보정", URL: "#" },
+      { DOC_NO: "4M-2026-0002", PLANT: "DP", PURPOSE: "Cost Down", SUBJECT: "성형 공정 비드 부착 오퍼레이터 표준 작업(SOP) 개정 및 작업자 교육", STATUS: "Complete", PROGRESS: "Complete", REG_DATE: "2026-05-10", COMP_DATE: "2026-05-12", CHANGE_ITEM: "Man", CHANGE_CONTENT: "SOP-BLD-042 가이드 개정 및 신입 오퍼레이터 특별 재교육 훈련", URL: "#" }
+    ];
+
+    // 7. qualityIssues
+    this.state.qualityIssues = [
+      { DOC_NO: "QI-2026-0010", PLANT: "DP", STAGE: "Mass Production", OEM: "BMW", VEH: "5 Series", PJT: "G30", OCC_DATE: "2026-05-18", REG_DATE: "2026-05-18", RETURN_YN: "Y", STATUS: "On-going", LOCATION: "Field", TYPE_NAME: "Appearance", CAT_NAME: "Curing Bubble", D2_PROBLEM: "타이어 숄더부 가류 기포 발생으로 외관 불량 클레임 2건 접수.", URL: "#" }
+    ];
+
+    // 8. oeQualityAssessmentDetails (실제 10대 공정별 득점 및 벤치마킹 데이터)
+    this.state.oeQualityAssessmentDetails = [];
+    const mockProcesses = ['Incoming', 'Mixing', 'Extruding', 'Calendering', 'Cutting', 'Bead', 'Building', 'Curing', 'Inspection', 'Shipping'];
+    const mockPlants = ['DP', 'KP', 'JP', 'HP', 'CP', 'MP', 'IP', 'TP'];
+    
+    // 글로벌 8대 공장 x 10대 공정에 대해 모의 득점 및 벤치마킹 가이드 자동 벌크 생성
+    let detailId = 1;
+    mockPlants.forEach(p => {
+      mockProcesses.forEach(proc => {
+        let scoreVal = 9; // Good
+        if (p === 'DP') {
+          if (proc === 'Curing') scoreVal = 5; // 취약 (최우선 준비)
+          else if (proc === 'Building') scoreVal = 6; // 취약 (최우선 준비)
+          else if (proc === 'Mixing') scoreVal = 10; // 우수
+          else scoreVal = 8;
+        } else if (p === 'MP') {
+          scoreVal = 10; // 헝가리공장은 10점 만점 모범 사례로 다수 세팅
+        } else {
+          scoreVal = Math.floor(Math.random() * 3) + 8; // 8~10점대 분배
+        }
+
+        // Infra 카테고리 하나
+        this.state.oeQualityAssessmentDetails.push({
+          id: detailId++,
+          plant: p,
+          process: proc,
+          section_no: 1,
+          category: "Infra",
+          item_no: 1,
+          area: "Equipment & Tooling",
+          check_item: `${proc} 공정의 품질 모니터링 인프라 구축도 검토`,
+          guidance: `- ${proc} 공정의 실시간 센서 데이터 및 한계 관리(Specification Upper/Lower Limits) 모니터링 상태 점검`,
+          findings: p === 'DP' && proc === 'Curing' ? "실시간 온도 기록 편차 제어 하드웨어 미흡 점검" : "표준 모니터링 실시간 연동 가동 중",
+          score: scoreVal.toString()
+        });
+
+        // Process 카테고리 하나
+        this.state.oeQualityAssessmentDetails.push({
+          id: detailId++,
+          plant: p,
+          process: proc,
+          section_no: 2,
+          category: "Process",
+          item_no: 2,
+          area: "SOP & Compliance",
+          check_item: `${proc} 공정 작업 표준(SOP) 및 선입선출(FIFO) 실천 수위`,
+          guidance: `- 표준 작업 이행률 및 입구/출구 현장 체화 리스크 관리 상태 진단`,
+          findings: p === 'DP' && proc === 'Building' ? "그린타이어 선입선출 물리적 가이드라인 실사 미흡 적발" : "현장 표준 대비 95% 이상 준수 이행 중",
+          score: p === 'DP' && proc === 'Curing' ? "5" : (scoreVal - 1 > 3 ? scoreVal - 1 : 8).toString()
+        });
+      });
+    });
+
+    console.log(`✅ Loaded fallbacks: ${this.state.auditChecklists.length} checklists, ${this.state.documentLibrary.length} documents, ${this.state.auditFindings.length} findings.`);
+    
+    // 데이터 로딩 성공 후, 나머지 초기화 과정 재실행
+    this.initLocalFilters();
+    this.preProcessData();
+    this.initLibraryTab();
+    this.loadAuditPlanningData();
+    this.loadPlantRiskActionData();
+    
+    // 대시보드 및 첫 화면 렌더링
+    this.renderDashboard();
+    
+    // 토스트 알림 노출
+    this.showToast("모의(Mock) 데이터셋이 정상 활성화되었습니다. 모든 메뉴를 100% 체험하실 수 있습니다.", "success");
   },
 
   // 🛠️ 대시보드 및 라이브러리 로컬 필터 바 동적 생성
