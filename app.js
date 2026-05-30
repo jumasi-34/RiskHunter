@@ -1242,7 +1242,7 @@ const app = {
       let timelineHTML = `<div class="milestone-timeline" style="position: relative; padding-left: 32px; display: flex; flex-direction: column; gap: 24px;">`;
       
       // 세로 은은한 그라데이션 라인
-      timelineHTML += `<div style="position: absolute; top: 8px; left: 11px; width: 2px; height: calc(100% - 16px); background: linear-gradient(180deg, #00c8ff, var(--border-card) 70%, rgba(255,255,255,0.05)); z-index: 0;"></div>`;
+      timelineHTML += `<div style="position: absolute; top: 8px; left: 11px; width: 2px; height: calc(100% - 16px); background: linear-gradient(180deg, var(--brand-blue), var(--border-card) 70%, #e2e8f0); z-index: 0;"></div>`;
 
       milestones.forEach(m => {
         // 이 마일스톤에 속한 태스크 분석
@@ -1254,16 +1254,16 @@ const app = {
         const isCurrentActive = m.key === activeMilestoneKey;
         const isAllDone = mPercent === 100;
 
-        // 노드 상태 클래스 결정
+        // 노드 상태 결정
         let nodeClass = "pending";
-        let nodeStyle = "background: rgba(15, 23, 42, 0.9); border: 2px solid var(--border-card); color: var(--text-muted);";
+        let nodeStyle = "background: #f1f5f9; border: 2px solid var(--border-card); color: var(--text-muted-light);";
         
         if (isAllDone) {
           nodeClass = "completed";
           nodeStyle = "background: #10b981; border: 2px solid #059669; color: white;";
         } else if (isCurrentActive) {
           nodeClass = "active";
-          nodeStyle = "background: #00c8ff; border: 2px solid #0284c7; color: white; box-shadow: 0 0 12px #00c8ff;";
+          nodeStyle = "background: var(--brand-blue); border: 2px solid var(--brand-blue-hover); color: white; box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);";
         }
 
         const iconHTML = isAllDone 
@@ -1278,16 +1278,16 @@ const app = {
             </div>
 
             <!-- 마일스톤 내용 카드 -->
-            <div class="card-solid milestone-card ${isCurrentActive ? 'active-glow' : ''}" style="background: rgba(255, 255, 255, ${isCurrentActive ? '0.04' : '0.02'}); border: 1px solid ${isCurrentActive ? 'rgba(0, 200, 255, 0.25)' : 'rgba(255, 255, 255, 0.05)'}; padding: 14px 18px; border-radius: 8px; transition: all 0.2s ease-in-out;">
+            <div class="card-solid milestone-card ${isCurrentActive ? 'active-glow' : ''}" style="background: #ffffff; border: 1px solid ${isCurrentActive ? 'var(--brand-blue)' : 'var(--border-card)'}; box-shadow: ${isCurrentActive ? 'var(--shadow-md)' : 'var(--shadow-sm)'}; padding: 14px 18px; border-radius: 8px; transition: all 0.2s ease-in-out;">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 6px;">
                 <div>
-                  <span style="font-size: 11px; font-weight: 800; font-family: monospace; color: ${isCurrentActive ? '#00c8ff' : 'var(--text-secondary)'}; text-transform: uppercase;">
+                  <span style="font-size: 11px; font-weight: 800; font-family: monospace; color: ${isCurrentActive ? 'var(--brand-blue)' : 'var(--text-muted-light)'}; text-transform: uppercase;">
                     ${m.key} ${isCurrentActive ? '• 현재 실행 마일스톤' : ''}
                   </span>
-                  <h4 style="font-size: 13.5px; font-weight: 700; color: var(--text-light); margin: 2px 0 0 0;">${m.title}</h4>
+                  <h4 style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin: 2px 0 0 0;">${m.title}</h4>
                 </div>
                 <div style="text-align: right;">
-                  <span style="font-size: 11px; font-weight: 700; font-family: monospace; color: ${isAllDone ? '#10b981' : (isCurrentActive ? '#00c8ff' : 'var(--text-muted)')}; background: ${isAllDone ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.03)'}; border: 1px solid ${isAllDone ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)'}; padding: 2px 8px; border-radius: 4px;">
+                  <span style="font-size: 11px; font-weight: 700; font-family: monospace; color: ${isAllDone ? '#10b981' : (isCurrentActive ? 'var(--brand-blue)' : 'var(--text-muted-light)')}; background: ${isAllDone ? 'var(--bg-status-low)' : '#f1f5f9'}; border: 1px solid ${isAllDone ? 'var(--border-status-low)' : 'var(--border-card)'}; padding: 2px 8px; border-radius: 4px;">
                     ${mPercent}% (${mCompleted}/${mTotal})
                   </span>
                 </div>
@@ -1295,8 +1295,8 @@ const app = {
               <p style="font-size: 12px; color: var(--text-secondary); margin: 0 0 8px 0; line-height: 1.5; font-weight: 500;">${m.desc}</p>
               
               <!-- 쁘띠 미니 프로그레스바 -->
-              <div style="width: 100%; height: 3px; background: rgba(255,255,255,0.03); border-radius: 1.5px; overflow: hidden; border: 1px solid rgba(255,255,255,0.02);">
-                <div style="width: ${mPercent}%; height: 100%; background: ${isAllDone ? '#10b981' : 'linear-gradient(90deg, #3b82f6, #00c8ff)'}; transition: width 0.3s ease;"></div>
+              <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden; border: 1px solid var(--border-card);">
+                <div style="width: ${mPercent}%; height: 100%; background: ${isAllDone ? '#10b981' : 'linear-gradient(90deg, #3b82f6, var(--brand-blue))'}; transition: width 0.3s ease;"></div>
               </div>
             </div>
           </div>
@@ -1313,7 +1313,7 @@ const app = {
       let tableHTML = `
         <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12.5px;">
           <thead>
-            <tr style="border-bottom: 1px solid var(--border-card); background: rgba(255,255,255,0.01);">
+            <tr style="border-bottom: 1px solid var(--border-card); background: #f8fafc;">
               <th style="padding: 10px 12px; text-align: left; width: 70px; color: var(--text-secondary); font-weight: 700;">단계</th>
               <th style="padding: 10px 12px; text-align: left; color: var(--text-secondary); font-weight: 700;">검증 준비 과제</th>
               <th style="padding: 10px 12px; text-align: left; color: var(--text-secondary); font-weight: 700; width: 42%;">세부 검증 설명</th>
@@ -1330,29 +1330,29 @@ const app = {
         let statusBadge = "";
         let rowStyle = "";
         if (state === "completed") {
-          statusBadge = `<span class="badge" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); color: #10b981; font-weight: 700; display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px;">완료</span>`;
+          statusBadge = `<span class="badge" style="background: var(--bg-status-low); border: 1px solid var(--border-status-low); color: var(--text-status-low); font-weight: 700; display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px;">완료</span>`;
           rowStyle = "opacity: 0.85; background: rgba(16, 185, 129, 0.01);";
         } else if (state === "in_progress") {
-          statusBadge = `<span class="badge" style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); color: #3b82f6; font-weight: 700; display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; animation: pulse-blue 1.5s infinite;">진행 중</span>`;
+          statusBadge = `<span class="badge" style="background: var(--bg-status-info); border: 1px solid var(--border-status-info); color: var(--text-status-info); font-weight: 700; display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; animation: pulse-blue 1.5s infinite;">진행 중</span>`;
           rowStyle = "background: rgba(59, 130, 246, 0.01);";
         } else {
-          statusBadge = `<span class="badge" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-secondary); font-weight: 600; display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px;">대기</span>`;
+          statusBadge = `<span class="badge" style="background: #f1f5f9; border: 1px solid var(--border-card); color: var(--text-muted-light); font-weight: 600; display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px;">대기</span>`;
         }
 
         // 지연(Delayed) 여부에 따라 행 테두리나 텍스트 컬러 강조
         let delayBadgeHTML = "";
         const milestoneDays = parseInt(task.milestone.replace("D-", "")) || 0;
         if (state === "pending" && diffDays <= milestoneDays) {
-          delayBadgeHTML = `<span style="margin-left: 6px; font-size: 10px; font-weight: 700; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; padding: 1px 4px; border-radius: 3px; vertical-align: middle;">지연 위험</span>`;
+          delayBadgeHTML = `<span style="margin-left: 6px; font-size: 10px; font-weight: 700; background: var(--bg-status-high); border: 1px solid var(--border-status-high); color: var(--text-status-high); padding: 1px 4px; border-radius: 3px; vertical-align: middle;">지연 위험</span>`;
         }
 
         tableHTML += `
-          <tr style="border-bottom: 1px solid rgba(255,255,255,0.03); ${rowStyle} transition: background 0.15s;">
+          <tr style="border-bottom: 1px solid var(--border-card); ${rowStyle} transition: background 0.15s;">
             <!-- 마일스톤 기준일 -->
             <td style="padding: 12px; font-family: monospace; font-weight: 800; color: var(--brand-blue);">${task.milestone}</td>
             
             <!-- 태스크 제목 -->
-            <td style="padding: 12px; font-weight: 700; color: var(--text-light); line-height: 1.4;">
+            <td style="padding: 12px; font-weight: 700; color: var(--text-primary); line-height: 1.4;">
               <div style="display: flex; align-items: center; flex-wrap: wrap;">
                 <span>${task.title}</span>
                 ${delayBadgeHTML}
@@ -1367,7 +1367,7 @@ const app = {
             
             <!-- 상태 전환 버튼 -->
             <td style="padding: 12px; text-align: center;">
-              <button class="btn-toggle-task" data-id="${task.id}" style="padding: 5px 10px; font-size: 11px; font-weight: 700; border-radius: 4px; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border-card); background: rgba(255,255,255,0.03); color: var(--text-primary); display: inline-flex; align-items: center; gap: 4px;">
+              <button class="btn-toggle-task" data-id="${task.id}" style="padding: 5px 10px; font-size: 11px; font-weight: 700; border-radius: 4px; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border-card); background: #ffffff; color: var(--text-primary); display: inline-flex; align-items: center; gap: 4px;">
                 <i data-lucide="refresh-cw" style="width: 10px; height: 10px;"></i>
                 <span>전환</span>
               </button>
@@ -4088,7 +4088,7 @@ const app = {
       table.style.cssText = 'width: 100%; border-collapse: collapse; font-size: 12px;';
       table.innerHTML = `
         <thead>
-          <tr style="border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.015); position: sticky; top: 0; z-index: 10;">
+          <tr style="border-bottom: 1px solid var(--border-card); background: #f8fafc; position: sticky; top: 0; z-index: 10;">
             <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 100px;">공정</th>
             <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 150px;">체크 요건 (항목)</th>
             <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 60px; text-align: center;">점수</th>
