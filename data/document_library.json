@@ -1553,7 +1553,7 @@
   {
     "id": 38,
     "filename": "Ford-IATF-CSR_June-2025-Release-FINAL.pdf",
-    "customer": "Ford-IATF-CSR",
+    "customer": "Ford",
     "doc_code": "June-2025-Release-FINAL",
     "doc_name": "Ford-IATF-CSR_June-2025-Release-FINAL",
     "revision_date": "N/A",
@@ -1595,7 +1595,7 @@
   {
     "id": 39,
     "filename": "Ford-Specifics-for-PPAP_Jan-2025-FINAL.pdf",
-    "customer": "Ford-Specifics-for-PPAP",
+    "customer": "Ford",
     "doc_code": "Jan-2025-FINAL",
     "doc_name": "Ford-Specifics-for-PPAP_Jan-2025-FINAL",
     "revision_date": "N/A",

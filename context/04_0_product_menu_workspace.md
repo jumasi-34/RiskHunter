@@ -115,7 +115,6 @@ MP 공정 선택 ➔ '가류기 압력 기록 오차' 지적사항(Open 상태) 
 *   **상단 통합 지식 서브 탭 컨트롤러 (Sub-Tabs)**:
     - **[Sub-Tab 1] Full Checklist Library**: 전사 공통 마스터 체크리스트 탐색 그리드. 우측 상단에 **[CSV 다운로드]** 단추 배치.
     - **[Sub-Tab 2] Customer Requirements Library**: BMW, Audi, Hyundai 등 완성차 OEM별 최신 규격 문서 리스트 및 AI 요약본 슬라이드인 패널.
-    - **[Sub-Tab 3] Requirement Mapping**: OEM 요구 규격 조항과 우리 공정 내부 SOP, 체크리스트 항목이 기하학적으로 연계된 맵핑 매트릭스 뷰.
 
 ### ② 화면 기능 구성 (Features)
 *   **한글 깨짐 방지 UTF-8 BOM (UTF-8-SIG) 내보내기**: Full Checklist CSV Export 시, 한글이 깨지지 않고 엑셀에서 완벽히 인코딩되어 열리도록 BOM 마커 바인딩을 보장합니다.

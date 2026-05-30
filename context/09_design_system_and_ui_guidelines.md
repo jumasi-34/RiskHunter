@@ -159,7 +159,7 @@ graph TD
 | 🛡️ OE Audit Copilot                                         [ 사용 가이드 | Action ] |
 +------------------+--------------------------------------------------------------+
 |                  |  (Top Dynamic Filter Panel)                                  |
-|  [ SIDEBAR ]     |  [ Factory Select ]  [ Target OEM ]  [ Audit Date Selector ] |
+|  [ SIDEBAR ]     |  [ Plant Select ]  [ Target OEM ]  [ Audit Date Selector ]   |
 |                  +--------------------------------------------------------------+
 |  - Workspace     |  (KPI Metrics Dashboard Rows)                                |
 |  - Risk Audit    |  [ KPI Card 1 ]   [ KPI Card 2 ]   [ KPI Card 3 ]   [ KPI 4 ]|
@@ -320,7 +320,7 @@ graph TD
 
 ### ③ Self-Audit Checklist (현장 맞춤형 체크리스트 / 스마트 체크리스트)
 *   **핵심 비주얼**: 상단 4열 통합 AI 분석 요약 보드, 퀵 공정 전환 탭바, 라이브 검색어 인풋 창, 준비 인디케이터 배지와 AI Risk 등급 뱃지가 박힌 프리미엄 테이블, 우측 상세 수검 증빙 패널(Detail Drawer).
-*   **상단 AI 분석 요약 보드 (Factory Smart Summary Board)**:
+*   **상단 AI 분석 요약 보드 (Plant Smart Summary Board)**:
     1.  **1열: 대상 OEM 프로필 카드**: 정방형 박스 안에 깔끔한 연그레이 아웃라인 테두리 안에 GM 등 OEM 로고 및 타이틀/서브타이틀(`GM Audit`, `Global Quality Audit`) 배치.
     2.  **2열: 주요 감사 Focus Area (AI 분석)**: AI가 도출한 핵심 검토 집중 영역 5단계 리스트를 정갈한 붉은색 원 번호 마커(`➊` ~ `➎`)와 함께 제공. (Change Management, Layered Process Audit, Traceability & Identification, SPC & Process Control, Corrective Action Effectiveness)
     3.  **3열: 공장 Risk 요약 (AI 분석)**: 실시간 리스크 동향 지표 제공 (OE Claim Trend 상승 배지, PPM Trend 상승 배지, RR Trend 주의 배지, 4M 변경 건수 8건, 미완료 조치 건수 5건).
@@ -350,6 +350,19 @@ graph TD
     *   **중앙 태스크 상세 리스트**: 수검 업무들을 트리형 구조로 배치. 담당자명(예: 박정호, 이수진, 최민수, 김지훈), 기한, 완료 상태 및 60%, 70% 등 완성도에 상응하는 플랫 가로 진척률 바 연동.
 *   **우측 선택 태스크 상세 패널 (Task Action Detail Drawer)**:
     *   중앙 태스크 행을 클릭 시 슬라이드인되는 패널. 기한 `2025-02-04 (D-14)` 레드 표시, 유저 아바타가 있는 담당자 표시, GM CSR 메타 칩 뱃지, 증빙 체크리스트(Change Approval, Validation Report 등 완료 체크), 연보라 배경의 AI 경고 코멘트 박스 및 아웃라인 버튼(`증빙 등록`, `담당자에게 알림`) 배치.
+
+### ⑦ Plant Risk & Action / AI Custom Audit (공장별 리스크 대응 및 맞춤형 자체 감사)
+*   **핵심 비주얼**: 서브탭 3 전용 필터 컨트롤러 바, 11대 공정 리본 단추 바, 다크 슬레이트 고대비 분석 노티스 배너, 10열 정밀 연계 테이블 그리드, 종단 확장형 어드바이스 패널.
+*   **전용 필터 컨트롤 및 리셋 인터랙션**:
+    *   시작일 및 종료일 입력필드는 디폴트 `''` (빈 스트링)으로 세팅하여 날짜 선택기 플레이스홀더를 노출합니다.
+    *   고객사 드롭다운 디폴트를 `'ALL'` (전체 고객사), 실사 목적 드롭다운 디폴트를 `'ALL'` (전체 목적)으로 지정합니다.
+    *   리셋 버튼 클릭 시 모든 필터값이 이 기본값으로 부드럽게 무지연 초기화 환원됩니다.
+*   **고대비 분석 알림 배너 (Notice Banner)**:
+    *   배경은 럭셔리 다크 슬레이트 분위기(`background: rgba(15, 23, 42, 0.94)`), 테두리는 왼쪽만 포인트 색상(`border-left: 4px solid #0ea5e9`), 글자색은 고대비 화이트(`#ffffff`)로 매핑하여 WCAG 2.1 AA 명도 대비(10:1 이상) 요건을 완벽하게 만족합니다.
+    *   본공장 실적(`localCount`), 타공장 벤치마킹(`otherCount`), 전체 분석 건수(`totalCount`)의 실시간 통계 숫자가 배너 내에 동적으로 명확하게 표출됩니다.
+*   **테이블 그리드 10열 연계 명세 및 상태 변경**:
+    *   컬럼은 반드시 `구분 (TYPE)`, `공장 (PLANT)`, `고객사 (OEM)`, `차종 (VEHICLE)`, `발생일 (OCC DATE)`, `조치예정일 (TARGET DATE)`, `지적 사항 (POINT OUT)`, `원인 분석 및 대책 (ROOT CAUSE & COUNTERMEASURE)`, `상태 (STATUS)`, `E-QMS LINK` 10개 열 순서로 결합합니다.
+    *   `상태 (STATUS)` 열 내의 뱃지 클릭 시 즉시 종결 및 재개 처리되는 클릭 핸들러가 탑재되며, 상태 뱃지 글자색은 WCAG AA AA 기준에 부합하게끔 HSL 레드(`#b91c1c`, On-going) 및 그린(`#15803d`, Closed)의 충분한 고대비 명도를 유지합니다.
 
 ---
 
