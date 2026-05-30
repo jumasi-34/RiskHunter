@@ -934,6 +934,97 @@ const app = {
   initAuditPlanning() {
     console.log("📅 Initializing Audit Planning Tab...");
     
+    // 대상 공장 필터 목록 동적 로드
+    const filterPlant = document.getElementById('planning-filter-plant');
+    if (filterPlant && this.state.commonCodes?.plants) {
+      filterPlant.innerHTML = '';
+      const allOpt = document.createElement('option');
+      allOpt.value = 'ALL';
+      allOpt.textContent = '전체 공장 (ALL)';
+      filterPlant.appendChild(allOpt);
+      
+      const activePlants = this.state.commonCodes.plants.filter(p => p.is_active && p.code !== 'ALL');
+      activePlants.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.code;
+        opt.textContent = `${p.name} (${p.code})`;
+        filterPlant.appendChild(opt);
+      });
+    }
+
+    // 완성차 고객사 필터 목록 동적 로드
+    const filterCustomer = document.getElementById('planning-filter-customer');
+    if (filterCustomer) {
+      filterCustomer.innerHTML = '';
+      const allOpt = document.createElement('option');
+      allOpt.value = 'ALL';
+      allOpt.textContent = '전체 고객사 (ALL)';
+      filterCustomer.appendChild(allOpt);
+      
+      const customerSet = new Set();
+      this.state.audits.forEach(a => {
+        if (a.customer) customerSet.add(a.customer.trim());
+      });
+      if (this.state.documentLibrary) {
+        this.state.documentLibrary.forEach(doc => {
+          if (doc.customer && doc.customer.trim()) customerSet.add(doc.customer.trim());
+        });
+      }
+      Array.from(customerSet).sort().forEach(cust => {
+        const opt = document.createElement('option');
+        opt.value = cust;
+        opt.textContent = cust;
+        filterCustomer.appendChild(opt);
+      });
+    }
+
+    // 조회 버튼 클릭 필터링 이벤트 등록
+    const btnSearch = document.getElementById('btn-planning-filter-search');
+    if (btnSearch) {
+      btnSearch.onclick = () => {
+        const selectedPlant = document.getElementById('planning-filter-plant')?.value || 'ALL';
+        const selectedCustomer = document.getElementById('planning-filter-customer')?.value || 'ALL';
+        const selectedType = document.getElementById('planning-filter-audit-type')?.value || 'ALL';
+        
+        const filteredAudits = this.state.audits.filter(audit => {
+          const matchPlant = selectedPlant === 'ALL' || audit.plantCode === selectedPlant;
+          const matchCustomer = selectedCustomer === 'ALL' || audit.customer === selectedCustomer;
+          const matchType = selectedType === 'ALL' || (audit.type || 'Project') === selectedType;
+          return matchPlant && matchCustomer && matchType;
+        });
+        
+        const selectNode = document.getElementById('planning-audit-select');
+        if (selectNode) {
+          selectNode.innerHTML = '';
+          if (filteredAudits.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = '조건에 맞는 일정이 없습니다.';
+            selectNode.appendChild(opt);
+            this.state.selectedAuditId = null;
+          } else {
+            filteredAudits.forEach(audit => {
+              const opt = document.createElement('option');
+              opt.value = audit.id;
+              opt.textContent = `${audit.title} (${audit.date})`;
+              if (audit.id === this.state.selectedAuditId) {
+                opt.selected = true;
+              }
+              selectNode.appendChild(opt);
+            });
+            
+            if (!filteredAudits.some(a => a.id === this.state.selectedAuditId)) {
+              this.state.selectedAuditId = filteredAudits[0].id;
+              localStorage.setItem('riskhunter_selected_audit_id', filteredAudits[0].id);
+            }
+          }
+        }
+        
+        this.renderPlanningScreen();
+        this.showToast("선택된 필터 조건으로 감사 일정이 필터링되었습니다.", "success");
+      };
+    }
+
     // 드롭다운 셀렉터 세팅
     const selectNode = document.getElementById('planning-audit-select');
     if (selectNode) {
@@ -1081,6 +1172,54 @@ const app = {
     const audit = this.state.audits.find(a => a.id === this.state.selectedAuditId);
     if (!audit) {
       console.warn("No active audit schedule found.");
+      
+      // Update monitoring headers to placeholder values when no audit is matched (Safety design)
+      const circularProgressBar = document.getElementById('circular-progress-bar');
+      if (circularProgressBar) circularProgressBar.style.strokeDashoffset = '163.36';
+      
+      const circularProgressText = document.getElementById('circular-progress-text');
+      if (circularProgressText) circularProgressText.textContent = "0%";
+      
+      const leftSummaryText = document.getElementById('left-summary-text');
+      if (leftSummaryText) leftSummaryText.innerHTML = "조회 조건에 부합하는 일정이 없습니다.";
+      
+      const ddayValNode = document.getElementById('planning-kpi-dday') || document.getElementById('panel-kpi-dday');
+      if (ddayValNode) {
+        ddayValNode.textContent = "-";
+        ddayValNode.style.color = "var(--text-secondary)";
+      }
+      
+      const totalValNode = document.getElementById('planning-kpi-total') || document.getElementById('panel-kpi-total');
+      if (totalValNode) totalValNode.textContent = "-";
+      
+      const completedValNode = document.getElementById('planning-kpi-completed') || document.getElementById('panel-kpi-completed');
+      if (completedValNode) completedValNode.textContent = "-";
+      
+      const progressValNode = document.getElementById('planning-kpi-progress') || document.getElementById('panel-kpi-progress');
+      if (progressValNode) progressValNode.textContent = "-";
+      
+      const delayedValNode = document.getElementById('planning-kpi-delayed') || document.getElementById('panel-kpi-delayed');
+      if (delayedValNode) {
+        delayedValNode.textContent = "-";
+        delayedValNode.style.color = "var(--text-secondary)";
+      }
+      
+      const targetBadgeNode = document.getElementById('planning-target-badge');
+      if (targetBadgeNode) targetBadgeNode.textContent = "등록된 감사 일정 없음";
+      
+      const subTabs = ['timeline', 'calendar', 'checklist'];
+      subTabs.forEach(tab => {
+        const pane = document.getElementById(`subtab-planning-${tab}`);
+        if (pane) {
+          pane.innerHTML = `
+            <div style="padding: 40px; text-align: center; color: var(--text-muted-light); font-weight: 500;">
+              <i data-lucide="info" style="width: 24px; height: 24px; display: block; margin: 0 auto 10px auto; color: var(--text-muted-light);"></i>
+              해당하는 감사 일정이 없습니다. 상단에서 필터를 조정하거나 신규 감사 일정을 등록해 주십시오.
+            </div>
+          `;
+        }
+      });
+      if (typeof lucide !== 'undefined') lucide.createIcons();
       return;
     }
 
@@ -1120,12 +1259,9 @@ const app = {
         inProgressCount++;
       }
 
-      // 지연(Delayed) 판단 조건:
-      // D-Day가 많이 부족한 상태(예: 10일 이하)에서 여전히 대기(pending) 상태인 테스크
-      // 혹은 특정 시점 마일스톤에 부합하지 못하는 미비 사항
+      // 지연(Delayed) 판단 조건
       if (state === "pending") {
         const milestoneDays = parseInt(task.milestone.replace("D-", "")) || 0;
-        // 남은 일수가 해당 마일스톤 기준일보다 작으면 지연된 것으로 고도의 품질 일정 계산
         if (diffDays <= milestoneDays) {
           delayedCount++;
         }
@@ -1134,38 +1270,101 @@ const app = {
 
     const completionRate = totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
 
-    // [3] KPI 카드 바인딩
-    const ddayValNode = document.getElementById('planning-kpi-dday');
-    const ddaySubNode = document.getElementById('planning-kpi-dday-sub');
+    // [3] KPI 카드 바인딩 및 실시간 감사 준비 현황 모니터링 계기판 정밀 반영
+    
+    // (1) 원형 게이지 및 왼쪽 요약 텍스트
+    const circularProgressBar = document.getElementById('circular-progress-bar');
+    if (circularProgressBar) {
+      const circumference = 163.36;
+      const offset = circumference - (completionRate / 100) * circumference;
+      circularProgressBar.style.strokeDashoffset = offset;
+    }
+    
+    const circularProgressText = document.getElementById('circular-progress-text');
+    if (circularProgressText) {
+      circularProgressText.textContent = `${completionRate.toFixed(0)}%`;
+    }
+    
+    const leftSummaryText = document.getElementById('left-summary-text');
+    if (leftSummaryText) {
+      leftSummaryText.innerHTML = `총 <strong>${totalTasks}</strong>개 중 <strong>${completedCount}</strong>개 완료 (${completionRate.toFixed(0)}%)`;
+    }
+    
+    // (2) 디테일 인포 2x2 카드 영역
+    const infoOem = document.getElementById('info-oem');
+    if (infoOem) {
+      infoOem.textContent = audit.customer || '-';
+      infoOem.title = audit.customer || '';
+    }
+    
+    const infoPlant = document.getElementById('info-plant');
+    if (infoPlant) {
+      const plantObj = (this.state.commonCodes?.plants || []).find(p => p.code === audit.plantCode);
+      const plantName = plantObj ? plantObj.name : audit.plantCode;
+      infoPlant.textContent = plantName || '-';
+      infoPlant.title = plantName || '';
+    }
+    
+    const infoDate = document.getElementById('info-date');
+    if (infoDate) {
+      infoDate.textContent = audit.date || '-';
+    }
+    
+    const infoType = document.getElementById('info-type');
+    if (infoType) {
+      const selectedType = document.getElementById('planning-filter-audit-type')?.value || audit.type || 'Project';
+      infoType.textContent = selectedType === 'Project' ? 'Project (제조공정)' : 'System (시스템)';
+    }
+    
+    // (3) 모니터링 활성 프로젝트 배지
+    const monitoringBadge = document.getElementById('monitoring-badge');
+    if (monitoringBadge) {
+      monitoringBadge.textContent = audit.project || '전사 신규 품질 실사';
+    }
+
+    // (4) 우측 5대 가로 KPI 카드들 바인딩 (planning- 및 panel- 양방향 바인딩 지원으로 정합성 극대화)
+    const ddayValNode = document.getElementById('planning-kpi-dday') || document.getElementById('panel-kpi-dday');
+    const ddaySubNode = document.getElementById('planning-kpi-dday-sub') || document.getElementById('panel-kpi-dday-sub');
     if (ddayValNode && ddaySubNode) {
-      ddayValNode.innerHTML = `<span class="kpi-val ${dDayClass}" style="font-size: 32px; font-weight: 800; font-family: monospace;">${dDayText}</span>`;
-      ddaySubNode.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted-light);">수검 확정일: <strong>${audit.date}</strong></span>`;
+      ddayValNode.textContent = dDayText;
+      if (diffDays <= 7 && diffDays >= 0) {
+        ddayValNode.style.color = '#ef4444';
+        ddayValNode.classList.add('blink');
+      } else if (diffDays < 0) {
+        ddayValNode.style.color = '#64748b';
+        ddayValNode.classList.remove('blink');
+      } else {
+        ddayValNode.style.color = 'var(--brand-blue)';
+        ddayValNode.classList.remove('blink');
+      }
+      ddaySubNode.innerHTML = `심사일: <strong>${audit.date}</strong>`;
     }
 
-    const totalValNode = document.getElementById('planning-kpi-total');
+    const totalValNode = document.getElementById('planning-kpi-total') || document.getElementById('panel-kpi-total');
     if (totalValNode) {
-      totalValNode.innerHTML = `<span class="kpi-val" style="font-size: 32px; font-weight: 800; font-family: monospace;">${totalTasks}</span><span style="font-size: 13px; color: var(--text-secondary); margin-left: 4px;">개</span>`;
+      totalValNode.textContent = totalTasks;
     }
 
-    const completedValNode = document.getElementById('planning-kpi-completed');
-    const completedSubNode = document.getElementById('planning-kpi-completed-sub');
+    const completedValNode = document.getElementById('planning-kpi-completed') || document.getElementById('panel-kpi-completed');
+    const completedSubNode = document.getElementById('planning-kpi-completed-sub') || document.getElementById('panel-kpi-completed-sub');
     if (completedValNode && completedSubNode) {
-      completedValNode.innerHTML = `<span class="kpi-val" style="font-size: 32px; font-weight: 800; color: #10b981; font-family: monospace;">${completedCount}</span><span style="font-size: 13px; color: var(--text-secondary); margin-left: 4px;">개</span>`;
-      completedSubNode.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted-light);">대비 달성율: <strong style="color: #10b981;">${completionRate.toFixed(0)}%</strong></span>`;
+      completedValNode.textContent = completedCount;
+      completedSubNode.innerHTML = `대비 달성율: <strong style="color: #10b981;">${completionRate.toFixed(0)}%</strong>`;
     }
 
-    const progressValNode = document.getElementById('planning-kpi-progress');
-    const progressSubNode = document.getElementById('planning-kpi-progress-sub');
+    const progressValNode = document.getElementById('planning-kpi-progress') || document.getElementById('panel-kpi-progress');
+    const progressSubNode = document.getElementById('planning-kpi-progress-sub') || document.getElementById('panel-kpi-progress-sub');
     if (progressValNode && progressSubNode) {
-      progressValNode.innerHTML = `<span class="kpi-val" style="font-size: 32px; font-weight: 800; color: #3b82f6; font-family: monospace;">${inProgressCount}</span><span style="font-size: 13px; color: var(--text-secondary); margin-left: 4px;">개</span>`;
-      progressSubNode.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted-light);">부서 조치 및 검토 단계</span>`;
+      progressValNode.textContent = inProgressCount;
+      progressSubNode.innerHTML = `대기/미시작: <strong>${totalTasks - completedCount - inProgressCount}</strong>개`;
     }
 
-    const delayedValNode = document.getElementById('planning-kpi-delayed');
-    const delayedSubNode = document.getElementById('planning-kpi-delayed-sub');
+    const delayedValNode = document.getElementById('planning-kpi-delayed') || document.getElementById('panel-kpi-delayed');
+    const delayedSubNode = document.getElementById('planning-kpi-delayed-sub') || document.getElementById('panel-kpi-delayed-sub');
     if (delayedValNode && delayedSubNode) {
-      delayedValNode.innerHTML = `<span class="kpi-val" style="font-size: 32px; font-weight: 800; color: ${delayedCount > 0 ? '#ef4444' : 'var(--text-muted-light)'}; font-family: monospace;">${delayedCount}</span><span style="font-size: 13px; color: var(--text-secondary); margin-left: 4px;">개</span>`;
-      delayedSubNode.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted-light);">${delayedCount > 0 ? '<strong style="color: #ef4444;">조치 지연 리스크 감지</strong>' : '일정 지연 없음 (양호)'}</span>`;
+      delayedValNode.textContent = delayedCount;
+      delayedValNode.style.color = delayedCount > 0 ? '#ef4444' : 'var(--text-muted-light)';
+      delayedSubNode.innerHTML = delayedCount > 0 ? '<strong style="color: #ef4444;">조치 지연 리스크 감지</strong>' : '일정 지연 없음 (양호)';
     }
 
     // [4] 타겟 정보 뱃지 및 카드 헤더 동기화
@@ -1517,6 +1716,7 @@ const app = {
     }
 
     // 2. 신규 감사 오브젝트 구성
+    const auditType = document.getElementById('modal-audit-type')?.value || 'Project';
     const newId = "audit_" + (Date.now()); // 안전한 타임스탬프 ID
     const newAudit = {
       id: newId,
@@ -1524,6 +1724,7 @@ const app = {
       plantCode: plant,
       customer: customer,
       date: date,
+      type: auditType, // Audit Type 저장
       leadAuditor: lead,
       project: project || "전사 신규 품질 실사",
       desc: desc || "정적 MVP 기반 수검 계획 등록"

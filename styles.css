@@ -729,8 +729,10 @@ body {
   display: grid;
   grid-template-columns: 1fr;
   position: relative;
-  overflow: hidden;
-  height: calc(100vh - 350px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: calc(100vh - 460px);
+  min-height: 350px;
 }
 
 .checklist-main-panel {
