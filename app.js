@@ -819,6 +819,7 @@ const app = {
         date: "2026-06-15",
         leadAuditor: "박정호 수석",
         project: "G60 EV LCI",
+        type: "VDA 6.3 Process Audit",
         desc: "VDA 6.3 정기 품질 프로세스 심사 - 전 공정 (배합, 압출, 성형, 가류)"
       },
       {
@@ -829,6 +830,7 @@ const app = {
         date: "2026-06-25",
         leadAuditor: "이현우 책임",
         project: "PPE Platform SUV",
+        type: "IATF 16949 Standard Audit",
         desc: "신규 완성차 장착용 고성능 타이어 공급선 특수공정 심사"
       },
       {
@@ -839,6 +841,7 @@ const app = {
         date: "2026-06-08",
         leadAuditor: "박정호 수석",
         project: "Lyriq EV",
+        type: "GM QSB+ Quality Audit",
         desc: "북미향 전기차 전용 타이어 흡음재(Form) 공정 및 완성도 감사"
       }
     ];
@@ -1312,8 +1315,14 @@ const app = {
     
     const infoType = document.getElementById('info-type');
     if (infoType) {
-      const selectedType = document.getElementById('planning-filter-audit-type')?.value || audit.type || 'Project';
-      infoType.textContent = selectedType === 'Project' ? 'Project (제조공정)' : 'System (시스템)';
+      const selectedType = audit.type || 'Project';
+      if (selectedType === 'Project') {
+        infoType.textContent = 'Project (제조공정)';
+      } else if (selectedType === 'System') {
+        infoType.textContent = 'System (시스템)';
+      } else {
+        infoType.textContent = selectedType;
+      }
     }
     
     // (3) 모니터링 활성 프로젝트 배지
@@ -2282,7 +2291,7 @@ const app = {
     this.logAction(null, `체크리스트 과제 배정 변경 (과제: ${taskId}, 감사 ID: ${auditId})`, 'action');
     
     // UI 동시 리프레시
-    this.renderChecklistTab();
+    this.renderPlanningScreen();
   },
 
   // [7] 체크리스트 서브탭 진행 상태 토글 핸들러
@@ -2308,7 +2317,7 @@ const app = {
     this.state.planningChecklistStates[auditId][taskId] = nextState;
     localStorage.setItem('riskhunter_checklist_states', JSON.stringify(this.state.planningChecklistStates));
 
-    this.renderChecklistTab();
+    this.renderPlanningScreen();
   },
 
   // [8] ASM-01-EN-OE 감사 기준 스케줄러 자동 계산 및 기본 배정 수립
@@ -2372,7 +2381,7 @@ const app = {
     localStorage.setItem('riskhunter_planning_task_assignments', JSON.stringify(this.state.planningTaskAssignments));
     localStorage.setItem('riskhunter_checklist_states', JSON.stringify(this.state.planningChecklistStates));
 
-    this.renderChecklistTab();
+    this.renderPlanningScreen();
     this.showToast("ASM-01-EN-OE 감사 가이드라인 기준 일정이 자동 생성 및 배정되었습니다!", "success");
     this.logAction(null, `감사 준비 태스크 자동 역산 매핑 실행 (감사 ID: ${auditId})`, 'action');
   },
@@ -2515,7 +2524,7 @@ const app = {
         localStorage.setItem('riskhunter_planning_task_assignments', JSON.stringify(this.state.planningTaskAssignments));
         localStorage.setItem('riskhunter_checklist_states', JSON.stringify(this.state.planningChecklistStates));
         
-        this.renderChecklistTab();
+        this.renderPlanningScreen();
         this.showToast(`CSV 파싱 성실 통과! 총 ${updateCount}개 계획 항목의 담당자 및 상태가 동기화되었습니다.`, "success");
         this.logAction(null, `계획 체크리스트 CSV 일괄 가져오기 (감사 ID: ${auditId}, 반영: ${updateCount}건)`, 'action');
       } else {

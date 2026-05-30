@@ -2203,6 +2203,87 @@ body {
   background: rgba(37, 99, 237, 0.05) !important;
 }
 
+/* ==========================================================================
+   📅 [메뉴 02] Audit Planning 위 고정 & 프리미엄 다크 슬레이트 블루 테마 (WCAG 2.1 AA)
+   ========================================================================== */
+
+.sticky-planning-header {
+  position: sticky;
+  top: -32px;
+  z-index: 100;
+  background: var(--bg-app, #f8fafc);
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+/* 다크 슬레이트 블루 대시보드 (Premium High-Contrast Theme) */
+#tab-audit-planning .monitoring-dashboard-card {
+  background: #0f172a !important; /* 고대비 슬레이트 블랙 */
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f8fafc !important; /* 고대비 밝은 텍스트 */
+  border-radius: var(--radius-card, 12px) !important;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#tab-audit-planning .monitoring-dashboard-card .left-boundary {
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 2x2 디테일 그리드 내 개별 정보 카드 */
+#tab-audit-planning .monitoring-dashboard-card .detail-info-block {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 6px !important;
+  color: #f1f5f9 !important;
+}
+
+#tab-audit-planning .monitoring-dashboard-card .detail-info-title {
+  color: #94a3b8 !important; /* WCAG AA 만족용 회색 */
+  font-weight: 700 !important;
+}
+
+/* 5대 KPI 가로 카드들 */
+#tab-audit-planning .monitoring-dashboard-card .kpi-sub-card {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-radius: 8px !important;
+  padding: 12px 10px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  text-align: center !important;
+  transition: all 0.25s ease !important;
+}
+
+#tab-audit-planning .monitoring-dashboard-card .kpi-sub-card:hover {
+  transform: translateY(-2px) !important;
+  background: rgba(255, 255, 255, 0.09) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
+}
+
+#tab-audit-planning .monitoring-dashboard-card .kpi-sub-card .kpi-title {
+  font-size: 10px !important;
+  color: #cbd5e1 !important; /* 고대비 연그레이 */
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.02em !important;
+}
+
+#tab-audit-planning .monitoring-dashboard-card .kpi-sub-card .kpi-value {
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  font-family: monospace !important;
+}
+
+#tab-audit-planning .monitoring-dashboard-card .kpi-sub-card .kpi-sub-text {
+  font-size: 9px !important;
+  color: #94a3b8 !important; /* 가독성 높은 그레이 */
+}
+
+
 
 
 
