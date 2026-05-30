@@ -42,8 +42,8 @@
 ## 🧮 3. 실시간 리스크 연산 및 가중치 데이터 정합성 검증 (Risk Matrix Integrity)
 
 *   **동적 리스크 점수 합산 공식 준수**:
-    *   공장별 공정 카테고리의 리스크 가중치 산출 공식:
-        $$\text{Plant Risk Score} = \text{Clamp}\Big( (\text{QI Count} \times 0.3) + (\text{4M Change Count} \times 0.1) + (\text{Audit Findings Count} \times 0.2), \; 0.0, \; 5.0 \Big)$$
+    *   공장별 공정 카테고리의 리스크 가중치 산출 공식 (4-Way):
+        $$\text{Plant Risk Score} = \text{Clamp}\Big( (\text{QI Count} \times 0.3) + (\text{4M Change Count} \times 0.1) + (\text{Audit Findings Count} \times 0.2) + (\text{Internal Audit Count} \times 0.15), \; 0.0, \; 5.0 \Big)$$
     *   위 공식이 자바스크립트 상에서 소수점 첫째 자리까지 정확하게 계산되고 필터 변경 시 무지연(Real-time) 리렌더링될 것.
 *   **위험도 연계 동적 뱃지 노출**:
     *   도출된 리스크 점수가 **3.5점**을 초과하는 행이나 카드는 강렬한 경고 뱃지(`High` / Red)와 보더라인 하이라이트가 누락 없이 트리거될 것.

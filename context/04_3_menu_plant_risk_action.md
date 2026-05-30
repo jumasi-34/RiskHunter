@@ -2,7 +2,7 @@
 
 본 문서는 글로벌 완성차 OEM 품질 요구사항 수행 리스크를 사전에 예방하기 위해 구축된 **3. Plant Risk & Action (글로벌 완성차 OEM 품질 통합 관리 플랫폼)**의 시스템 아키텍처, 핵심 계산 로직, UI/UX 디자인 시스템, 데이터 파이프라인 및 기능 구조를 총망라하여 기술하는 공식 통합 명세서입니다. 
 
-동료가 작성한 **`RH1 Dashboard Technical Manual`**의 100% 세부 스펙(Tab 1: Integrated Risk Compass, Tab 2: OE Quality System Level, Tab 3: AI Custom Audit 및 PowerShell 데이터 컴파일러)을 수용하며, 이 모든 핵심 분석 화면들이 3번 메뉴 내부에 **3중 서브 탭 시스템 및 백엔드 파이프라인 규정**으로 안전하고 완벽하게 합치되도록 정의합니다.
+동료가 작성한 **`RH1 Dashboard Technical Manual`**의 100% 세부 스펙(Tab 1: Integrated Risk Compass, Tab 2: OE Quality System Level, Tab 3: AI Custom Audit 및 클라이언트 가상 데이터 컴파일러)을 수용하며, 이 모든 핵심 분석 화면들이 3번 메뉴 내부에 **3중 서브 탭 시스템 및 브라우저 클라이언트 데이터 파이프라인 규정**으로 안전하고 완벽하게 합치되도록 정의합니다.
 
 ---
 
@@ -248,42 +248,39 @@ $$\text{CRI} = 0.4 \times (100 - \text{System Level}) + 0.3 \times (100 - \text{
 대형 데이터베이스 연동과 대용량 데이터 전송에 의한 네트워크 지연 요인을 제거하고 모바일 태블릿, 폐쇄망 공장 PC 등 어떠한 특수 보안 환경에서도 0.1초 이내에 로딩 및 즉각 연산이 보장되도록 오프라인 단일 파일 아키텍처(Standalone Local Embedded Architecture)를 취합니다.
 
 ### ① 고성능 임베디드 데이터 구조
-`oe_system_map`의 260개 마스터 기준, `oe_quality_assessment_details`의 1,512개 전수 점수 정보, `customer_audits`의 완성차 지적 내역, 그리고 `documents` 표준 매뉴얼 등 수천 행의 엔터프라이즈급 원본 레코드 테이블들을 하나의 자바스크립트 구조체(`RH1_dashboard_data.js`)로 압축 직렬화하여 파일 내부에 직접 내장하거나, 브라우저 가동 시 비동기 fetch API 엔진을 통해 순차 로드 상주시키는 방식을 취합니다.
+`oe_system_map`의 260개 마스터 기준, `oe_quality_assessment_details`의 1,512개 전수 점수 정보, `customer_audits`의 완성차 지적 내역, 그리고 `documents` 표준 매뉴얼 등 수천 행의 엔터프라이즈급 원본 레코드 테이블들을 브라우저 가동 시 비동기 fetch API 엔진을 통해 로딩 및 파싱하여 클라이언트 인메모리에 상주시키는 방식을 취합니다.
 
-### ② winsqlite3.dll 연동 C# 고속 빌더 (`build_data_rh1.ps1` 사양)
-로컬 윈도우 환경에 별도의 SQLite 엔진 설치 없이도 윈도우 시스템 기본 라이브러리인 `winsqlite3.dll`을 P/Invoke 방식으로 결합 호출하는 고성능 C# 래퍼 코드가 PowerShell 파이프라인 컴파일 엔진 내부용으로 설계되었습니다.
-1.  **P/Invoke 선언 및 DLL 바인딩**: C# 스크립트는 `winsqlite3.dll`의 표준 API 함수(`sqlite3_open16`, `sqlite3_prepare16_v2`, `sqlite3_step`, `sqlite3_column_count`, `sqlite3_column_name`, `sqlite3_column_text`, `sqlite3_column_type` 등)를 참조하며, Unicode(Hangeul) 호스트 및 시스템 세팅에서 문자가 왜곡되지 않도록 `CharSet = CharSet.Unicode` 및 UTF-8 바이트 어레이 포인터 수동 디코딩 구조체 함수(`UTF8PtrToString`)를 명시 구현하였습니다.
-2.  **다중 테이블 초고속 일괄 질의**: `database.db` 파일로부터 다음 8개 핵심 테이블 데이터를 실시간 고속 인출합니다:
+### ② 브라우저 기반 가상 데이터 엔진 (Virtual Client-Side Database Spec)
+로컬 파일 샌드박스 보안 규격에 부합하도록 물리 데이터베이스 라이브러리 및 PowerShell 컴파일러 의존성을 완전히 배제하고, 순수 바닐라 자바스크립트 내장 배열 제어와 비동기 Fetch 파이프라인으로 구성된 가상 클라이언트 데이터 엔진을 채택합니다.
+1.  **비동기 병렬 파일 Fetch**: 브라우저 로딩 시 `data/` 디렉토리에 적재된 여러 정적 리소스 JSON 파일들을 `Promise.all()` 구조로 고속 병렬 호출하여 렌더링 블로킹을 원천 차단합니다.
+2.  **가상 관계형 조인 및 메모리 상주**: 가져온 독립 데이터셋을 가상 기본키/외래키 기반으로 메모리 상에서 실시간 맵핑하여 가상 데이터 모델을 즉각 구조화합니다.
     *   `documents` (686개 마스터 감사 기준서 원천)
     *   `audit_checklists` (체크리스트 질문 요건 세부 사항)
     *   `customer_audit` (완성차 OEM 실제 오딧 지적 이력)
-    *   `chage_management` (공장별 4M 변경 이력)
+    *   `change_management` (공장별 4M 변경 이력)
     *   `quality_issue` (품질 불만 및 클레임 위기 원천)
     *   `oe_system_map` (인프라 구축도 원천 데이터)
     *   `oe_quality_assessment_summary` (실사 결과 오행 평가 요약 데이터)
     *   `oe_quality_assessment_details` (실사 상세 득점 및 지적 사항 데이터)
-3.  **JSON 정규화 직렬화 및 자동 인젝션**: 완성된 대용량 데이터 구조체는 `RH1_dashboard_data.js` 파일로 출력 저장되는 것과 동시에, `RH1 Dashboard.html` 및 `dashboard.html` 본문 소스 내의 정적 `<script>` 태그 영역을 정규식 매칭기(`(?s)<script>\s*/\*\*\s*\* AUTOMATICALLY GENERATED DATABASE EXPORT.*?</script>`)로 식별하여 **실시간 핫 인젝션(Direct Inline Hot Injection)** 방식으로 직접 업데이트 주입 구동됩니다.
+3.  **데이터 영속성 및 동적 업데이트**: 브라우저 로컬 저장소(`localStorage`)를 가상 트랜잭션 레이어로 활용하여, 사용자가 화면상에서 지적사항을 등록하거나 조치 여부를 토글할 때 원본 데이터를 보호하면서 오프라인 영속성을 증명합니다.
 
 ---
 
 ## 🧭 6. 플랫폼 구동 및 데이터 업데이트 매뉴얼 (Operations & Data Update Guide)
 
-실무자가 복잡한 개발 인프라 없이도 품질 정보를 정밀 수시 업데이트할 수 있도록 초간편 1-클릭 실행 환경을 제공합니다.
+실무자가 복잡한 개발 인프라나 환경설정 없이도 품질 정보를 정밀 수시 업데이트할 수 있도록 초간편 1-클릭 실행 환경을 제공합니다.
 
 ### ① 데이터베이스 구조 가이드 (Database Schema Map)
-업데이트 시 참고해야 하는 `database.db` 내 핵심 3대 테이블 구조와 레코드는 다음과 같습니다:
+업데이트 시 참고해야 하는 정적 JSON 리소스 내 핵심 3대 데이터셋 구조는 다음과 같습니다:
 1.  **`oe_system_map`**: 공장별 10대 공정의 260개 인프라 구축 점수 (0~3점 및 N/A)를 기입합니다.
 2.  **`oe_quality_assessment_details`**: 사내 현장 실사 진단의 상세 지적 문항, 득점(0~10점), 권고 가이드 등을 저장합니다.
 3.  **`customer_audit`**: 실제 완성차 OEM 오딧의 지적 내용(`point_out`), 분석 원인(`root_cause_analysis`), 조치 대책(`counter_measure`), 진행 상태(`status`)를 기록합니다.
 
-### ② 1-클릭 초고속 컴파일 가이드 (Update Step-by-Step)
-데이터 수치가 새로 등록되거나 품질 클레임이 변동될 시, 다음 단계에 의거하여 즉각 플랫폼에 동기화할 수 있습니다:
-1.  **데이터 편집**: SQLite DB 편집기로 `database.db`에 접속하여 추가되거나 변경된 품질 실사 기록, 공정 체크리스트, 또는 클레임 내역을 업데이트하고 저장(Write Changes)합니다.
-2.  **배치 컴파일러 실행**: 윈도우 탐색기에서 `C:\Users\HANTA\Desktop\gemini\Run_Data_Build.bat`를 마우스 우클릭하여 **'관리자 권한으로 실행'** 하거나, PowerShell 콘솔에서 아래 스크립트를 입력 실행합니다:
-    ```powershell
-    powershell -ExecutionPolicy Bypass -File C:\Users\HANTA\Desktop\gemini\build_data_rh1.ps1
-    ```
-3.  **대시보드 구동**: 갱신 완료된 `RH1 Dashboard.html`을 웹 브라우저(Chrome, Edge 등)에서 더블 클릭으로 구동하여 최신 분석 수치 및 벤치마킹 데이터가 반영된 실시간 인터랙티브 대시보드를 시청각 검증합니다.
+### ② 무설정 구동 가이드 (Zero-Configuration Guide)
+데이터 수치가 새로 등록되거나 품질 클레임이 변동될 시, 복잡한 커맨드나 빌드 도구 없이 즉각 플랫폼에 동기화할 수 있습니다:
+1.  **데이터 편집**: `data/` 폴더 하위의 리소스 JSON 파일들을 간편한 텍스트 에디터로 편집 및 업데이트한 후 저장합니다.
+2.  **새로고침 및 실시간 반영**: 편집 후 브라우저 화면에서 **'새로고침(F5)'** 버튼만 클릭하면, 비동기 파이프라인이 최신 데이터를 고속 인출하여 대시보드 및 지표 카드를 즉각 갱신합니다.
+3.  **대시보드 검증**: 갱신 완료된 플랫폼을 브라우저(Chrome, Edge 등)에서 즉각 확인하고, 사이드바 글로벌 필터와의 동적 연계 여부 및 실시간 상태 뱃지 변경을 시청각 검증합니다.
 
 ---
 

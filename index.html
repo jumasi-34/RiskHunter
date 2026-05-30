@@ -368,45 +368,45 @@
           </button>
         </div>
 
-        <!-- 🌌 실시간 감사 준비 현황 모니터링 계기판 (Premium Dark Theme Board) -->
-        <div class="monitoring-dashboard-card" style="background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 20px; margin-bottom: 20px; color: #f8fafc; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.3);">
+        <!-- ⬜ 실시간 감사 준비 현황 모니터링 계기판 (Premium Light Solid Board) -->
+        <div class="monitoring-dashboard-card card-solid" style="background: var(--bg-card, #ffffff); border: 1px solid var(--border-card, #e2e8f0); border-radius: 12px; padding: 24px; margin-bottom: 25px; color: var(--text-primary, #0f172a); box-shadow: var(--shadow-md);">
           <div style="display: grid; grid-template-columns: 1fr 2.2fr; gap: 24px; min-height: 200px;">
             
             <!-- 왼쪽 영역 (준비율 원형 게이지 + 요약 및 디테일 인포) -->
-            <div style="border-right: 1px solid rgba(255, 255, 255, 0.08); padding-right: 20px; display: flex; flex-direction: column; justify-content: space-between; gap: 15px;">
+            <div style="border-right: 1px solid var(--border-card, #e2e8f0); padding-right: 20px; display: flex; flex-direction: column; justify-content: space-between; gap: 15px;">
               <div style="display: flex; align-items: center; gap: 15px;">
                 <!-- 원형 게이지 -->
                 <div style="position: relative; width: 64px; height: 60px; display: flex; align-items: center; justify-content: center;">
                   <svg style="width: 60px; height: 60px; transform: rotate(-90deg);">
-                    <circle cx="30" cy="30" r="26" stroke="rgba(255, 255, 255, 0.05)" stroke-width="4" fill="transparent"></circle>
-                    <circle id="circular-progress-bar" cx="30" cy="30" r="26" stroke="#00c8ff" stroke-width="4" fill="transparent" stroke-dasharray="163.36" stroke-dashoffset="163.36" style="transition: stroke-dashoffset 0.3s ease;"></circle>
+                    <circle cx="30" cy="30" r="26" stroke="#f1f5f9" stroke-width="4" fill="transparent"></circle>
+                    <circle id="circular-progress-bar" cx="30" cy="30" r="26" stroke="var(--brand-blue, #2563eb)" stroke-width="4" fill="transparent" stroke-dasharray="163.36" stroke-dashoffset="163.36" style="transition: stroke-dashoffset 0.3s ease;"></circle>
                   </svg>
-                  <span id="circular-progress-text" style="position: absolute; font-size: 14px; font-weight: 800; font-family: monospace; color: #00c8ff;">0%</span>
+                  <span id="circular-progress-text" style="position: absolute; font-size: 14px; font-weight: 800; font-family: monospace; color: var(--brand-blue, #2563eb);">0%</span>
                 </div>
                 
                 <div>
-                  <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase;">수검 전체 준비율 (READINESS)</div>
-                  <div id="left-summary-text" style="font-size: 12.5px; font-weight: 700; color: #e2e8f0; margin-top: 2px;">총 10개 중 0개 완료 (0%)</div>
+                  <div style="font-size: 11px; font-weight: 800; color: var(--text-muted-light, #64748b); text-transform: uppercase;">수검 전체 준비율 (READINESS)</div>
+                  <div id="left-summary-text" style="font-size: 13px; font-weight: 700; color: var(--text-primary, #0f172a); margin-top: 2px;">총 10개 중 0개 완료 (0%)</div>
                 </div>
               </div>
               
               <!-- 그 아래 2x2 디테일 인포 -->
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <div style="display: flex; flex-direction: column; gap: 2px;">
-                  <span style="font-size: 10px; color: #64748b; font-weight: 700;">완성차 OEM</span>
-                  <div id="info-oem" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
+                  <span style="font-size: 10px; color: var(--text-muted-light, #64748b); font-weight: 700;">완성차 OEM</span>
+                  <div id="info-oem" style="background: #f1f5f9; border: 1px solid var(--border-card, #e2e8f0); padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; color: var(--text-primary, #0f172a); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 2px;">
-                  <span style="font-size: 10px; color: #64748b; font-weight: 700;">대상 공장</span>
-                  <div id="info-plant" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
+                  <span style="font-size: 10px; color: var(--text-muted-light, #64748b); font-weight: 700;">대상 공장</span>
+                  <div id="info-plant" style="background: #f1f5f9; border: 1px solid var(--border-card, #e2e8f0); padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; color: var(--text-primary, #0f172a); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 2px;">
-                  <span style="font-size: 10px; color: #64748b; font-weight: 700;">감사 일정</span>
-                  <div id="info-date" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; color: #f8fafc; font-family: monospace;">-</div>
+                  <span style="font-size: 10px; color: var(--text-muted-light, #64748b); font-weight: 700;">감사 일정</span>
+                  <div id="info-date" style="background: #f1f5f9; border: 1px solid var(--border-card, #e2e8f0); padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; color: var(--text-primary, #0f172a); font-family: monospace;">-</div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 2px;">
-                  <span style="font-size: 10px; color: #64748b; font-weight: 700;">Audit 감사 종류</span>
-                  <div id="info-type" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
+                  <span style="font-size: 10px; color: var(--text-muted-light, #64748b); font-weight: 700;">Audit 감사 종류</span>
+                  <div id="info-type" style="background: #f1f5f9; border: 1px solid var(--border-card, #e2e8f0); padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; color: var(--text-primary, #0f172a); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
                 </div>
               </div>
             </div>
@@ -414,11 +414,11 @@
             <!-- 오른쪽 영역 (헤더 + 5개 실시간 KPI 가로 카드들) -->
             <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 15px;">
               <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 13px; font-weight: 800; color: #e2e8f0; display: flex; align-items: center; gap: 6px;">
-                  <i data-lucide="activity" style="color: #00c8ff; width: 14px; height: 14px;"></i>
+                <span style="font-size: 13px; font-weight: 800; color: var(--text-primary, #0f172a); display: flex; align-items: center; gap: 6px;">
+                  <i data-lucide="activity" style="color: var(--brand-blue, #2563eb); width: 14px; height: 14px;"></i>
                   실시간 감사 준비 현황 모니터링 계기판
                 </span>
-                <div id="monitoring-badge" style="background: #2563eb; color: white; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; font-family: 'Inter', sans-serif;">
+                <div id="monitoring-badge" style="background: var(--brand-blue, #2563eb); color: white; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; font-family: 'Inter', sans-serif;">
                   -
                 </div>
               </div>
@@ -426,34 +426,34 @@
               <!-- 5개 가로 KPI 카드들 -->
               <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; flex-grow: 1;">
                 <!-- D-DAY -->
-                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
-                  <span style="font-size: 10px; color: #94a3b8; font-weight: 700;">D-DAY</span>
-                  <div id="panel-kpi-dday" style="font-size: 20px; font-weight: 800; color: #3b82f6; font-family: monospace;">-</div>
-                  <span id="panel-kpi-dday-sub" style="font-size: 9px; color: #64748b;">심사일: -</span>
+                <div style="background: #f8fafc; border: 1px solid var(--border-card, #e2e8f0); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
+                  <span style="font-size: 10px; color: var(--text-muted-light, #64748b); font-weight: 700;">D-DAY</span>
+                  <div id="panel-kpi-dday" style="font-size: 20px; font-weight: 800; color: var(--brand-blue, #2563eb); font-family: monospace;">-</div>
+                  <span id="panel-kpi-dday-sub" style="font-size: 9px; color: var(--text-muted-light, #64748b);">심사일: -</span>
                 </div>
                 <!-- 전체 항목 수 -->
-                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
-                  <span style="font-size: 10px; color: #94a3b8; font-weight: 700;">전체 항목 수</span>
-                  <div id="panel-kpi-total" style="font-size: 20px; font-weight: 800; color: #cbd5e1; font-family: monospace;">-</div>
-                  <span style="font-size: 9px; color: #64748b;">준비 과제 수량</span>
+                <div style="background: #f8fafc; border: 1px solid var(--border-card, #e2e8f0); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
+                  <span style="font-size: 10px; color: var(--text-muted-light, #64748b); font-weight: 700;">전체 항목 수</span>
+                  <div id="panel-kpi-total" style="font-size: 20px; font-weight: 800; color: var(--text-primary, #0f172a); font-family: monospace;">-</div>
+                  <span style="font-size: 9px; color: var(--text-muted-light, #64748b);">준비 과제 수량</span>
                 </div>
                 <!-- 완료 -->
-                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
-                  <span style="font-size: 10px; color: #94a3b8; font-weight: 700;">완료</span>
-                  <div id="panel-kpi-completed" style="font-size: 20px; font-weight: 800; color: #10b981; font-family: monospace;">-</div>
-                  <span id="panel-kpi-completed-sub" style="font-size: 9px; color: #64748b;">준비 달성률: -</span>
+                <div style="background: #f8fafc; border: 1px solid var(--border-card, #e2e8f0); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
+                  <span style="font-size: 10px; color: var(--text-muted-light, #64748b); font-weight: 700;">완료</span>
+                  <div id="panel-kpi-completed" style="font-size: 20px; font-weight: 800; color: var(--text-status-low, #15803d); font-family: monospace;">-</div>
+                  <span id="panel-kpi-completed-sub" style="font-size: 9px; color: var(--text-muted-light, #64748b);">준비 달성률: -</span>
                 </div>
                 <!-- 진행중 / 대기 -->
-                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
-                  <span style="font-size: 10px; color: #94a3b8; font-weight: 700;">진행중 / 대기</span>
-                  <div id="panel-kpi-progress" style="font-size: 20px; font-weight: 800; color: #3b82f6; font-family: monospace;">-</div>
-                  <span id="panel-kpi-progress-sub" style="font-size: 9px; color: #64748b;">대기/미기작: -</span>
+                <div style="background: #f8fafc; border: 1px solid var(--border-card, #e2e8f0); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
+                  <span style="font-size: 10px; color: var(--text-muted-light, #64748b); font-weight: 700;">진행중 / 대기</span>
+                  <div id="panel-kpi-progress" style="font-size: 20px; font-weight: 800; color: var(--text-status-info, #1d4ed8); font-family: monospace;">-</div>
+                  <span id="panel-kpi-progress-sub" style="font-size: 9px; color: var(--text-muted-light, #64748b);">대기/미시작: -</span>
                 </div>
                 <!-- 지연 -->
-                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
-                  <span style="font-size: 10px; color: #94a3b8; font-weight: 700;">지연</span>
-                  <div id="panel-kpi-delayed" style="font-size: 20px; font-weight: 800; color: #ef4444; font-family: monospace;">-</div>
-                  <span id="panel-kpi-delayed-sub" style="font-size: 9px; color: #ef4444; font-weight: 700;">일정 초과 리스크 감지</span>
+                <div style="background: #f8fafc; border: 1px solid var(--border-card, #e2e8f0); border-radius: 6px; padding: 12px 10px; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
+                  <span style="font-size: 10px; color: var(--text-muted-light, #64748b); font-weight: 700;">지연</span>
+                  <div id="panel-kpi-delayed" style="font-size: 20px; font-weight: 800; color: var(--text-status-high, #b91c1c); font-family: monospace;">-</div>
+                  <span id="panel-kpi-delayed-sub" style="font-size: 9px; color: var(--text-status-high, #b91c1c); font-weight: 700;">일정 초과 리스크 감지</span>
                 </div>
               </div>
             </div>
@@ -1688,20 +1688,20 @@
   </div>
   
   <!-- 🔐 권한 제한 안내 모달 -->
-  <div id="permission-modal" class="modal-overlay hidden">
-    <div class="modal-content card-solid border-danger">
-      <div class="modal-header">
-        <h3 class="text-danger flex-row align-center gap-8">
-          <i data-lucide="lock" style="color: var(--danger-red);"></i>
-          <span>메뉴 접근 권한 제한</span>
+  <div id="permission-modal" class="modal-overlay white-modal hidden">
+    <div class="modal-content card-solid" style="max-width: 450px; border: 1px solid var(--border-card); border-left: 6px solid var(--color-status-high) !important;">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 15px; margin-bottom: 15px;">
+        <h3 class="flex-row align-center gap-8" style="font-size: 16px; font-weight: 700; color: var(--text-status-high, #b91c1c); display: flex; align-items: center; gap: 8px; margin: 0;">
+          <i data-lucide="lock" style="color: var(--color-status-high); width: 18px; height: 18px;"></i>
+          <span>메뉴 접근 권한 제한 (Access Restricted)</span>
         </h3>
       </div>
-      <div class="modal-body">
-        <p class="text-primary font-semibold" style="margin-bottom: 12px;" id="permission-modal-title">선택하신 메뉴는 현재 권한에서 접근할 수 없습니다.</p>
-        <p class="text-secondary" id="permission-modal-desc">해당 기능을 사용하시려면 상위 권한 이상의 계정으로 역할을 전환해 주십시오.</p>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px; padding: 10px 0;">
+        <p class="font-semibold" style="margin-bottom: 4px; font-size: 14px; color: var(--text-primary, #0f172a);" id="permission-modal-title">선택하신 메뉴는 현재 권한에서 접근할 수 없습니다.</p>
+        <p style="font-size: 13px; color: var(--text-secondary, #475569); line-height: 1.5;" id="permission-modal-desc">해당 기능을 사용하시려면 상위 권한 이상의 계정으로 역할을 전환해 주십시오.</p>
       </div>
-      <div class="modal-footer flex-right">
-        <button class="btn btn-primary" id="btn-close-permission-modal">확인</button>
+      <div class="modal-footer flex-right" style="display: flex; justify-content: flex-end; border-top: 1px solid var(--border-card); padding-top: 15px; margin-top: 15px;">
+        <button class="btn btn-primary" id="btn-close-permission-modal" style="font-size: 13px; font-weight: 700; background: var(--brand-blue); border: none; cursor: pointer; padding: 8px 16px; border-radius: 6px; color: white;">확인</button>
       </div>
     </div>
   </div>
@@ -1777,36 +1777,36 @@
   </div>
   
   <!-- 👥 신규 사용자 등록 모달 -->
-  <div id="user-registration-modal" class="modal-overlay hidden">
-    <div class="modal-content card-solid" style="max-width: 450px; border: 1px solid var(--border-card); background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
-      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-card); padding-bottom: 15px; margin-bottom: 15px;">
-        <h3 class="flex-row align-center gap-8" style="font-size: 16px; font-weight: 700; color: var(--text-light); display: flex; align-items: center; gap: 8px; margin: 0;">
+  <div id="user-registration-modal" class="modal-overlay white-modal hidden">
+    <div class="modal-content card-solid" style="max-width: 450px; border: 1px solid var(--border-card);">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 15px; margin-bottom: 15px;">
+        <h3 class="flex-row align-center gap-8" style="font-size: 16px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; margin: 0;">
           <i data-lucide="user-plus" style="color: var(--brand-blue); width: 18px; height: 18px;"></i>
           <span>신규 사용자 등록 (Add Auditor)</span>
         </h3>
-        <button id="btn-close-user-modal" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center;"><i data-lucide="x" style="width: 18px; height: 18px;"></i></button>
+        <button id="btn-close-user-modal" style="background: transparent; border: none; color: #64748b; cursor: pointer; display: flex; align-items: center;"><i data-lucide="x" style="width: 18px; height: 18px;"></i></button>
       </div>
       <div class="modal-body" style="display: flex; flex-direction: column; gap: 15px;">
         <div style="display: flex; flex-direction: column; gap: 6px;">
-          <label style="font-size: 12px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">사용자 이름</label>
-          <input type="text" id="modal-user-name" class="chat-input" style="width: 100%; font-size: 13px; padding: 8px 12px;" placeholder="예: 김철수 대리">
+          <label style="font-size: 12px; color: var(--text-muted-light, #64748b); font-weight: 700; text-transform: uppercase;">사용자 이름</label>
+          <input type="text" id="modal-user-name" class="chat-input" style="width: 100%; font-size: 13px; padding: 8px 12px; background: #ffffff; color: #0f172a; border: 1px solid var(--border-card);" placeholder="예: 김철수 대리">
         </div>
         <div style="display: flex; flex-direction: column; gap: 6px;">
-          <label style="font-size: 12px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">소속 부서</label>
-          <input type="text" id="modal-user-dept" class="chat-input" style="width: 100%; font-size: 13px; padding: 8px 12px;" placeholder="예: 품질보증팀">
+          <label style="font-size: 12px; color: var(--text-muted-light, #64748b); font-weight: 700; text-transform: uppercase;">소속 부서</label>
+          <input type="text" id="modal-user-dept" class="chat-input" style="width: 100%; font-size: 13px; padding: 8px 12px; background: #ffffff; color: #0f172a; border: 1px solid var(--border-card);" placeholder="예: 품질보증팀">
         </div>
         <div style="display: flex; gap: 12px;">
           <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
-            <label style="font-size: 12px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">사용자 역할 (Role)</label>
-            <select id="modal-user-role" class="filter-select" style="width: 100%; font-size: 13px; padding: 8px 12px; background: rgba(255,255,255,0.05); color: var(--text-primary); cursor: pointer; border: 1px solid var(--border-card); border-radius: 6px; outline: none; appearance: none; height: 38px;">
+            <label style="font-size: 12px; color: var(--text-muted-light, #64748b); font-weight: 700; text-transform: uppercase;">사용자 역할 (Role)</label>
+            <select id="modal-user-role" class="filter-select" style="width: 100%; font-size: 13px; padding: 8px 12px; background: #ffffff; color: #0f172a; cursor: pointer; border: 1px solid var(--border-card); border-radius: 6px; outline: none; height: 38px;">
               <option value="admin">Lead Auditor (ADMIN)</option>
               <option value="manager">Quality Manager (MANAGER)</option>
               <option value="viewer">Quality Viewer (VIEWER)</option>
             </select>
           </div>
           <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
-            <label style="font-size: 12px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">계정 상태 (Status)</label>
-            <select id="modal-user-status" class="filter-select" style="width: 100%; font-size: 13px; padding: 8px 12px; background: rgba(255,255,255,0.05); color: var(--text-primary); cursor: pointer; border: 1px solid var(--border-card); border-radius: 6px; outline: none; appearance: none; height: 38px;">
+            <label style="font-size: 12px; color: var(--text-muted-light, #64748b); font-weight: 700; text-transform: uppercase;">계정 상태 (Status)</label>
+            <select id="modal-user-status" class="filter-select" style="width: 100%; font-size: 13px; padding: 8px 12px; background: #ffffff; color: #0f172a; cursor: pointer; border: 1px solid var(--border-card); border-radius: 6px; outline: none; height: 38px;">
               <option value="Active">Active (활성)</option>
               <option value="Inactive">Inactive (비활성)</option>
             </select>
@@ -1814,18 +1814,18 @@
         </div>
         <div style="display: flex; gap: 12px;">
           <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
-            <label style="font-size: 12px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">로그인 ID</label>
-            <input type="text" id="modal-user-username" class="chat-input" style="width: 100%; font-size: 13px; padding: 8px 12px;" placeholder="예: chulsoo.kim">
+            <label style="font-size: 12px; color: var(--text-muted-light, #64748b); font-weight: 700; text-transform: uppercase;">로그인 ID</label>
+            <input type="text" id="modal-user-username" class="chat-input" style="width: 100%; font-size: 13px; padding: 8px 12px; background: #ffffff; color: #0f172a; border: 1px solid var(--border-card);" placeholder="예: chulsoo.kim">
           </div>
           <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
-            <label style="font-size: 12px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">비밀번호</label>
-            <input type="password" id="modal-user-password" class="chat-input" style="width: 100%; font-size: 13px; padding: 8px 12px;" placeholder="••••••••">
+            <label style="font-size: 12px; color: var(--text-muted-light, #64748b); font-weight: 700; text-transform: uppercase;">비밀번호</label>
+            <input type="password" id="modal-user-password" class="chat-input" style="width: 100%; font-size: 13px; padding: 8px 12px; background: #ffffff; color: #0f172a; border: 1px solid var(--border-card);" placeholder="••••••••">
           </div>
         </div>
       </div>
       <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border-card); padding-top: 15px; margin-top: 15px;">
         <button id="btn-cancel-user-modal" class="btn btn-outline" style="font-size: 13px; border: 1px solid var(--border-card); background: transparent; color: var(--text-primary); cursor: pointer; padding: 8px 16px; border-radius: 6px;">취소</button>
-        <button id="btn-save-user-modal" class="btn btn-primary" style="font-size: 13px; font-weight: 700; background: linear-gradient(135deg, #00c8ff, #3b82f6); border: none; cursor: pointer; padding: 8px 16px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0, 200, 255, 0.2);">사용자 등록</button>
+        <button id="btn-save-user-modal" class="btn btn-primary" style="font-size: 13px; font-weight: 700; background: var(--brand-blue); border: none; cursor: pointer; padding: 8px 16px; border-radius: 6px; color: white;">사용자 등록</button>
       </div>
     </div>
   </div>
