@@ -317,116 +317,116 @@
         <!-- 📌 상단 위 고정 영역 컨테이너 시작 (위 고정 설계 구현) -->
         <div class="sticky-planning-header">
           <!-- ⚙️ 상단 공장/OEM/유형 정밀 필터 바 -->
-          <div class="card-solid" style="margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap; padding: 12px 20px; background: #ffffff; border: 1px solid var(--border-card);">
-            <div style="display: flex; align-items: center; gap: 15px; flex: 1; flex-wrap: wrap;">
+          <div class="card-solid" style="margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 8px 16px; background: #ffffff; border: 1px solid var(--border-card);">
+            <div style="display: flex; align-items: center; gap: 12px; flex: 1; flex-wrap: wrap;">
               <!-- 대상 공장 -->
-              <div style="display: flex; flex-direction: column; gap: 4px; min-width: 180px; flex: 1;">
-                <span style="font-size: 11px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
-                  <i data-lucide="factory" style="width: 12px; height: 12px; color: var(--brand-blue);"></i> 대상 공장
+              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 160px; flex: 1;">
+                <span style="font-size: 10.5px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
+                  <i data-lucide="factory" style="width: 11px; height: 11px; color: var(--brand-blue);"></i> 대상 공장
                 </span>
-                <select id="planning-filter-plant" class="filter-select" style="width: 100%; font-size: 13px; font-weight: 700; height: 38px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; outline: none; padding: 0 10px;">
+                <select id="planning-filter-plant" class="filter-select" style="width: 100%; font-size: 12.5px; font-weight: 700; height: 34px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; outline: none; padding: 0 8px;">
                   <!-- JS에서 동적으로 plants 목록 로딩 -->
                 </select>
               </div>
               <!-- 완성차 고객사 -->
-              <div style="display: flex; flex-direction: column; gap: 4px; min-width: 180px; flex: 1;">
-                <span style="font-size: 11px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
-                  <i data-lucide="car" style="width: 12px; height: 12px; color: var(--brand-blue);"></i> 완성차 고객사 (OEM)
+              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 160px; flex: 1;">
+                <span style="font-size: 10.5px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
+                  <i data-lucide="car" style="width: 11px; height: 11px; color: var(--brand-blue);"></i> 완성차 고객사 (OEM)
                 </span>
-                <select id="planning-filter-customer" class="filter-select" style="width: 100%; font-size: 13px; font-weight: 700; height: 38px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; outline: none; padding: 0 10px;">
+                <select id="planning-filter-customer" class="filter-select" style="width: 100%; font-size: 12.5px; font-weight: 700; height: 34px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; outline: none; padding: 0 8px;">
                   <!-- JS에서 동적으로 OEM 목록 로딩 -->
                 </select>
               </div>
               <!-- AUDIT TYPE -->
-              <div style="display: flex; flex-direction: column; gap: 4px; min-width: 180px; flex: 1;">
-                <span style="font-size: 11px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
-                  <i data-lucide="settings" style="width: 12px; height: 12px; color: var(--brand-blue);"></i> AUDIT TYPE
+              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 160px; flex: 1;">
+                <span style="font-size: 10.5px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
+                  <i data-lucide="settings" style="width: 11px; height: 11px; color: var(--brand-blue);"></i> AUDIT TYPE
                 </span>
-                <select id="planning-filter-audit-type" class="filter-select" style="width: 100%; font-size: 13px; font-weight: 700; height: 38px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; outline: none; padding: 0 10px;">
+                <select id="planning-filter-audit-type" class="filter-select" style="width: 100%; font-size: 12.5px; font-weight: 700; height: 34px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; outline: none; padding: 0 8px;">
                   <option value="Project">Project</option>
                   <option value="System">System</option>
                 </select>
               </div>
             </div>
-            <button id="btn-planning-filter-search" class="btn btn-primary" style="height: 38px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; background: #2563eb; border: none; padding: 0 20px; border-radius: 6px; box-shadow: 0 4px 12px rgba(37, 99, 237, 0.2); color: #ffffff; cursor: pointer;">
-              <i data-lucide="search" style="width: 14px; height: 14px;"></i> 조회
+            <button id="btn-planning-filter-search" class="btn btn-primary" style="height: 34px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; background: #2563eb; border: none; padding: 0 16px; border-radius: 6px; box-shadow: 0 4px 10px rgba(37, 99, 237, 0.2); color: #ffffff; cursor: pointer; font-size: 12.5px;">
+              <i data-lucide="search" style="width: 13px; height: 13px;"></i> 조회
             </button>
           </div>
 
           <!-- 📅 활성 수검 일정 선택 바 -->
-          <div class="card-solid" style="margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap; padding: 10px 20px; background: #ffffff; border: 1px solid var(--border-card);">
-            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-              <span style="font-size: 13px; color: var(--text-primary); font-weight: 700; display: flex; align-items: center; gap: 6px;">
-                <i data-lucide="calendar-days" style="color: var(--brand-blue); width: 15px; height: 15px;"></i>
+          <div class="card-solid" style="margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 6px 16px; background: #ffffff; border: 1px solid var(--border-card);">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span style="font-size: 12.5px; color: var(--text-primary); font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                <i data-lucide="calendar-days" style="color: var(--brand-blue); width: 14px; height: 14px;"></i>
                 활성 수검 일정 선택:
               </span>
-              <select id="planning-audit-select" class="filter-select" style="min-width: 320px; font-size: 13px; font-weight: 700; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; height: 36px; padding: 0 10px; outline: none; cursor: pointer;">
+              <select id="planning-audit-select" class="filter-select" style="min-width: 320px; font-size: 12.5px; font-weight: 700; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; height: 34px; padding: 0 8px; outline: none; cursor: pointer;">
                 <!-- 동적으로 등록된 감사 일정들이 들어옴 -->
               </select>
             </div>
-            <button class="btn btn-primary" id="btn-open-audit-modal" style="display: flex; align-items: center; gap: 6px; font-weight: 700; background: #00c8ff; border: none; padding: 8px 16px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0, 200, 255, 0.2); transition: all 0.2s; color: #ffffff; cursor: pointer;">
-              <i data-lucide="calendar-plus" style="width: 15px; height: 15px;"></i>
+            <button class="btn btn-primary" id="btn-open-audit-modal" style="display: flex; align-items: center; gap: 4px; font-weight: 700; background: #00c8ff; border: none; padding: 6px 12px; border-radius: 6px; box-shadow: 0 4px 10px rgba(0, 200, 255, 0.2); transition: all 0.2s; color: #ffffff; cursor: pointer; font-size: 12.5px; height: 34px;">
+              <i data-lucide="calendar-plus" style="width: 14px; height: 14px;"></i>
               신규 감사 일정 등록
             </button>
           </div>
 
           <!-- ⬜ 실시간 감사 준비 현황 모니터링 계기판 (Premium Dark Slate Blue Theme) -->
-          <div class="monitoring-dashboard-card card-solid" style="padding: 24px; margin-bottom: 10px;">
-            <div style="display: grid; grid-template-columns: 1fr 2.2fr; gap: 24px; min-height: 200px;">
+          <div class="monitoring-dashboard-card card-solid" style="padding: 12px 18px; margin-bottom: 8px;">
+            <div style="display: grid; grid-template-columns: 1fr 2.2fr; gap: 16px; min-height: 130px;">
               
               <!-- 왼쪽 영역 (준비율 원형 게이지 + 요약 및 디테일 인포) -->
-              <div class="left-boundary" style="padding-right: 20px; display: flex; flex-direction: column; justify-content: space-between; gap: 15px;">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                  <!-- 원형 게이지 -->
-                  <div style="position: relative; width: 64px; height: 60px; display: flex; align-items: center; justify-content: center;">
+              <div class="left-boundary" style="padding-right: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <!-- 원형 게이지 (Original 60px dimensions kept to match app.js circumference constants) -->
+                  <div style="position: relative; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                     <svg style="width: 60px; height: 60px; transform: rotate(-90deg);">
                       <circle cx="30" cy="30" r="26" stroke="rgba(255,255,255,0.08)" stroke-width="4" fill="transparent"></circle>
                       <circle id="circular-progress-bar" cx="30" cy="30" r="26" stroke="#00c8ff" stroke-width="4" fill="transparent" stroke-dasharray="163.36" stroke-dashoffset="163.36" style="transition: stroke-dashoffset 0.3s ease;"></circle>
                     </svg>
-                    <span id="circular-progress-text" style="position: absolute; font-size: 14px; font-weight: 800; font-family: monospace; color: #00c8ff;">0%</span>
+                    <span id="circular-progress-text" style="position: absolute; font-size: 13px; font-weight: 800; font-family: monospace; color: #00c8ff;">0%</span>
                   </div>
                   
                   <div>
-                    <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">수검 전체 준비율 (READINESS)</div>
-                    <div id="left-summary-text" style="font-size: 13px; font-weight: 700; color: #ffffff; margin-top: 2px;">총 10개 중 0개 완료 (0%)</div>
+                    <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.02em;">수검 전체 준비율 (READINESS)</div>
+                    <div id="left-summary-text" style="font-size: 12px; font-weight: 700; color: #ffffff; margin-top: 1px;">총 10개 중 0개 완료 (0%)</div>
                   </div>
                 </div>
                 
                 <!-- 그 아래 2x2 디테일 인포 -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                  <div style="display: flex; flex-direction: column; gap: 2px;">
-                    <span class="detail-info-title" style="font-size: 10px;">완성차 OEM</span>
-                    <div id="info-oem" class="detail-info-block" style="padding: 5px 10px; font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                  <div style="display: flex; flex-direction: column; gap: 1px;">
+                    <span class="detail-info-title" style="font-size: 9.5px;">완성차 OEM</span>
+                    <div id="info-oem" class="detail-info-block" style="padding: 4px 8px; font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
                   </div>
-                  <div style="display: flex; flex-direction: column; gap: 2px;">
-                    <span class="detail-info-title" style="font-size: 10px;">대상 공장</span>
-                    <div id="info-plant" class="detail-info-block" style="padding: 5px 10px; font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
+                  <div style="display: flex; flex-direction: column; gap: 1px;">
+                    <span class="detail-info-title" style="font-size: 9.5px;">대상 공장</span>
+                    <div id="info-plant" class="detail-info-block" style="padding: 4px 8px; font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
                   </div>
-                  <div style="display: flex; flex-direction: column; gap: 2px;">
-                    <span class="detail-info-title" style="font-size: 10px;">감사 일정</span>
-                    <div id="info-date" class="detail-info-block" style="padding: 5px 10px; font-size: 11px; font-weight: 700; font-family: monospace;">-</div>
+                  <div style="display: flex; flex-direction: column; gap: 1px;">
+                    <span class="detail-info-title" style="font-size: 9.5px;">감사 일정</span>
+                    <div id="info-date" class="detail-info-block" style="padding: 4px 8px; font-size: 11px; font-weight: 700; font-family: monospace;">-</div>
                   </div>
-                  <div style="display: flex; flex-direction: column; gap: 2px;">
-                    <span class="detail-info-title" style="font-size: 10px;">Audit 감사 종류</span>
-                    <div id="info-type" class="detail-info-block" style="padding: 5px 10px; font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
+                  <div style="display: flex; flex-direction: column; gap: 1px;">
+                    <span class="detail-info-title" style="font-size: 9.5px;">Audit 감사 종류</span>
+                    <div id="info-type" class="detail-info-block" style="padding: 4px 8px; font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
                   </div>
                 </div>
               </div>
               
               <!-- 오른쪽 영역 (헤더 + 5개 실시간 KPI 가로 카드들) -->
-              <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 15px;">
+              <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 10px;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                  <span style="font-size: 13px; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 6px;">
-                    <i data-lucide="activity" style="color: #00c8ff; width: 14px; height: 14px;"></i>
+                  <span style="font-size: 12.5px; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 4px;">
+                    <i data-lucide="activity" style="color: #00c8ff; width: 13px; height: 13px;"></i>
                     실시간 감사 준비 현황 모니터링 계기판
                   </span>
-                  <div id="monitoring-badge" style="background: #2563eb; color: white; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; font-family: 'Inter', sans-serif;">
+                  <div id="monitoring-badge" style="background: #2563eb; color: white; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 700; font-family: 'Inter', sans-serif;">
                     -
                   </div>
                 </div>
                 
                 <!-- 5개 가로 KPI 카드들 -->
-                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; flex-grow: 1;">
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; flex-grow: 1;">
                   <!-- D-DAY -->
                   <div class="kpi-sub-card">
                     <span class="kpi-title">D-DAY</span>
@@ -466,7 +466,7 @@
         <!-- 📌 상단 위 고정 영역 컨테이너 끝 -->
 
         <!-- 3중 서브 탭 셀렉터 (글래스모피즘 스타일) -->
-        <div class="sub-tabs-container" style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+        <div class="sub-tabs-container" style="display: flex; gap: 10px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px;">
           <button class="sub-tab-btn active" data-subtab="planning-timeline" style="font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 6px; font-weight: 700;">
             <i data-lucide="compass" style="width: 14px; height: 14px;"></i> Timeline (일정 및 추진 트랙)
           </button>
