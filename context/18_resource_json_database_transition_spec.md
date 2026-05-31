@@ -39,7 +39,7 @@ flowchart TD
         
         B1 --> C1[("document_library.json")]
         B2 --> C2[("quality_issues_qi.json")]
-        B2 --> C3[("change_history_4m.json")]
+        B2 --> C3[("cqms_4m_db.json")]
         B2 --> C4[("cqms_customer_audit_db.json")]
         
         B1 & B2 -->|통합 및 AI 질문 도출| C5[("oe_req_to_audit_checklist.json")]
@@ -188,7 +188,7 @@ flowchart TD
 
 ---
 
-### ④ 4M 변경점 이력 스키마 (`data/change_history_4m.json`)
+### ④ 4M 변경점 이력 스키마 (`data/cqms_4m_db.json`)
 
 *   **설명**: 자사 8개 공장에서 발생한 설비, 재료, 방법, 인력(4M)의 모든 변동 사항을 추적하는 정밀 이력 데이터셋입니다.
 
@@ -434,7 +434,7 @@ flowchart TD
 - `app.js`에서 각 정적 데이터 파일들의 비동기 fetch 연결 통로를 개설하고 전역 상태 변수(`window.db_store`)로 인메모리 바인딩 처리를 마무리합니다.
 
 ### [Phase 2: 종합 대시보드 리스크 동적 계량 바인딩]
-- 대시보드 진입 시 `quality_issues_qi.json`과 `change_history_4m.json`을 분석하여 공장별, 공정별 이벤트 건수를 자동 집계하고, [Context 3]에 설계된 리스크 계량 산출 공식에 따라 종합 리스크 가중치를 산정해 지도 및 카운터 패널에 실시간 렌더링합니다.
+- 대시보드 진입 시 `quality_issues_qi.json`과 `cqms_4m_db.json`을 분석하여 공장별, 공정별 이벤트 건수를 자동 집계하고, [Context 3]에 설계된 리스크 계량 산출 공식에 따라 종합 리스크 가중치를 산정해 지도 및 카운터 패널에 실시간 렌더링합니다.
 
 ### [Phase 3: 감사 일정 등록 및 준비 가이드 연동]
 - `oe_req_to_audit_checklist.json`에서 공장별 고위험 항목들을 필터링하여 오디터 맞춤형 예방 감사 조항 가이드를 주간 플래닝 시점에 자동 출력합니다.

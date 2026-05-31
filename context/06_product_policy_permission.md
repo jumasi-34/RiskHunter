@@ -15,7 +15,7 @@
 [체크리스트 상태] : AI제안(AI Draft) ➔ 검토완료(Active) ➔ 제외(Excluded)
 ```
 
-### ① 4M 변경점 관리 상태 (`change_history_4m.STATUS / PROGRESS`)
+### ① 4M 변경점 관리 상태 (`cqms_4m_db.STATUS / PROGRESS`)
 *   **`STATUS` (결재 상태)**:
     - **`등록`**: 변경점이 발의되어 시스템에 최초 등록된 상태.
     - **`검토 중`**: 부서 간 영향도 분석 및 부서장 결재가 진행 중인 상태.

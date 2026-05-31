@@ -217,8 +217,8 @@ const app = {
           if (!r.ok) throw new Error("Audit findings file (cqms_customer_audit_db.json) not found");
           return r.json();
         }),
-        fetch('data/change_history_4m.json').then(r => {
-          if (!r.ok) throw new Error("4M change history file (change_history_4m.json) not found");
+        fetch('data/cqms_4m_db.json').then(r => {
+          if (!r.ok) throw new Error("4M change history file (cqms_4m_db.json) not found");
           return r.json();
         }),
         fetch('data/quality_issues_qi.json').then(r => {
@@ -8555,7 +8555,7 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
       },
       'T4': {
         title: '4M 변경승인 단계 중 \'양산 검증\' 항목 추적',
-        sql: 'SELECT DOC_NO, PLANT, PURPOSE, SUBJECT, STATUS, PROGRESS, REG_DATE, CHANGE_ITEM\nFROM change_history_4m\nWHERE PROGRESS = \'양산 적용 및 검증\'\nLIMIT 50;'
+        sql: 'SELECT DOC_NO, PLANT, PURPOSE, SUBJECT, STATUS, PROGRESS, REG_DATE, CHANGE_ITEM\nFROM cqms_4m_db\nWHERE PROGRESS = \'양산 적용 및 검증\'\nLIMIT 50;'
       },
       'T5': {
         title: '품질 실패 QI 미결(On-going) 이슈 조회',
@@ -8668,7 +8668,7 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
       sourceData = this.state.auditChecklists || [];
     } else if (tableName === 'audit_findings') {
       sourceData = this.state.auditFindings || [];
-    } else if (tableName === 'change_history_4m' || tableName === 'changehistory4m') {
+    } else if (tableName === 'cqms_4m_db' || tableName === 'cqms4mdb' || tableName === 'change_history_4m' || tableName === 'changehistory4m') {
       sourceData = this.state.changeHistory4m || [];
     } else if (tableName === 'document_library' || tableName === 'documentlibrary') {
       sourceData = this.state.documentLibrary || [];
