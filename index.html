@@ -1093,20 +1093,20 @@
           <!-- 📈 오딧 전략 인사이트 위젯 종단 확장 (Intelligent Decision Widgets) -->
           <div class="grid-2col" style="grid-template-columns: 1fr 1fr; gap: 20px;">
             <!-- Top 20 개선 권고 과제 -->
-            <div class="card-solid flex-col" style="min-height: 360px; padding: 20px;">
+            <div class="card-solid flex-col" style="height: 480px; padding: 20px;">
               <div class="card-header" style="border-bottom: 1px solid var(--border-card); padding-bottom: 12px; margin-bottom: 15px;">
                 <h2 class="card-title" style="font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 800;">
                   🔥 TOP 20 IMPROVEMENT RECOMMENDATIONS (우선 조치 권고)
                 </h2>
                 <p class="card-subtitle" style="font-size: 11.5px; margin-top: 2px;">오딧 합격을 위해 선결되어야 할 공정 내 최우선 교정 요건 및 취약 항목 20대 어젠다</p>
               </div>
-              <div class="card-body" id="tab3-top20-recommendations" style="overflow-y: auto; flex-grow: 1; padding: 5px; display: flex; flex-direction: column; gap: 10px;">
+              <div class="card-body" id="tab3-top20-recommendations" style="overflow-y: auto; flex-grow: 1; padding: 5px; display: flex; flex-direction: column; gap: 10px; min-height: 0;">
                 <!-- 동적으로 20개 권고 아이템 카드 마운트 -->
               </div>
             </div>
 
             <!-- AI 권고 조치 가이드라인 -->
-            <div class="card-solid flex-col" style="min-height: 360px; padding: 20px;">
+            <div class="card-solid flex-col" style="height: 480px; padding: 20px;">
               <div class="card-header" style="border-bottom: 1px solid var(--border-card); padding-bottom: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <div>
                   <h2 class="card-title" style="font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 800;">
@@ -1115,7 +1115,7 @@
                   <p class="card-subtitle" style="font-size: 11.5px; margin-top: 2px;">현재 공장 등급(CRI) 및 연계된 공정별 취약 특성에 대응하는 대항마 8D 조치 계획 요약</p>
                 </div>
               </div>
-              <div class="card-body" id="tab3-ai-recommended-actions" style="overflow-y: auto; flex-grow: 1; padding: 12px; background: var(--bg-app); border-radius: 6px; border: 1px solid var(--border-card); line-height: 1.6; font-size: 12.5px;">
+              <div class="card-body" id="tab3-ai-recommended-actions" style="overflow-y: auto; flex-grow: 1; padding: 12px; background: var(--bg-app); border-radius: 6px; border: 1px solid var(--border-card); line-height: 1.6; font-size: 12.5px; min-height: 0;">
                 <!-- 동적 AI 진단 가이드 출력 -->
               </div>
             </div>
