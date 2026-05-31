@@ -1067,52 +1067,58 @@ const app = {
       });
     }
 
-    // 조회 버튼 클릭 필터링 이벤트 등록
-    const btnSearch = document.getElementById('btn-planning-filter-search');
-    if (btnSearch) {
-      btnSearch.onclick = () => {
-        const selectedPlant = document.getElementById('planning-filter-plant')?.value || 'ALL';
-        const selectedCustomer = document.getElementById('planning-filter-customer')?.value || 'ALL';
-        const selectedType = document.getElementById('planning-filter-audit-type')?.value || 'ALL';
-        
-        const filteredAudits = this.state.audits.filter(audit => {
-          const matchPlant = selectedPlant === 'ALL' || audit.plantCode === selectedPlant;
-          const matchCustomer = selectedCustomer === 'ALL' || audit.customer === selectedCustomer;
-          const matchType = selectedType === 'ALL' || (audit.type || 'Project') === selectedType;
-          return matchPlant && matchCustomer && matchType;
-        });
-        
-        const selectNode = document.getElementById('planning-audit-select');
-        if (selectNode) {
-          selectNode.innerHTML = '';
-          if (filteredAudits.length === 0) {
+    // 실시간 필터링 엔진 바인딩
+    const applyPlanningFilters = () => {
+      const selectedPlant = document.getElementById('planning-filter-plant')?.value || 'ALL';
+      const selectedCustomer = document.getElementById('planning-filter-customer')?.value || 'ALL';
+      const selectedType = document.getElementById('planning-filter-audit-type')?.value || 'ALL';
+      
+      const filteredAudits = this.state.audits.filter(audit => {
+        const matchPlant = selectedPlant === 'ALL' || audit.plantCode === selectedPlant;
+        const matchCustomer = selectedCustomer === 'ALL' || audit.customer === selectedCustomer;
+        const matchType = selectedType === 'ALL' || (audit.type || 'Project') === selectedType;
+        return matchPlant && matchCustomer && matchType;
+      });
+      
+      const selectNode = document.getElementById('planning-audit-select');
+      if (selectNode) {
+        selectNode.innerHTML = '';
+        if (filteredAudits.length === 0) {
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = '조건에 맞는 일정이 없습니다.';
+          selectNode.appendChild(opt);
+          this.state.selectedAuditId = null;
+        } else {
+          filteredAudits.forEach(audit => {
             const opt = document.createElement('option');
-            opt.value = '';
-            opt.textContent = '조건에 맞는 일정이 없습니다.';
-            selectNode.appendChild(opt);
-            this.state.selectedAuditId = null;
-          } else {
-            filteredAudits.forEach(audit => {
-              const opt = document.createElement('option');
-              opt.value = audit.id;
-              opt.textContent = `${audit.title} (${audit.date})`;
-              if (audit.id === this.state.selectedAuditId) {
-                opt.selected = true;
-              }
-              selectNode.appendChild(opt);
-            });
-            
-            if (!filteredAudits.some(a => a.id === this.state.selectedAuditId)) {
-              this.state.selectedAuditId = filteredAudits[0].id;
-              localStorage.setItem('riskhunter_selected_audit_id', filteredAudits[0].id);
+            opt.value = audit.id;
+            opt.textContent = `${audit.title} (${audit.date})`;
+            if (audit.id === this.state.selectedAuditId) {
+              opt.selected = true;
             }
+            selectNode.appendChild(opt);
+          });
+          
+          if (!filteredAudits.some(a => a.id === this.state.selectedAuditId)) {
+            this.state.selectedAuditId = filteredAudits[0].id;
+            localStorage.setItem('riskhunter_selected_audit_id', filteredAudits[0].id);
           }
         }
-        
-        this.renderPlanningScreen();
-        this.showToast("선택된 필터 조건으로 감사 일정이 필터링되었습니다.", "success");
-      };
-    }
+      }
+      
+      this.renderPlanningScreen();
+      this.showToast("선택된 필터 조건으로 감사 일정이 실시간 필터링되었습니다.", "success");
+    };
+
+    // 실시간 onchange 이벤트 등록
+    const selectPlant = document.getElementById('planning-filter-plant');
+    const selectCustomer = document.getElementById('planning-filter-customer');
+    const selectType = document.getElementById('planning-filter-audit-type');
+    
+    if (selectPlant) selectPlant.onchange = applyPlanningFilters;
+    if (selectCustomer) selectCustomer.onchange = applyPlanningFilters;
+    if (selectType) selectType.onchange = applyPlanningFilters;
 
     // 드롭다운 셀렉터 세팅
     const selectNode = document.getElementById('planning-audit-select');

@@ -95,8 +95,8 @@ graph TD
 ### ① 감사 타입(Audit Type)과 화면 표시명(Audit Type Name)의 이원화 구조
 *   **물리적 타입(`type`)**: HTML 검색 필터의 선택 값인 `"Project"` 또는 `"System"`과 100% 일치하도록 매핑합니다.
 *   **논리적 화면 표시명(`typeName`)**: 사용자에게 테크널러지 프리미엄으로 노출될 실질 규격명인 `"VDA 6.3 Process Audit"` 또는 `"IATF 16949 Standard Audit"` 명칭을 대입합니다.
-*   **조회 필터링 처리**: 
-    조회 버튼(`btn-planning-filter-search`) 클릭 시, 필터의 선택형 값(`selectedType`)과 각 감사 데이터의 물리적 타입(`type`)을 일치 비교합니다.
+*   **실시간 필터링 처리**: 
+    조회 버튼 방식 대신, 대상 공장, 완성차 고객사, AUDIT TYPE의 각 셀렉트 박스에 `onchange` 실시간 연동 이벤트를 바인딩(`applyPlanningFilters`)하여 사용자가 필터 값을 변경하는 즉시 감사 일정이 무지연·실시간 필터링되도록 설계하였습니다.
     `const matchType = selectedType === 'ALL' || audit.type === selectedType;`
 
 ### ② 날짜 정렬(Date Sorting) 및 유효성 보호 장치
