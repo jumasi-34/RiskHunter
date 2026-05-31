@@ -2937,9 +2937,9 @@ const app = {
       const cri = 0.4 * (100 - systemLevel) + 0.3 * (100 - assessmentScore) + 0.3 * issuesPenalty;
 
       // 등급 집계
-      if (cri >= 41.1) {
+      if (cri >= 20.0) {
         criticalCount++;
-      } else if (cri >= 38.1) {
+      } else if (cri >= 6.0) {
         moderateCount++;
       } else {
         lowCount++;
@@ -3029,12 +3029,12 @@ const app = {
     let borderColor = 'var(--border-status-low)';
     let bgColor = 'var(--bg-status-low)';
 
-    if (cri >= 41.1) {
+    if (cri >= 20.0) {
       statusText = 'CRITICAL HIGH RISK';
       textColor = 'var(--text-status-high)';
       borderColor = 'var(--border-status-high)';
       bgColor = 'var(--bg-status-high)';
-    } else if (cri >= 38.1) {
+    } else if (cri >= 6.0) {
       statusText = 'MODERATE RISK';
       textColor = 'var(--text-status-medium)';
       borderColor = 'var(--border-status-medium)';
@@ -3382,11 +3382,11 @@ const app = {
         let riskBadgeStyle = 'font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 700;';
         let progressBarColor = '#10b981'; // LOW: Green
         
-        if (item.cri >= 41.1) {
+        if (item.cri >= 20.0) {
           riskBadgeText = 'CRITICAL';
           riskBadgeStyle += ' color: #dc2626; background: #fee2e2; border: 1px solid #fecaca;';
           progressBarColor = '#ef4444'; // CRITICAL: Red
-        } else if (item.cri >= 38.1) {
+        } else if (item.cri >= 6.0) {
           riskBadgeText = 'MODERATE';
           riskBadgeStyle += ' color: #b45309; background: #fef3c7; border: 1px solid #fde68a;';
           progressBarColor = '#f59e0b'; // MODERATE: Amber
