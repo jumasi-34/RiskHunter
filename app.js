@@ -3298,7 +3298,7 @@ const app = {
                 </div>
               </div>
               <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="font-family: 'Rajdhani', sans-serif; font-weight: 800; font-size: 14px; color: var(--text-primary);">${item.cri.toFixed(1)}</span>
+                <span style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 14px; color: var(--text-primary);">${item.cri.toFixed(1)}</span>
                 <span style="${riskBadgeStyle}">${riskBadgeText}</span>
               </div>
             </div>

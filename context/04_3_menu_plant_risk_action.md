@@ -284,26 +284,23 @@ $$\text{CRI} = 0.4 \times (100 - \text{System Level}) + 0.3 \times (100 - \text{
 
 ---
 
-## 🧭 7. UI/UX 디자인 시스템 및 스타일 명세 (Design Systems & Styling Spec)
+## 🧭 7. UI/UX 디자인 시스템 연계 규칙 (Design Systems Alignment Rules)
 
-### ① 핵심 하이테크 타이포그래피 (Typography System)
-*   **숫자 및 계량 값**: 미래지향적이고 테크니컬한 가독성을 제공하는 구글 웹폰트 **`Rajdhani`** (Semibold, Bold) 체계를 바인딩하여, 차트 좌표 및 점수 계판의 시인성을 한계까지 향상시켰습니다.
-*   **주요 위젯 타이틀 및 영문 레이블**: 사이버네틱 무드를 고양시키는 고해상도 테크 폰트 **`Orbitron`** (Bold)을 선별 채택하였습니다.
-*   **본문 및 설명 텍스트**: 정적이고 정합성 높은 한글/영문 고딕 서체인 **`Inter`** 및 시스템 기본 폰트(Segoe UI, "맑은 고딕")를 계층형 안티앨리어싱 설계하여 최상의 가독성을 보증합니다.
+본 3번 메뉴(Plant Risk & Action) 내의 모든 시각 컴포넌트, 배경, 카드, 텍스트 및 상태 지표 스타일링은 자체적인 스타일 명세를 배제하고 **전적으로 [09_design_system_and_ui_guidelines.md](file:///home/jumasi/RiskHunter/context/09_design_system_and_ui_guidelines.md)에 정의된 디자인 표준 및 변수 시스템을 엄격히 계상하여 적용**합니다.
 
-### ② 플랫 파스텔 상태 인디케이터 컬러 맵 (Color Tokens & Semantic Styles)
-대시보드에 사용되는 지표는 빛을 내는 글로우 효과를 완전히 제거하고, 가독성과 명도 대비가 우수한 파스텔 톤 연한 배경, 짙은 텍스트 및 경계 외곽선 조합으로 구성됩니다.
+### ① 공통 타이포그래피 표준 (Typography Alignment)
+*   **Metrics 및 핵심 수치**: 독자적인 `Rajdhani` 서체 사용을 전면 금지하며, 디자인 시스템의 헤더/계량 표준 서체인 **`Outfit`**을 의무적으로 바인딩합니다.
+*   **텍스트 및 표 설명**: 본문, 상세 설명 및 테이블 데이터에는 장시간 독독 시 시인성이 탁월한 **`Inter`**를 기본 패밀리로 사용합니다.
 
-| 디자인 지표명 | 대표 헥사코드 (HEX) | 파스텔 배경색 (BG) | 파스텔 테두리 (Border) | 시각적 적용 대상 및 컴포넌트 |
-| :--- | :---: | :--- | :--- | :--- |
-| <span style="color:#ef4444">**Brand Red**</span> (위험) | `#ef4444` | `#fef2f2` (`var(--bg-status-high)`) | `#fca5a5` (`var(--border-status-high)`) | CRI 고위험 경보 보더, 히트맵 임계값 미달 쉘, 6점 이하 최우선 개선 항목 등 점수 표출 영역 |
-| <span style="color:#f59e0b">**Brand Amber**</span> (경고) | `#f59e0b` | `#fffbeb` (`var(--bg-status-medium)`) | `#fcd34d` (`var(--border-status-medium)`) | CRI 중위험 경보 보더, 히트맵 보완 경고 쉘, 7~8점대 차트 막대 및 산점도 주의 Dot |
-| <span style="color:#10b981">**Brand Green**</span> (안정) | `#10b981` | `#f0fdf4` (`var(--bg-status-low)`) | `#86efac` (`var(--border-status-low)`) | CRI 저위험 안전 보더, 히트맵 모범 쉘, 9~10점대 합격점 막대 및 우수 항목 만족 뱃지 |
-| <span style="color:#2563eb">**Brand Blue**</span> (주요 포커스) | `#2563eb` | `#eff6ff` (`var(--bg-status-info)`) | `#bfdbfe` (`var(--border-status-info)`) | 글로벌 공장 리본 선택 아웃라인, 인터랙티브 매칭 뱃지, 히트맵 하이라이트 경계 보더 |
+### ② 의미론적 컬러 배지 준용 (Semantic Badge Alignment)
+CRI 점수 및 지적 사항의 상태 표시는 글로우 효과가 배제된 **플랫 파스텔 B2B 스타일 배지(Semantic Flat Badges)**를 활용합니다.
+*   **HIGH RISK**: `--bg-status-high` (`#fef2f2`), `--border-status-high` (`#fca5a5`), `--text-status-high` (`#b91c1c`)
+*   **MEDIUM RISK**: `--bg-status-medium` (`#fffbeb`), `--border-status-medium` (`#fcd34d`), `--text-status-medium` (`#b45309`)
+*   **LOW RISK**: `--bg-status-low` (`#f0fdf4`), `--border-status-low` (`#86efac`), `--text-status-low` (`#15803d`)
+*   **INFO / ON-GOING**: `--bg-status-info` (`#eff6ff`), `--border-status-info` (`#bfdbfe`), `--text-status-info` (`#1d4ed8`)
 
-### ③ 솔리드 표면 카드 및 입체 섀도우 규격 (Solid Surface & Natural Shadow Specs)
-모든 서브 탭 화면의 콘텐츠 영역은 어두운 배경의 글래스모피즘 대신, 맑은 라이트 캔버스 위에 묵직하고 구조적인 안정감을 주는 순백색 카드 규격을 엄격히 유지합니다:
-*   **솔리드 표면 카드**: `background-color: var(--bg-card)` (`#ffffff`) 및 `border: 1px solid var(--border-card)` (`#e2e8f0`)
-*   **자연스러운 내추럴 섀도우**: `box-shadow: var(--shadow-base)` (Glow 효과 전면 배제)
-*   **입력 폼 표준**: `background: var(--bg-card)`, `border: 1px solid var(--border-input)`, `color: var(--text-primary)`를 활용해 라이트 테마 가독성 극대화.
+### ③ 구조 및 레이아웃 질감 (App Shell & Surface)
+*   모든 탭 패널 내부 콘텐츠 카드는 순백색 솔리드 표면 카드인 `--bg-card` (`#ffffff`)를 상속하고, 은은한 외곽선 `--border-card` (`#e2e8f0`) 및 내추럴 섀도우 `--shadow-base`를 활용해 B2B 콘솔 고유의 단정하고 맑은 레이아웃 질감을 일체화합니다.
+*   **WCAG 2.1 AA 명도 대비**: 밝은 배경 위의 설명문에는 흐릿한 회색 대신 반드시 `--text-muted-light` (`#64748b`)를 적용하여 4.5:1 이상의 가독성 명도를 유지합니다.
+
 
