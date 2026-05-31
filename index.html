@@ -276,20 +276,20 @@
             </button>
           </div>
           
-          <!-- 최종 2열 구조 (왼쪽: 막대그래프, 오른쪽: 기존 2*4 카드 그리드) -->
+          <!-- 최종 2열 구조 (왼쪽: 막대그래프, 오른쪽: 기존 4*2 카드 그리드) -->
           <div id="dashboard-cri-two-columns">
             <!-- 왼쪽: 공장별 CRI 수준 막대그래프 -->
-            <div class="card-solid flex-col" style="background: rgba(30, 41, 59, 0.02); border: 1px solid var(--border-card); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; min-height: 420px; position: relative; margin: 0; box-shadow: none;">
-              <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5); padding-bottom: 8px;">
-                <span style="font-size: 13px; font-weight: 800; color: var(--text-primary);">공장별 CRI 종합 리스크 지수 비교</span>
+            <div class="card-solid flex-col" style="background: rgba(30, 41, 59, 0.02); border: 1px solid var(--border-card); padding: 12px; border-radius: 8px; display: flex; flex-direction: column; min-height: 250px; position: relative; margin: 0; box-shadow: none;">
+              <div style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5); padding-bottom: 6px;">
+                <span style="font-size: 12px; font-weight: 800; color: var(--text-primary);">공장별 CRI 종합 리스크 지수 비교</span>
                 <span class="badge badge-info" style="font-size: 10px; padding: 2px 6px;">실시간 연산</span>
               </div>
-              <div style="flex: 1; position: relative; width: 100%; height: calc(100% - 35px);">
+              <div style="flex: 1; position: relative; width: 100%; height: calc(100% - 30px);">
                 <canvas id="chart-dashboard-cri" style="width: 100%; height: 100%;"></canvas>
               </div>
             </div>
             
-            <!-- 오른쪽: 기존 내용을 2*4로 구성 -->
+            <!-- 오른쪽: 기존 내용을 4*2로 구성 -->
             <div id="dashboard-plant-cri-grid">
               <!-- JS 동적 로드 -->
             </div>

@@ -2313,23 +2313,26 @@ body {
    ========================================================================== */
 #dashboard-cri-two-columns {
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 20px;
+  grid-template-columns: 1fr 2.4fr;
+  gap: 15px;
   width: 100%;
   align-items: stretch;
 }
 
 #dashboard-plant-cri-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr) !important;
-  gap: 12px !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 10px !important;
   width: 100%;
   align-content: start;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   #dashboard-cri-two-columns {
     grid-template-columns: 1fr;
+  }
+  #dashboard-plant-cri-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 
