@@ -582,23 +582,23 @@
         <div class="sub-tab-pane active-sub-pane" id="subtab-planning-timeline">
           <div class="planning-timeline-grid">
             <!-- 마일스톤 타임라인 트랙 -->
-            <div class="card-solid flex-col planning-timeline-track-card">
-              <div class="card-header" style="border-bottom: 1px solid var(--border-card); padding-bottom: 12px; margin-bottom: 15px;">
-                <h2 class="card-title" id="timeline-audit-title">수검 일정 마일스톤 (Milestone Tracker)</h2>
-                <p class="card-subtitle">D-30 감사 계획 단계별 추진 마일스톤 및 예정 대비 진척도</p>
+            <div class="card-solid flex-col planning-timeline-track-card" style="padding: 16px 20px;">
+              <div class="card-header" style="border-bottom: 1px solid var(--border-card); padding-bottom: 8px; margin-bottom: 12px;">
+                <h2 class="card-title" id="timeline-audit-title" style="font-size: 14px; font-weight: 700; margin-bottom: 2px;">수검 일정 마일스톤 (Milestone Tracker)</h2>
+                <p class="card-subtitle" style="font-size: 11px; color: var(--text-muted-light); margin-top: 2px;">D-30 감사 계획 단계별 추진 마일스톤 및 예정 대비 진척도</p>
               </div>
-              <div class="card-body" style="overflow-y: auto; flex-grow: 1; padding: 5px;">
+              <div class="card-body" style="overflow-y: auto; flex-grow: 1; padding: 2px;">
                 <!-- 동적 타임라인 마운트 -->
                 <div id="planning-milestone-tracker"></div>
               </div>
             </div>
 
             <!-- 트리-뷰 태스크 리스트 -->
-            <div class="card-solid flex-col planning-timeline-track-card">
-              <div class="card-header" style="border-bottom: 1px solid var(--border-card); padding-bottom: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div class="card-solid flex-col planning-timeline-track-card" style="padding: 16px 20px;">
+              <div class="card-header" style="border-bottom: 1px solid var(--border-card); padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <div>
-                  <h2 class="card-title">단계별 상세 준비 과제 (Readiness Checklist)</h2>
-                  <p class="card-subtitle">선택된 수검 일정에 바인딩된 프로세스별 필수 검증 내역</p>
+                  <h2 class="card-title" style="font-size: 14px; font-weight: 700; margin-bottom: 2px;">단계별 상세 준비 과제 (Readiness Checklist)</h2>
+                  <p class="card-subtitle" style="font-size: 11px; color: var(--text-muted-light); margin-top: 2px;">선택된 수검 일정에 바인딩된 프로세스별 필수 검증 내역</p>
                 </div>
                 <!-- 공장 정보 필터 배지 표시 -->
                 <div id="planning-target-badge" style="background: rgba(0, 200, 255, 0.05); border: 1px solid rgba(0, 200, 255, 0.2); border-radius: 6px; padding: 4px 10px; font-size: 11.5px; font-weight: 700; color: #00c8ff;">

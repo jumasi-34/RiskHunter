@@ -2508,7 +2508,7 @@ body {
 }
 
 .planning-timeline-track-card {
-  min-height: 520px;
+  min-height: 480px;
   display: flex;
   flex-direction: column;
 }
