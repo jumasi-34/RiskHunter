@@ -29,13 +29,13 @@ $$\text{CRI} = 0.4 \times (100 - \text{System Level}) + 0.3 \times (100 - \text{
 
 *   **A. OE Quality System Level (품질 인프라 구축도 - 가중치 40%)**:
     *   **정의**: 글로벌 완성차 OEM 오딧 통과를 위해 기본적으로 구축해야 하는 10대 핵심 제조 공정 내의 총 260개 상세 품질 보증 인프라 요건 충족률입니다.
-    *   **데이터 소스**: `oe_system_map` 테이블
+    *   **데이터 소스**: `internal_assessment_result.json` (공식명: **품질 시스템 인프라 평가 데이터** `category !== 'Process'`)
     *   **계산 공식**: 개별 조건 항목은 3점(완벽 구축), 2점(부분 구축), 1점(미흡/취약), 0점(미구축)으로 평가되며, 해당 공정이나 공장에 적용 불가능한 항목은 `'N/A'`로 처리합니다.
     *   *N/A 필터링 규칙*: 계산 결과 왜곡 및 가중치 희석을 방지하기 위해 `'N/A'` 처리된 항목은 분모와 분자의 연산 모수에서 완전히 제외 처리(Filtering Out)합니다.
     $$\text{System Level (\%)} = \left( \frac{\sum \text{개별 요건 획득 점수 (0~3점)}}{\sum \text{유효 요건 개수} \times 3} \right) \times 100$$
 *   **B. OE Quality Assessment Score (현장 실사 합격률 - 가중치 30%)**:
     *   **정의**: 사내 품질 진단 전문가 그룹이 직접 공장을 방문하여 현장 설비, 공정 프로세스, 표준 검증 상태를 감사(Audit)하여 평가한 실질적인 품질 상태 등급입니다.
-    *   **데이터 소스**: `oe_quality_assessment_summary` 테이블
+    *   **데이터 소스**: `internal_assessment_result.json` (공식명: **품질 현장 실사 평가 데이터** `category === 'Process'`)
     *   **계산 공식**: 10대 생산 공정 전체 실사 종합 레코드(`process = 'Total'`)를 기준으로 설정하고, 핵심 5대 평가 차원(System, Infra, 4M, Field, Document)에 대한 평점(10점 만점)의 평균값에 10을 곱해 백분율로 환산합니다.
     $$\text{Assessment Score (\%)} = \left( \frac{\sum_{i=1}^{5} \text{차원별 실사 평점 (0~10점)}}{5} \right) \times 10$$
 *   **C. CQMS Issues Penalty (품질 불만 및 클레임 감점 패널티 - 가중치 30%)**:
@@ -97,9 +97,10 @@ $$\text{CRI} = 0.4 \times (100 - \text{System Level}) + 0.3 \times (100 - \text{
                    50%                  80%               110%
 ```
 
-*   **X축 (Infrastructure Score %)**: `oe_system_map` 요건 중 카테고리 코드 `'I'` (Infra) 항목들의 공장별 획득 평점 백분율입니다.
+*   **X/Y축 데이터 소스**: `internal_assessment_result.json` (공식명: **품질 시스템 인프라 평가 데이터**)
+*   **X축 (Infrastructure Score %)**: `internal_assessment_result.json` 요건 중 카테고리 코드 `'I'` (Infra) 및 `'S'` (System), `'D'` (Document), `'M'` (4M) 항목들의 공장별 획득 평점 백분율입니다.
     $$\text{Infra (\%)} = \left( \frac{\sum \text{category 'I' 개별 스코어 (0~3점)}}{\text{category 'I' 유효 요건 개수} \times 3} \right) \times 100$$
-*   **Y축 (Process Compliance %)**: `oe_system_map` 요건 중 카테고리 코드 `'P'` (Process) 항목들의 공장별 획득 평점 백분율입니다.
+*   **Y축 (Process Compliance %)**: `internal_assessment_result.json` 요건 중 카테고리 코드 `'P'` (Process) 항목들의 공장별 획득 평점 백분율입니다.
     $$\text{Process (\%)} = \left( \frac{\sum \text{category 'P' 개별 스코어 (0~3점)}}{\text{category 'P' 유효 요건 개수} \times 3} \right) \times 100$$
 
 ### ② 산점도 포인트 3대 등급 분류 기준 (Dot Color Mapping)
@@ -248,7 +249,7 @@ $$\text{CRI} = 0.4 \times (100 - \text{System Level}) + 0.3 \times (100 - \text{
 대형 데이터베이스 연동과 대용량 데이터 전송에 의한 네트워크 지연 요인을 제거하고 모바일 태블릿, 폐쇄망 공장 PC 등 어떠한 특수 보안 환경에서도 0.1초 이내에 로딩 및 즉각 연산이 보장되도록 오프라인 단일 파일 아키텍처(Standalone Local Embedded Architecture)를 취합니다.
 
 ### ① 고성능 임베디드 데이터 구조
-`oe_system_map`의 260개 마스터 기준, `internal_assessment_result`의 1,512개 전수 점수 정보, `customer_audits`의 완성차 지적 내역, 그리고 `documents` 표준 매뉴얼 등 수천 행의 엔터프라이즈급 원본 레코드 테이블들을 브라우저 가동 시 비동기 fetch API 엔진을 통해 로딩 및 파싱하여 클라이언트 인메모리에 상주시키는 방식을 취합니다.
+`internal_assessment_result`의 1,512개 전수 점수 정보(품질 시스템 인프라 및 현장 실사 평가 통합 데이터), `customer_audits`의 완성차 지적 내역, 그리고 `documents` 표준 매뉴얼 등 수천 행의 엔터프라이즈급 원본 레코드 테이블들을 브라우저 가동 시 비동기 fetch API 엔진을 통해 로딩 및 파싱하여 클라이언트 인메모리에 상주시키는 방식을 취합니다.
 
 ### ② 브라우저 기반 가상 데이터 엔진 (Virtual Client-Side Database Spec)
 로컬 파일 샌드박스 보안 규격에 부합하도록 물리 데이터베이스 라이브러리 및 PowerShell 컴파일러 의존성을 완전히 배제하고, 순수 바닐라 자바스크립트 내장 배열 제어와 비동기 Fetch 파이프라인으로 구성된 가상 클라이언트 데이터 엔진을 채택합니다.
@@ -259,9 +260,7 @@ $$\text{CRI} = 0.4 \times (100 - \text{System Level}) + 0.3 \times (100 - \text{
     *   `customer_audit` (완성차 OEM 실제 오딧 지적 이력)
     *   `change_management` (공장별 4M 변경 이력)
     *   `quality_issue` (품질 불만 및 클레임 위기 원천)
-    *   `oe_system_map` (인프라 구축도 원천 데이터)
-    *   `oe_quality_assessment_summary` (실사 결과 오행 평가 요약 데이터)
-    *   `internal_assessment_result` (실사 상세 득점 및 지적 사항 데이터)
+    *   `internal_assessment_result` (품질 시스템 인프라 및 현장 실사 평가 통합 데이터)
 3.  **데이터 영속성 및 동적 업데이트**: 브라우저 로컬 저장소(`localStorage`)를 가상 트랜잭션 레이어로 활용하여, 사용자가 화면상에서 지적사항을 등록하거나 조치 여부를 토글할 때 원본 데이터를 보호하면서 오프라인 영속성을 증명합니다.
 
 ---
@@ -272,9 +271,10 @@ $$\text{CRI} = 0.4 \times (100 - \text{System Level}) + 0.3 \times (100 - \text{
 
 ### ① 데이터베이스 구조 가이드 (Database Schema Map)
 업데이트 시 참고해야 하는 정적 JSON 리소스 내 핵심 3대 데이터셋 구조는 다음과 같습니다:
-1.  **`oe_system_map`**: 공장별 10대 공정의 260개 인프라 구축 점수 (0~3점 및 N/A)를 기입합니다.
-2.  **`internal_assessment_result`**: 사내 현장 실사 진단의 상세 지적 문항, 득점(0~10점), 권고 가이드 등을 저장합니다.
-3.  **`customer_audit`**: 실제 완성차 OEM 오딧의 지적 내용(`point_out`), 분석 원인(`root_cause_analysis`), 조치 대책(`counter_measure`), 진행 상태(`status`)를 기록합니다.
+1.  **`internal_assessment_result` (품질 시스템 인프라 및 현장 실사 평가 통합 데이터)**:
+    *   **품질 시스템 인프라 평가 데이터** (`category !== 'Process'`): 공장별 10대 공정의 260개 인프라 구축 점수 (0~3점 및 N/A)를 기입합니다. (이전 `oe_system_map` 데이터)
+    *   **품질 현장 실사 평가 데이터** (`category === 'Process'`): 사내 현장 실사 진단의 상세 지적 문항, 득점(0~10점), 권고 가이드 등을 저장합니다.
+2.  **`customer_audit` (완성차 OEM 실제 오딧 지적 이력)**: 실제 완성차 OEM 오딧의 지적 내용(`point_out`), 분석 원인(`root_cause_analysis`), 조치 대책(`counter_measure`), 진행 상태(`status`)를 기록합니다.
 
 ### ② 무설정 구동 가이드 (Zero-Configuration Guide)
 데이터 수치가 새로 등록되거나 품질 클레임이 변동될 시, 복잡한 커맨드나 빌드 도구 없이 즉각 플랫폼에 동기화할 수 있습니다:

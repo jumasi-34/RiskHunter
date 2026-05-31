@@ -23,6 +23,27 @@
 
 ---
 
+## 🧠 1-2. 개념적 기획 용어 - 물리 파일 매핑 정의 및 소통 보완장치 (Conceptual-to-Physical Data Mapping Dictionary)
+
+품질 감사(Audit) 기획과 프론트엔드 단독 가상 데이터베이스 구조 구현 시 발생할 수 있는 용어 미스매치 및 소통 혼선을 원천 방지하기 위해 **공식 개념-물리 데이터 용어 매핑 및 대체 정의**를 선언합니다. 향후 모든 소통과 산출물에서는 기획 상의 모호한 명칭 대신 아래 정의된 **대체 공식 명칭**을 통일하여 사용합니다.
+
+### ① 용어 대체 매트릭스 (Terminology Replacement Matrix)
+
+| As-Is (기획 상의 가상 용어) | To-Be (실제 화면 및 소통 공식 명칭) | 물리 데이터 원천 (Physical File) | 맵핑 및 분기 처리 규칙 (app.js 상의 역할) |
+| :--- | :--- | :--- | :--- |
+| **`oe_system_map`**<br>(또는 `system mapping`) | 🌟 **품질 시스템 인프라 평가 데이터**<br>(Quality Infrastructure Assessment Data) | `data/internal_assessment_result.json` | `category !== 'Process'` 인 데이터셋 필터링.<br>공장의 시스템/인프라 구축도를 평가하는 용도. |
+| **`oe_quality_assessment_summary`** | 🌟 **품질 현장 실사 평가 데이터**<br>(Actual Quality Assessment Data) | `data/internal_assessment_result.json` | `category === 'Process'` 인 데이터셋 필터링.<br>공장의 실제 이행 및 프로세스 실사 점수 산출 용도. |
+| **`documents`** | 🌟 **완제품 기술 규격 라이브러리**<br>(Technical Requirements Library) | `data/oe_req_to_doc_summary.json` | 완성차 OEM별 기술 규격 메타 및 타이어 공정 역해석 데이터. |
+| **`audit_checklists`** | 🌟 **통합 감사 체크리스트 데이터**<br>(Unified Audit Checklists) | `data/oe_req_to_audit_checklist.json` | 규격서와 과거 이력을 바탕으로 인공지능이 도출한 최종 감사 문항 데이터. |
+| **`change_management`** | 🌟 **공정 4M 변경 이력 데이터**<br>(4M Change History Data) | `data/cqms_4m_db.json` | 공장별 4M(설비, 재료, 방법, 작업자) 변동 승인 내역 데이터. |
+
+### ② 향후 소통 정합성 보완장치 (Quality Alignment & Communication Guardrail)
+1. **단일 진실 원천(Single Source of Truth) 보존**: 기획서에 명시된 모든 데이터 개념은 반드시 본 문서([context/03_product_database_schema.md](file:///home/jumasi/RiskHunter/context/03_product_database_schema.md))에 선언된 **To-Be 공식 명칭**을 상속해야 합니다.
+2. **코드-문서 싱크 의무 검수**: 데이터 로드나 화면 구성 변경 시, 물리 파일명(`data/*.json`)과 화면 레이블 명칭의 동기화 여부를 즉각 교차 검증하고 `context/` 디렉토리 내의 가이드를 역동기화(Reverse-Sync)합니다.
+3. **가상 스키마 예외 안내 패널 탑재**: 데이터 패치 실패 등 예외 발생 시, 원천 JSON 파일명과 테이블 맵핑 상태를 실시간 콘솔 및 경고창에 시각화하여 디버깅 및 시연 중 소통 병목을 즉각 제거합니다.
+
+---
+
 ## 🔄 2. 데이터 흐름 및 AI 질문 변환 파이프라인
 
 원천 데이터셋(QI, 4M, 감사지적, 내부 Audit)이 수집되면, 클라이언트 엔진 또는 AI Extractor를 통해 **"실무 감사 질문"** 및 **"합치 증적 서류명"**으로 구조화된 감사 체크리스트로 가공되어 `oe_req_to_audit_checklist.json`에 집결합니다.

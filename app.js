@@ -3202,7 +3202,9 @@ const app = {
       const rankings = plants.map(plant => {
         const plantItems = allDetails.filter(item => item.plant === plant.code);
         
-        // System Level
+        // 🌟 [소통 보완장치 - 용어 및 물리 매핑 일치 가이드]
+        // 기획서 상의 "oe_system_map" 데이터는 실제 물리 DB인 "internal_assessment_result.json" 내에서 category !== 'Process' 요건으로 필터링되어 구현됩니다.
+        // 공식명칭: "품질 시스템 인프라 평가 데이터 (Quality Infrastructure Assessment Data)"
         const validSystemItems = plantItems.filter(item => {
           if (item.category === 'Process') return false;
           if (!item.score || item.score.toString().trim().toUpperCase() === 'N/A') return false;
@@ -3214,7 +3216,9 @@ const app = {
           systemLevel = (sumScores / (validSystemItems.length * 10)) * 100;
         }
         
-        // Assessment Score
+        // 🌟 [소통 보완장치 - 용어 및 물리 매핑 일치 가이드]
+        // 기획서 상의 "oe_quality_assessment_summary" 데이터는 실제 물리 DB인 "internal_assessment_result.json" 내에서 category === 'Process' 요건으로 필터링되어 구현됩니다.
+        // 공식명칭: "품질 현장 실사 평가 데이터 (Actual Quality Assessment Data)"
         const validAssessmentItems = plantItems.filter(item => {
           if (item.category !== 'Process') return false;
           if (!item.score || item.score.toString().trim().toUpperCase() === 'N/A') return false;
