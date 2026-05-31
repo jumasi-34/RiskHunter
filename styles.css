@@ -5576,11 +5576,14 @@ body {
 
 .premium-view-switcher {
   display: inline-flex;
+  flex-direction: column; /* 세로 위아래 배치 */
   background: rgba(15, 23, 42, 0.04);
   border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 8px;
   padding: 3px;
   margin-top: 5px;
+  gap: 3px; /* 위아래 버튼 간격 */
+  width: 100%; /* 부모 너비에 맞게 확장 */
 }
 
 .premium-switcher-btn {
@@ -5594,7 +5597,9 @@ body {
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center; /* 텍스트 정중앙 정렬 */
   transition: all 0.2s ease-in-out;
+  width: 100%; /* 버튼 가로 너비 꽉 채우기 */
 }
 
 .premium-switcher-btn:hover {
@@ -5605,6 +5610,35 @@ body {
   background: #ffffff;
   color: var(--brand-blue);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 분할 모드에서 좌우 높이 일치화 (리스크 랭킹 섹션 기준) */
+.premium-compass-grid-1 > .premium-flex-column-gap-20 {
+  height: 100%;
+}
+
+.premium-compass-grid-2:not(.wide-mode) {
+  flex: 1;
+  min-height: 0;
+}
+
+.premium-compass-grid-2:not(.wide-mode) > .premium-section-card {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+/* 히트맵 컨테이너와 레이더 캔버스 영역도 늘어난 카드 높이에 맞추어 유연하게 채워지도록 함 */
+.premium-compass-grid-2:not(.wide-mode) .premium-center-chart-canvas {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.premium-compass-grid-2:not(.wide-mode) .premium-matrix-table-container {
+  height: 100%;
+  min-height: 0;
 }
 
 /* 와이드 모드 오버라이드 */
