@@ -3377,8 +3377,8 @@ const app = {
     const heatmapBox = document.getElementById('heatmap-matrix-box');
     if (heatmapBox) {
       let html = `
-        <div class="premium-matrix-table-container">
-          <table class="premium-matrix-table" style="border-spacing: 4px; border-collapse: separate;">
+        <div class="premium-matrix-table-container premium-heatmap-container">
+          <table class="premium-matrix-table premium-heatmap-table" style="border-spacing: 2px; border-collapse: separate;">
             <thead>
               <tr>
                 <th class="premium-matrix-th-normal" style="text-align: left;">제조 공정</th>

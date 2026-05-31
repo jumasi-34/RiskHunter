@@ -5521,3 +5521,45 @@ body {
     height: calc(100vh - 380px) !important; /* 수직 스크롤 오버플로우 방지 */
   }
 }
+
+/* ==========================================================================
+   🔥 Heatmap High-Density Slim Overrides (No Horizontal Scrollbar, Micro-Fonts)
+   ========================================================================== */
+.premium-heatmap-container {
+  overflow-x: hidden !important;
+}
+
+.premium-heatmap-table {
+  table-layout: fixed !important;
+  width: 100% !important;
+}
+
+.premium-heatmap-table th {
+  padding: 6px 1px !important;
+  font-size: 9px !important;
+  letter-spacing: -0.5px !important;
+}
+
+.premium-heatmap-table td {
+  padding: 4px 1px !important;
+  font-size: 9px !important;
+}
+
+.premium-heatmap-table .premium-matrix-td-label {
+  width: 105px !important;
+  min-width: 105px !important;
+  max-width: 105px !important;
+  padding: 4px 4px !important;
+  font-size: 9px !important;
+  line-height: 1.25 !important;
+  white-space: normal !important; /* Allow wrapping within fixed width to avoid truncation */
+  word-break: keep-all !important;
+}
+
+.premium-heatmap-table .premium-matrix-cell {
+  min-width: 0 !important; /* Remove any minimum width restrictions to let columns shrink equally */
+  padding: 5px 1px !important;
+  font-size: 8.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.3px !important;
+}
