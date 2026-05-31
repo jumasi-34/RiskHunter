@@ -4453,6 +4453,8 @@ const app = {
 
       tbody.appendChild(tr);
     });
+
+    customerTableBox.appendChild(table);
   },
 
   // ④ 지적사항 종결/재오픈 상태 토글 함수
