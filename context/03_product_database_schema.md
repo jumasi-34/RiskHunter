@@ -17,7 +17,7 @@
 | **③** | `document_library.json` | `document_library` | 최신 OEM 기술 규격서 메타데이터 및 타이어 도메인 역해석 매스터 데이터 |
 | **④** | `quality_issues_qi.json` | `quality_issues_qi` | 공장별 과거 발생 품질 실패(QI), 현상(D2), 원인(D4) 및 8D 영구조치 대책(D5) |
 | **⑤** | `change_history_4m.json` | `change_history_4m` | 생산 현장의 설비, 공정, 재료, 작업 표준(4M) 변경 이력 신청/승인 건 |
-| **⑥** | `audit_findings.json` | `audit_findings` | 과거 외부 완성차 고객사 및 제3자 Audit 지적사항(Point out) 및 시정 계획 |
+| **⑥** | `cqms_customer_audit_db.json` | `audit_findings` | 과거 외부 완성차 고객사 및 제3자 Audit 지적사항(Point out) 및 시정 계획 |
 | **⑦** | `oe_quality_assessment_details.json` | `internal_audit_sheets` | **[내부 Audit 시트]** 공장 자체 진단 점검 항목, 부적합 세부 결과 및 예방조치안 |
 | **⑧** | `oe_req_to_audit_checklist.json` | `unified_audit_checklists` | **[통합 Checklist]** 규격서(DOCUMENT) 및 현장 이력(DATABASE) 기반 AI 추출 질문 통합 저장소 |
 
@@ -34,7 +34,7 @@ flowchart TD
         SRC_DOC["📄 document_library.json<br>(규격 메타)"]
         SRC_QI["🚨 quality_issues_qi.json<br>(품질실패 이력)"]
         SRC_4M["⚙️ change_history_4m.json<br>(4M 변경이력)"]
-        SRC_AUD["🕵️ audit_findings.json<br>(과거 지적사항)"]
+        SRC_AUD["🕵️ cqms_customer_audit_db.json<br>(과거 지적사항)"]
         SRC_INT["📋 oe_quality_assessment_details.json<br>(내부 Audit 시트)"]
     end
 
@@ -174,7 +174,7 @@ flowchart TD
 
 ---
 
-### ⑥ `audit_findings` (`data/audit_findings.json`)
+### ⑥ `audit_findings` (`data/cqms_customer_audit_db.json`)
 *   **설명**: 완성차 OEM 및 제3자 전문 심사 위원이 제기한 과거 공정 감사 부적합 지적사항 목록입니다.
 *   **스키마 구성**:
 

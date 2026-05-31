@@ -69,7 +69,7 @@ Phase 1은 흩어져 있는 원천 CSV 파일들을 정밀 JSON 정적 데이터
 ### 🧠 ② [Step 1-B] 비동기 데이터 Fetch 엔진 및 가상 DB 전역화 (`app.js`)
 1.  **동작 흐름**:
     - `index.html` 로드 완료와 동시에 `app.js`에서 `initDatabase()` 함수를 즉각 호출합니다.
-    - `Promise.all()` 구조를 채택하여 6대 핵심 리소스 파일(`document_library.json`, `oe_req_to_audit_checklist.json`, `quality_issues_qi.json`, `change_history_4m.json`, `audit_findings.json`, `users.json`)을 동시 비동기 호출(`fetch`) 처리합니다.
+    - `Promise.all()` 구조를 채택하여 6대 핵심 리소스 파일(`document_library.json`, `oe_req_to_audit_checklist.json`, `quality_issues_qi.json`, `change_history_4m.json`, `cqms_customer_audit_db.json`, `users.json`)을 동시 비동기 호출(`fetch`) 처리합니다.
 2.  **메모리 상주**:
     - 정상적으로 받아와 파싱된 JSON 배열들을 전역 데이터베이스 세션 객체인 `window.db_store` 내부에 안전하게 격리 상주시켜 실시간 가상 쿼리가 가능한 환경을 구축합니다:
       ```javascript

@@ -40,7 +40,7 @@ flowchart TD
         B1 --> C1[("document_library.json")]
         B2 --> C2[("quality_issues_qi.json")]
         B2 --> C3[("change_history_4m.json")]
-        B2 --> C4[("audit_findings.json")]
+        B2 --> C4[("cqms_customer_audit_db.json")]
         
         B1 & B2 -->|통합 및 AI 질문 도출| C5[("oe_req_to_audit_checklist.json")]
     end
@@ -214,7 +214,7 @@ flowchart TD
 
 ---
 
-### ⑤ 과거 감사 지적사항 스키마 (`data/audit_findings.json`)
+### ⑤ 과거 감사 지적사항 스키마 (`data/cqms_customer_audit_db.json`)
 
 *   **설명**: 완성차 OEM 및 제3자 품질 심사 기관이 자사 공장에 제기했던 지적사항(Findings)과 개선 완료 정보를 보관하는 데이터셋입니다.
 

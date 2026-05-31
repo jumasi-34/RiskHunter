@@ -28,7 +28,7 @@ graph TD
 
     subgraph Data_Layer ["💾 Data Layer (data/ Folder)"]
         JSON_Checklist["🗄️ oe_req_to_audit_checklist.json<br>(Audit Questions & Standard Items)"]
-        JSON_Findings["🗄️ audit_findings.json<br>(Past Auditor Findings)"]
+        JSON_Findings["🗄️ cqms_customer_audit_db.json<br>(Past Auditor Findings)"]
         JSON_QI["🗄️ quality_issues_qi.json<br>(Quality Failure History)"]
         JSON_4M["🗄️ change_history_4m.json<br>(4M Process Changes)"]
         JSON_Doc["🗄️ document_library.json<br>(OEM Technical Specifications)"]
@@ -83,7 +83,7 @@ graph TD
 │
 ├── data/                       # 물리 디비(DB)를 완전 대체하는 정적 JSON 원천 파일 폴더
 │   ├── oe_req_to_audit_checklist.json   # 기술 표준 조항 및 감사 체크리스트 질문 마스터
-│   ├── audit_findings.json     # 과거 공장별 오디트 지적 사항 이력 데이터
+│   ├── cqms_customer_audit_db.json     # 과거 공장별 오디트 지적 사항 이력 데이터
 │   ├── quality_issues_qi.json  # 과거 공장별 생산 현장 품질 실패(QI) 이력 데이터
 │   ├── change_history_4m.json  # 과거 공장별 4M(Man, Machine, Material, Method) 변경점 이력
 │   ├── document_library.json   # 글로벌 완성차 고객사(OEM) 규격 문서 목록 데이터

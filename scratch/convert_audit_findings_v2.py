@@ -55,7 +55,7 @@ def translate_single(text, target_lang):
 
 def convert_audit_findings_v2():
     csv_file_path = "/home/jumasi/RiskHunter/documents/audit_risk_hunter.csv"
-    json_file_path = "/home/jumasi/RiskHunter/data/audit_findings.json"
+    json_file_path = "/home/jumasi/RiskHunter/data/cqms_customer_audit_db.json"
     cache_file_path = "/home/jumasi/RiskHunter/scratch/translation_cache.json"
     
     # Load cache if exists

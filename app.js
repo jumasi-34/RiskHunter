@@ -213,8 +213,8 @@ const app = {
           if (!r.ok) throw new Error("Common codes file (common_codes.json) not found");
           return r.json();
         }),
-        fetch('data/audit_findings.json').then(r => {
-          if (!r.ok) throw new Error("Audit findings file (audit_findings.json) not found");
+        fetch('data/cqms_customer_audit_db.json').then(r => {
+          if (!r.ok) throw new Error("Audit findings file (cqms_customer_audit_db.json) not found");
           return r.json();
         }),
         fetch('data/change_history_4m.json').then(r => {

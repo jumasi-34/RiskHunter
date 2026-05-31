@@ -7,7 +7,7 @@ import json
 
 def convert_audit_findings():
     csv_file_path = "/home/jumasi/RiskHunter/documents/audit_risk_hunter.csv"
-    json_file_path = "/home/jumasi/RiskHunter/data/audit_findings.json"
+    json_file_path = "/home/jumasi/RiskHunter/data/cqms_customer_audit_db.json"
     
     # Ensure directory exists
     os.makedirs(os.path.dirname(json_file_path), exist_ok=True)
