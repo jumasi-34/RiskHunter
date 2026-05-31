@@ -377,11 +377,42 @@ const app = {
       { id: 3, doc_code: "VDA 6.3", doc_name: "VDA 6.3 Quality Standard for Automotive Industry", customer: "Hyundai", register_date: "2025-11-10", version: "2023 Edition", file_size: "4.8MB", file_type: "PDF" }
     ];
 
-    // 5. auditFindings (모의 5대 공정별 지적사항 목록)
+    // 5. auditFindings (모의 5대 공정별 지적사항 및 28개 미래 예정 감사 일정 목록 통합)
     this.state.auditFindings = [
+      // 기존 모의 지적사항 실적 데이터
       { TYPE: "Project", SUBJECT: "2026 BMW Spezial Audit", START_DT: "2026-05-10", END_DT: "2026-05-12", OWNER_ID: 1024, REG_DT: "2026-05-10", COMP_DT: "2026-05-14", STATUS: "Complete", PLANT: "DP", CAR_MAKER: "BMW", PROJECT: "G30", M_CODE: "1033501", PROCESS: "Curing", POINT_OUT_KO: "가류공정 벤트 홀(Vent Hole) 막힘 및 금형 청소 불량으로 타이어 기포 발생 우려.", ROOT_CAUSE_KO: "금형 세정 주기가 규정된 가류 횟수(500회)보다 지연된 650회 시점에 수행되어 이물질 누적.", COUNTER_MEASURE_KO: "금형 세정 주기를 최대 400회로 단축 개정하고, 벤트 핀 작동 확인용 전용 센서 설치 완료.", POINT_OUT_EN: "Risk of tire air bubbles due to blocked curing vent holes and poor mold cleaning.", ROOT_CAUSE_EN: "Mold cleaning was performed at 650 heats, delaying from the regulated 500 heats, causing residue accumulation.", COUNTER_MEASURE_EN: "Shortened mold cleaning interval to 400 heats, and installed a dedicated sensor for checking vent pin operations.", URL: "#" },
       { TYPE: "Project", SUBJECT: "2026 Audi Audit Finding", START_DT: "2026-04-18", END_DT: "2026-04-20", OWNER_ID: 1025, REG_DT: "2026-04-19", COMP_DT: null, STATUS: "On-going", PLANT: "DP", CAR_MAKER: "Audi", PROJECT: "B10", M_CODE: "1033502", PROCESS: "Building", POINT_OUT_KO: "성형 반제품(그린타이어)의 최대 보관 허용 시간인 24시간을 초과하여 장기 체화된 자재 방치.", ROOT_CAUSE_KO: "성형 공정 입구 자재 거치 공간의 FIFO(선입선출) 구조 결여 및 식별 바코드 스캔 누락.", COUNTER_MEASURE_KO: "경사형 중력 롤러 랙을 현장에 도입하여 물리적 FIFO를 강제하고 초과 시 경보등 울리도록 인프라 개편 중.", POINT_OUT_EN: "Excessive storage of green tires on-site exceeding the maximum allowable 24 hours.", ROOT_CAUSE_EN: "Lack of physical FIFO racks at the entrance of building process and omission of barcode scanning.", COUNTER_MEASURE_EN: "Introducing inclined gravity roller racks to enforce physical FIFO, with alarm system installation in progress.", URL: "#" },
-      { TYPE: "Project", SUBJECT: "2026 Hyundai Regular Audit", START_DT: "2026-05-02", END_DT: "2026-05-03", OWNER_ID: 1026, REG_DT: "2026-05-02", COMP_DT: "2026-05-05", STATUS: "Complete", PLANT: "DP", CAR_MAKER: "Hyundai", PROJECT: "NX4", M_CODE: "1033503", PROCESS: "Mixing", POINT_OUT_KO: "정련 배합 평량(Weighing) 단계에서 오일 원재료 투입 오차(초과율 2.5%) 상한 이탈 방치.", ROOT_CAUSE_KO: "오일 정량 주입 밸브 패킹 노후화로 정지 신호 후 추가 리크 발생.", COUNTER_MEASURE_KO: "오일 투입 정량 제어 전자 밸브 교체 및 초과 시 배합 가동을 인터락(Interlock) 차단하도록 PLC 로직 개정.", POINT_OUT_EN: "Oil weighing deviation exceeded upper tolerance limit (2.5%) during mixing process.", ROOT_CAUSE_EN: "Valve packing aging in oil supply line caused leakage after stop signal.", COUNTER_MEASURE_EN: "Replaced oil electronic valve and modified PLC block to interlock and pause mixing operation if oil exceeds tolerance.", URL: "#" }
+      { TYPE: "Project", SUBJECT: "2026 Hyundai Regular Audit", START_DT: "2026-05-02", END_DT: "2026-05-03", OWNER_ID: 1026, REG_DT: "2026-05-02", COMP_DT: "2026-05-05", STATUS: "Complete", PLANT: "DP", CAR_MAKER: "Hyundai", PROJECT: "NX4", M_CODE: "1033503", PROCESS: "Mixing", POINT_OUT_KO: "정련 배합 평량(Weighing) 단계에서 오일 원재료 투입 오차(초과율 2.5%) 상한 이탈 방치.", ROOT_CAUSE_KO: "오일 정량 주입 밸브 패킹 노후화로 정지 신호 후 추가 리크 발생.", COUNTER_MEASURE_KO: "오일 투입 정량 제어 전자 밸브 교체 및 초과 시 배합 가동을 인터락(Interlock) 차단하도록 PLC 로직 개정.", POINT_OUT_EN: "Oil weighing deviation exceeded upper tolerance limit (2.5%) during mixing process.", ROOT_CAUSE_EN: "Valve packing aging in oil supply line caused leakage after stop signal.", COUNTER_MEASURE_EN: "Replaced oil electronic valve and modified PLC block to interlock and pause mixing operation if oil exceeds tolerance.", URL: "#" },
+
+      // data/cqms_customer_audit_db.json 마스터 파일과 100% 동일한 28개 오픈 미래 예정 감사 데이터 (CORS 폴백 안전장치)
+      { TYPE: "Project", SUBJECT: "2026-Audi 대전공장 신규 친환경 타이어 공급사 실사", START_DT: "2026-11-20", END_DT: "2026-11-22", OWNER_ID: 81706381, REG_DT: "2026-05-31", COMP_DT: "", STATUS: "Open", PLANT: "DP", CAR_MAKER: "Audi", PROJECT: "e-tron GT Facelift", M_CODE: "1035055", PROCESS: "Curing", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_DP_AUDI" },
+      { TYPE: "Project", SUBJECT: "2026-기아자동차 금산공장 EV9 신제품 특별 품질 수검", START_DT: "2026-12-05", END_DT: "2026-12-07", OWNER_ID: 81706381, REG_DT: "2026-05-31", COMP_DT: "", STATUS: "Open", PLANT: "KP", CAR_MAKER: "Kia", PROJECT: "EV9 GT-Line", M_CODE: "1035055", PROCESS: "Mixing", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_KP_KIA" },
+      { TYPE: "Project", SUBJECT: "2026-Xiaomi 강소공장 스마트 전기차 타이어 공급사 정기 평가", START_DT: "2026-11-05", END_DT: "2026-11-07", OWNER_ID: 81706381, REG_DT: "2026-05-31", COMP_DT: "", STATUS: "Open", PLANT: "HP", CAR_MAKER: "Xiaomi", PROJECT: "SU7 Ultra", M_CODE: "1035055", PROCESS: "Building", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_HP_XIAOMI" },
+      { TYPE: "Project", SUBJECT: "2026-Changan 중경공장 품질 보증 정기 점검", START_DT: "2026-12-15", END_DT: "2026-12-17", OWNER_ID: 81706381, REG_DT: "2026-05-31", COMP_DT: "", STATUS: "Open", PLANT: "CP", CAR_MAKER: "Changan", PROJECT: "Deepal S7", M_CODE: "1035055", PROCESS: "Extrusion", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_CP_CHANGAN" },
+      { TYPE: "Project", SUBJECT: "2026-현대자동차 인도네시아공장 아세안 시장용 타이어 특별 실사", START_DT: "2026-11-25", END_DT: "2026-11-27", OWNER_ID: 81706381, REG_DT: "2026-05-31", COMP_DT: "", STATUS: "Open", PLANT: "IP", CAR_MAKER: "Hyundai", PROJECT: "Creta EV", M_CODE: "1035055", PROCESS: "Inspection", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_IP_HYUNDAI_ASEAN" },
+      { TYPE: "Project", SUBJECT: "2026-Volvo 헝가리공장 신규 플랫폼용 친환경 타이어 ESG 및 품질 정합성 심사", START_DT: "2026-12-01", END_DT: "2026-12-03", OWNER_ID: 81706381, REG_DT: "2026-05-31", COMP_DT: "", STATUS: "Open", PLANT: "MP", CAR_MAKER: "Volvo", PROJECT: "EX90 EV", M_CODE: "1035055", PROCESS: "Logistics", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_MP_VOLVO" },
+      { TYPE: "Project", SUBJECT: "2027-Stellantis 헝가리공장 유럽 전략 차량 공급 품질 보증 수검", START_DT: "2027-01-15", END_DT: "2027-01-17", OWNER_ID: 81706381, REG_DT: "2026-05-31", COMP_DT: "", STATUS: "Open", PLANT: "MP", CAR_MAKER: "Stellantis", PROJECT: "Peugeot e-3008", M_CODE: "1035055", PROCESS: "Calendaring", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_MP_STELLANTIS" },
+      { TYPE: "Project", SUBJECT: "2026-Nissan 가흥공장 글로벌 최고 공급망 품질 실사", START_DT: "2026-11-18", END_DT: "2026-11-20", OWNER_ID: 81706381, REG_DT: "2026-05-31", COMP_DT: "", STATUS: "Open", PLANT: "JP", CAR_MAKER: "Nissan", PROJECT: "Ariya EV", M_CODE: "1035055", PROCESS: "Cutting", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_JP_NISSAN" },
+      { TYPE: "Project", SUBJECT: "2027-Toyota 가흥공장 프리미엄 완성차 공급 정기 보증 감사", START_DT: "2027-02-10", END_DT: "2027-02-12", OWNER_ID: 81706381, REG_DT: "2026-05-31", COMP_DT: "", STATUS: "Open", PLANT: "JP", CAR_MAKER: "Toyota", PROJECT: "bZ4X EV", M_CODE: "1035055", PROCESS: "Bead", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_JP_TOYOTA" },
+      { TYPE: "Project", SUBJECT: "2026-Tesla 테네시공장 기가팩토리 전용 타이어 스펙 특별 감사", START_DT: "2026-11-30", END_DT: "2026-12-02", OWNER_ID: 81706381, REG_DT: "2026-05-31", COMP_DT: "", STATUS: "Open", PLANT: "TP", CAR_MAKER: "Tesla", PROJECT: "Cybertruck Tri-Motor", M_CODE: "1035055", PROCESS: "Building", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_TP_TESLA" },
+      { TYPE: "Project", SUBJECT: "2027-현대자동차 테네시공장 메타플랜트 전용 타이어 양산 정합성 실사", START_DT: "2027-03-05", END_DT: "2027-03-07", OWNER_ID: 81706381, REG_DT: "2026-05-31", COMP_DT: "", STATUS: "Open", PLANT: "TP", CAR_MAKER: "Hyundai", PROJECT: "IONIQ 7 EV", M_CODE: "1035055", PROCESS: "Curing", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_TP_HYUNDAI" },
+      { TYPE: "Project", SUBJECT: "2026-BMW 대전공장 VDA 6.3 정기 수검", START_DT: "2026-06-15", END_DT: "2026-06-17", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "DP", CAR_MAKER: "BMW", PROJECT: "G60 EV LCI", M_CODE: "1035055", PROCESS: "Mixing", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_DP_BMW" },
+      { TYPE: "Project", SUBJECT: "2026-현대자동차 금산공장 SQ 마크 인증 심사", START_DT: "2026-07-12", END_DT: "2026-07-14", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "KP", CAR_MAKER: "Hyundai", PROJECT: "IONIQ 9 EV", M_CODE: "1035055", PROCESS: "Extrusion", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_KP_HYUNDAI" },
+      { TYPE: "Project", SUBJECT: "2026-Tesla 강소공장 신차 부품 정기 감사", START_DT: "2026-08-05", END_DT: "2026-08-07", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "HP", CAR_MAKER: "Tesla", PROJECT: "Model Y LCI", M_CODE: "1035055", PROCESS: "Building", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_HP_TESLA" },
+      { TYPE: "Project", SUBJECT: "2026-BYD 중경공장 신공정 공급선 품질 심사", START_DT: "2026-09-20", END_DT: "2026-09-22", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "CP", CAR_MAKER: "BYD", PROJECT: "Sea Lion EV", M_CODE: "1035055", PROCESS: "Curing", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_CP_BYD" },
+      { TYPE: "Project", SUBJECT: "2026-Toyota 인도네시아공장 현지 정기 감사", START_DT: "2026-10-18", END_DT: "2026-10-20", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "IP", CAR_MAKER: "Toyota", PROJECT: "Innova Hybrid", M_CODE: "1035055", PROCESS: "Inspection", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_IP_TOYOTA" },
+      { TYPE: "Project", SUBJECT: "2026-Mercedes-Benz 헝가리공장 정기 프로세스 실사", START_DT: "2026-06-20", END_DT: "2026-06-22", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "MP", CAR_MAKER: "Mercedes-Benz", PROJECT: "EQA Facelift", M_CODE: "1035055", PROCESS: "Calendaring", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_MP_BENZ" },
+      { TYPE: "Project", SUBJECT: "2026-Porsche 헝가리공장 프리미엄 공급사 심사", START_DT: "2026-07-25", END_DT: "2026-07-27", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "MP", CAR_MAKER: "Porsche", PROJECT: "Macan EV", M_CODE: "1035055", PROCESS: "Bead", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_MP_PORSCHE" },
+      { TYPE: "Project", SUBJECT: "2026-Volkswagen 헝가리공장 IATF 16949 보완 심사", START_DT: "2026-08-30", END_DT: "2026-09-01", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "MP", CAR_MAKER: "Volkswagen", PROJECT: "ID.7 EV", M_CODE: "1035055", PROCESS: "Re-work", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_MP_VW" },
+      { TYPE: "Project", SUBJECT: "2026-BMW 헝가리공장 차세대 EV 공급 정합성 감사", START_DT: "2026-10-10", END_DT: "2026-10-12", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "MP", CAR_MAKER: "BMW", PROJECT: "Neue Klasse EV", M_CODE: "1035055", PROCESS: "Form", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_MP_BMW_EV" },
+      { TYPE: "Project", SUBJECT: "2026-Geely 가흥공장 고성능 타이어 공급 정기 실사", START_DT: "2026-06-10", END_DT: "2026-06-12", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "JP", CAR_MAKER: "Geely", PROJECT: "Zeekr 001", M_CODE: "1035055", PROCESS: "Mixing", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_JP_GEELY" },
+      { TYPE: "Project", SUBJECT: "2026-NIO 가흥공장 차세대 공급망 품질 실사", START_DT: "2026-07-15", END_DT: "2026-07-17", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "JP", CAR_MAKER: "NIO", PROJECT: "ET5 Touring", M_CODE: "1035055", PROCESS: "Cutting", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_JP_NIO" },
+      { TYPE: "Project", SUBJECT: "2026-Honda 가흥공장 부품 인증 평가 심사", START_DT: "2026-09-05", END_DT: "2026-09-07", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "JP", CAR_MAKER: "Honda", PROJECT: "e:NP2 EV", M_CODE: "1035055", PROCESS: "Incoming", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_JP_HONDA" },
+      { TYPE: "Project", SUBJECT: "2026-SAIC Audi 가흥공장 품질 프로세스 검사", START_DT: "2026-11-12", END_DT: "2026-11-14", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "JP", CAR_MAKER: "SAIC Audi", PROJECT: "Q6 e-tron", M_CODE: "1035055", PROCESS: "Inspection", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_JP_SAIC_AUDI" },
+      { TYPE: "Project", SUBJECT: "2026-GM 테네시공장 QSB+ 정기 공급선 감사", START_DT: "2026-06-05", END_DT: "2026-06-07", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "TP", CAR_MAKER: "GM", PROJECT: "Lyriq EV", M_CODE: "1035055", PROCESS: "Form", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_TP_GM" },
+      { TYPE: "Project", SUBJECT: "2026-Ford 테네시공장 전동화 타이어 스펙 점검", START_DT: "2026-07-20", END_DT: "2026-07-22", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "TP", CAR_MAKER: "Ford", PROJECT: "F-150 Lightning", M_CODE: "1035055", PROCESS: "Sealant", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_TP_FORD" },
+      { TYPE: "Project", SUBJECT: "2026-Rivian 테네시공장 공급사 특별 실사 심사", START_DT: "2026-08-15", END_DT: "2026-08-17", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "TP", CAR_MAKER: "Rivian", PROJECT: "R1S EV", M_CODE: "1035055", PROCESS: "Building", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_TP_RIVIAN" },
+      { TYPE: "Project", SUBJECT: "2026-Stellantis 테네시공장 정기 프로세스 감사", START_DT: "2026-10-05", END_DT: "2026-10-07", OWNER_ID: 81706381, REG_DT: "2026-05-30", COMP_DT: "", STATUS: "Open", PLANT: "TP", CAR_MAKER: "Stellantis", PROJECT: "Ram 1500 EV", M_CODE: "1035055", PROCESS: "Curing", POINT_OUT: "", ROOT_CAUSE_ANALYSIS: "", COUNTER_MEASURE: "", URL: "https://egqms.hankooktech.com/CUSTOMER_AUDIT_LIST/customerAuditReportPopup.html?cqmsCustomerAuditSeq=FUTURE_TP_STELLANTIS" }
     ];
 
     // 6. changeHistory4m (4M 공정 변경점 이력)
@@ -813,31 +844,40 @@ const app = {
     // cqms_customer_audit_db.json (this.state.auditFindings) 로드된 실데이터로부터 고유 감사 일정 목록 동적 생성
     const defaultAudits = [];
     if (this.state.auditFindings && Array.isArray(this.state.auditFindings) && this.state.auditFindings.length > 0) {
-      // START_DT 기준 최신순 정렬
+      // START_DT 기준 최신순 정렬 (유효성 검사를 통해 Invalid Date 정렬 붕괴 방지)
       const sortedFindings = [...this.state.auditFindings].sort((a, b) => {
-        return new Date(b.START_DT || 0) - new Date(a.START_DT || 0);
+        const tA = a.START_DT ? new Date(a.START_DT).getTime() : 0;
+        const tB = b.START_DT ? new Date(b.START_DT).getTime() : 0;
+        const vA = isNaN(tA) ? 0 : tA;
+        const vB = isNaN(tB) ? 0 : tB;
+        return vB - vA;
       });
       
+      // STATUS가 'Open' 상태인 실시간 예정 미래 감사 데이터만 정밀 추출
+      const openFindings = sortedFindings.filter(f => f.STATUS === 'Open');
+      
       const uniqueSubjects = {};
-      sortedFindings.forEach(f => {
+      openFindings.forEach(f => {
         if (f.SUBJECT && !uniqueSubjects[f.SUBJECT]) {
           uniqueSubjects[f.SUBJECT] = f;
         }
       });
       
       let index = 1;
-      const subjectsArray = Object.keys(uniqueSubjects).slice(0, 8); // 최신 상위 8개 추출로 데모 뷰포트 지지
+      // slice 제약을 과감히 확장하여 시딩된 모든 미래 예정 일정이 누락 없이 드롭다운에 정렬 바인딩되도록 유도 (최대 50개)
+      const subjectsArray = Object.keys(uniqueSubjects).slice(0, 50); 
       subjectsArray.forEach(subject => {
         const item = uniqueSubjects[subject];
         defaultAudits.push({
-          id: `audit_${index}`,
+          id: `audit_db_${index}`, // 중복 ID 방지를 위해 고유 프리픽스 audit_db_ 적용
           title: item.SUBJECT,
           plantCode: item.PLANT || "DP",
           customer: item.CAR_MAKER || "BMW",
           date: item.START_DT || "2026-06-15",
           leadAuditor: index % 2 === 0 ? "이현우 책임" : "박정호 수석",
           project: item.PROJECT || "전사 신규 품질 실사",
-          type: item.TYPE === "Project" ? "VDA 6.3 Process Audit" : "IATF 16949 Standard Audit",
+          type: item.TYPE || "Project",
+          typeName: item.TYPE === "Project" ? "VDA 6.3 Process Audit" : "IATF 16949 Standard Audit",
           desc: `${item.SUBJECT} 수검 및 사전 대응 체크리스트 준비`
         });
         index++;
@@ -848,35 +888,65 @@ const app = {
     if (defaultAudits.length === 0) {
       defaultAudits.push(
         {
-          id: "audit_1",
+          id: "audit_db_1",
           title: "BMW 대전공장 VDA 6.3 정기 수검",
           plantCode: "DP",
           customer: "BMW",
           date: "2026-06-15",
           leadAuditor: "박정호 수석",
           project: "G60 EV LCI",
-          type: "VDA 6.3 Process Audit",
+          type: "Project",
+          typeName: "VDA 6.3 Process Audit",
           desc: "VDA 6.3 정기 품질 프로세스 심사 - 전 공정 (배합, 압출, 성형, 가류)"
         },
         {
-          id: "audit_2",
+          id: "audit_db_2",
           title: "Audi 헝가리공장 신차 실사 (IATF 16949)",
           plantCode: "MP",
           customer: "Audi",
           date: "2026-06-25",
           leadAuditor: "이현우 책임",
           project: "PPE Platform SUV",
-          type: "IATF 16949 Standard Audit",
+          type: "System",
+          typeName: "IATF 16949 Standard Audit",
           desc: "신규 완성차 장착용 고성능 타이어 공급선 특수공정 심사"
         }
       );
     }
 
-    // audits 로딩
+    // audits 로딩 (로컬스토리지 캐시 잠김 문제를 해소하는 스마트 병합 탑재)
     const storedAudits = localStorage.getItem('cqms_customer_audit_db');
     if (storedAudits) {
       try {
-        this.state.audits = JSON.parse(storedAudits);
+        const parsedStored = JSON.parse(storedAudits);
+        
+        // 캐시 데이터의 하위 호환성 및 정규화 보정 적용
+        parsedStored.forEach(sa => {
+          if (sa.type === "VDA 6.3 Process Audit") {
+            sa.type = "Project";
+            if (!sa.typeName) sa.typeName = "VDA 6.3 Process Audit";
+          } else if (sa.type === "IATF 16949 Standard Audit") {
+            sa.type = "System";
+            if (!sa.typeName) sa.typeName = "IATF 16949 Standard Audit";
+          }
+          if (sa.type === "Project" && !sa.typeName) {
+            sa.typeName = "VDA 6.3 Process Audit";
+          } else if (sa.type === "System" && !sa.typeName) {
+            sa.typeName = "IATF 16949 Standard Audit";
+          }
+        });
+
+        // 로컬 캐시 데이터 중 과거 하드코딩 mock audits(BMW 대전공장, Audi 헝가리공장)는 과감히 차단하여
+        // 최신 data/cqms_customer_audit_db.json 데이터가 캐시에 가려 누락되는 현상을 완벽히 해소
+        const manualAdded = parsedStored.filter(sa => {
+          const isMock = sa.title === "BMW 대전공장 VDA 6.3 정기 수검" || 
+                         sa.title === "Audi 헝가리공장 신차 실사 (IATF 16949)" ||
+                         sa.id === "audit_1" || 
+                         sa.id === "audit_2";
+          return !isMock && !defaultAudits.some(da => da.title === sa.title);
+        });
+        this.state.audits = [...defaultAudits, ...manualAdded];
+        localStorage.setItem('cqms_customer_audit_db', JSON.stringify(this.state.audits));
       } catch (e) {
         console.error("Failed to parse audits from localStorage", e);
         this.state.audits = defaultAudits;
@@ -886,9 +956,10 @@ const app = {
       localStorage.setItem('cqms_customer_audit_db', JSON.stringify(defaultAudits));
     }
 
-    // selectedAuditId 로딩
+    // selectedAuditId 로딩 (캐시 잠김 해소를 위해 과거 mock ID인 audit_1, audit_2 등은 최신 고유 ID로 스마트 마이그레이션 적용)
     const storedSelectedId = localStorage.getItem('riskhunter_selected_audit_id');
-    if (storedSelectedId && this.state.audits.some(a => a.id === storedSelectedId)) {
+    const isMockId = storedSelectedId === "audit_1" || storedSelectedId === "audit_2" || !storedSelectedId;
+    if (!isMockId && this.state.audits.some(a => a.id === storedSelectedId)) {
       this.state.selectedAuditId = storedSelectedId;
     } else {
       this.state.selectedAuditId = this.state.audits[0]?.id || null;
@@ -1331,12 +1402,13 @@ const app = {
     const infoType = document.getElementById('info-type');
     if (infoType) {
       const selectedType = audit.type || 'Project';
+      const typeName = audit.typeName || (selectedType === 'Project' ? 'VDA 6.3 Process Audit' : 'IATF 16949 Standard Audit');
       if (selectedType === 'Project') {
-        infoType.textContent = 'Project (제조공정)';
+        infoType.textContent = `${typeName} (제조공정)`;
       } else if (selectedType === 'System') {
-        infoType.textContent = 'System (시스템)';
+        infoType.textContent = `${typeName} (시스템)`;
       } else {
-        infoType.textContent = selectedType;
+        infoType.textContent = typeName;
       }
     }
     
@@ -1749,6 +1821,7 @@ const app = {
       customer: customer,
       date: date,
       type: auditType, // Audit Type 저장
+      typeName: auditType === "Project" ? "VDA 6.3 Process Audit" : "IATF 16949 Standard Audit",
       leadAuditor: lead,
       project: project || "전사 신규 품질 실사",
       desc: desc || "정적 MVP 기반 수검 계획 등록"
@@ -2588,24 +2661,71 @@ const app = {
   // 1) 로컬 저장소(localStorage)에서 Findings 상태 복구 및 데이터 보존
   loadPlantRiskActionData() {
     console.log("🏭 Initializing Plant Risk & Action local data...");
+    
+    // 마스터 데이터 세트에 고유 식별자(DOC_NO)가 부여되어 있는지 확실히 검증하고, 누락된 조항에 고유 ID 자동 수여 (toggling 용)
+    if (this.state.auditFindings && Array.isArray(this.state.auditFindings)) {
+      this.state.auditFindings.forEach((item, index) => {
+        if (!item.DOC_NO) {
+          item.DOC_NO = `FINDING-${index + 1}`;
+        }
+      });
+    }
+
     const storedFindings = localStorage.getItem('riskhunter_findings');
     if (storedFindings) {
       try {
         const parsed = JSON.parse(storedFindings);
-        // 스키마 마이그레이션 정합성 검사: 구형 데이터에 다국어 컬럼('POINT_OUT_KO')이 존재하지 않으면 캐시를 리셋하여 최신 번역 DB로 갱신
-        const hasMultiLang = parsed.length > 0 && ('POINT_OUT_KO' in parsed[0]);
-        if (!hasMultiLang) {
-          console.log("⚠️ 구형 지적사항 데이터 스키마가 로컬스토리지에서 포착되었습니다. 최신 다국어 데이터베이스로 마이그레이션을 강제 수행합니다.");
+        if (Array.isArray(parsed)) {
+          // 1. 사용자가 "Finding Logger"에서 수동으로 신규 등록한 커스텀 지적사항만 정밀 추출 (DOC_NO 규격: FINDING-<timestamp>)
+          const customFindings = parsed.filter(item => {
+            if (!item.DOC_NO) return false;
+            const parts = item.DOC_NO.split('-');
+            if (parts.length === 2 && parts[0] === 'FINDING') {
+              const timestampVal = parseInt(parts[1], 10);
+              // timestamp-based ID는 항상 아주 큰 정수값(1000000 초과)
+              return !isNaN(timestampVal) && timestampVal > 1000000;
+            }
+            return false;
+          });
+
+          // 2. 정적 지적사항 항목에 가해진 사용자 상태 편집 정보(종결/재오픈 등)를 compound key 기반 매핑 정보로 수집
+          // (SUBJECT + START_DT + PLANT 조합을 유니크 식별자로 적용해 데이터 파일 갱신 시에도 어긋나지 않는 초강력 내진설계 탑재)
+          const statusEditMap = {};
+          parsed.forEach(item => {
+            const isCustom = item.DOC_NO && item.DOC_NO.startsWith('FINDING-') && parseInt(item.DOC_NO.split('-')[1], 10) > 1000000;
+            if (!isCustom && item.SUBJECT) {
+              const compKey = `${item.SUBJECT}_${item.START_DT}_${item.PLANT}`;
+              statusEditMap[compKey] = {
+                STATUS: item.STATUS,
+                COMP_DT: item.COMP_DT
+              };
+            }
+          });
+
+          // 3. 파일 DB(this.state.auditFindings) 로드 원본에 사용자의 기존 필드 편집 내용을 대조 덮어쓰기 병합
           if (this.state.auditFindings && this.state.auditFindings.length > 0) {
-            localStorage.setItem('riskhunter_findings', JSON.stringify(this.state.auditFindings));
-            console.log("🏭 로컬스토리지 지적사항 스키마 동기화 완료!");
+            this.state.auditFindings.forEach(item => {
+              const compKey = `${item.SUBJECT}_${item.START_DT}_${item.PLANT}`;
+              if (statusEditMap[compKey]) {
+                item.STATUS = statusEditMap[compKey].STATUS;
+                item.COMP_DT = statusEditMap[compKey].COMP_DT;
+              }
+            });
           }
-        } else {
-          this.state.auditFindings = parsed;
-          console.log(`🏭 Restored ${this.state.auditFindings.length} findings from localStorage with Multilingual support.`);
+
+          // 4. 추출해둔 수동 커스텀 지적사항 목록을 파일 DB 데이터 앞단에 중복 없이 안전 프리펜드(Prepend) 병합
+          const masterDocIds = new Set((this.state.auditFindings || []).map(f => f.DOC_NO));
+          const uniqueCustoms = customFindings.filter(f => !masterDocIds.has(f.DOC_NO));
+          
+          this.state.auditFindings = [...uniqueCustoms, ...(this.state.auditFindings || [])];
+          
+          console.log(`🏭 Smart merging: ${uniqueCustoms.length} custom user findings merged and status adjustments restored.`);
+          
+          // 동기화 완료된 깨끗한 데이터를 캐시에 즉시 영속 리셋
+          localStorage.setItem('riskhunter_findings', JSON.stringify(this.state.auditFindings));
         }
       } catch (e) {
-        console.error("Failed to parse findings from localStorage", e);
+        console.error("Failed to parse and merge findings from localStorage", e);
       }
     } else {
       if (this.state.auditFindings && this.state.auditFindings.length > 0) {
@@ -7402,7 +7522,10 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
 
     // ③ 과거 감사 지적사항 매핑
     if (this.state.auditFindings) {
-      this.state.auditFindings.forEach(item => {
+      this.state.auditFindings.forEach((item, index) => {
+        if (!item.DOC_NO) {
+          item.DOC_NO = `FINDING-${index + 1}`;
+        }
         const text = [
           item.POINT_OUT || '',
           item.ROOT_CAUSE_ANALYSIS || '',
