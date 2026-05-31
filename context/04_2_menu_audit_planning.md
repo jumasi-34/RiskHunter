@@ -31,16 +31,17 @@
     *   대기(Pending): 배경 `#f8fafc`, 테두리 `#e2e8f0`, 글자 `#475569` (회색)
     *   지연/위험(Delayed/High Risk): 글자 및 배경 테두리 `#ef4444` (적색 점멸 `blink` 효과 가미)
 
-### ② 상단 위 고정 및 프리미엄 다크 슬레이트 블루 대시보드 규격 (Reverse-Sync - Compact Spacing)
+### ② 상단 위 고정 및 프리미엄 라이트 솔리드 대시보드 규격 (Reverse-Sync - Compact Spacing)
 사용자의 스크롤 시 편의성을 극대화하기 위해 상단 필터 바, 활성 일정 선택기 및 실시간 대시보드를 통째로 위 고정(Sticky Header)으로 묶고, 불필요한 공백을 완전히 소거한 고밀도 콕핏(Cockpit) 스타일로 설계합니다.
 *   **Sticky Wrapper (.sticky-planning-header)**:
     - position: sticky, z-index: 100을 통해 서브탭 내용 스크롤 시 상단에 밀착 고정.
-    - `padding-bottom: 4px; margin-bottom: 12px;`를 적용하여 수직 여백 최소화.
-*   **다크 슬레이트 블루 대시보드 (.monitoring-dashboard-card)**:
-    - 백그라운드 `#0f172a`, 테두리 `rgba(255, 255, 255, 0.12)`, 텍스트 `#f8fafc` (WCAG 2.1 AA 충족).
+    - `padding-bottom: 2px; margin-bottom: 8px;`를 적용하여 수직 여백 최소화.
+*   **프리미엄 라이트 솔리드 대시보드 (.monitoring-dashboard-card)**:
+    - 백그라운드 `var(--bg-card, #ffffff)` (순백색 솔리드 표면), 테두리 `var(--border-card, #e2e8f0)` (표준 연그레이 테두리), 텍스트 `var(--text-primary, #0f172a)` (WCAG 2.1 AA 충족 및 최적 가독성).
     - `padding: 12px 18px; margin-bottom: 8px;` 및 `min-height: 130px;`로 카드 자체의 불필요한 빈 여백을 정밀 차단.
-    - 2x2 디테일 정보 블록은 `padding: 4px 8px;` 및 gap 6px의 고농축 그리드 뷰 구현.
-    - 5대 가로 KPI 카드들(.kpi-sub-card)은 `padding: 8px 6px !important;` 및 글자 크기 `18px` 조정을 통해 컴팩트한 입체 계기판으로 마감.
+    - 가로 100%를 꽉 채우도록 내부 그리드에 `width: 100%;` 지정하여 좌우 빈 여백 붕괴 버그 완벽 차단.
+    - 2x2 디테일 정보 블록은 `background: var(--bg-app, #f8fafc)` (차분한 라이트 그레이), `border: 1px solid var(--border-card, #e2e8f0)` (가벼운 테두리), `padding: 4px 8px;` 및 gap 6px의 고농축 그리드 뷰 구현.
+    - 5대 가로 KPI 카드들(.kpi-sub-card)은 `background: var(--bg-app, #f8fafc)`, `border: 1px solid var(--border-card, #e2e8f0)` 조합에 `padding: 6px 4px !important;` 및 수치 폰트를 현대적인 테크 서체 `'Outfit', sans-serif`로 지정하여 세련되고 균등하게 분할된 B2B 가로 계기판 컴팩트 마감.
     - 상단 필터 셀렉터들의 높이를 `34px`로 통합 소형화하고 간격을 `8px`로 좁혀 전체 화면 대비 과한 면적 점유 방지.
 
 ### ③ 신규 감사 일정 등록 팝업 (White Modal) 규칙

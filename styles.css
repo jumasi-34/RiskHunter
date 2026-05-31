@@ -2212,75 +2212,82 @@ body {
   top: -32px;
   z-index: 100;
   background: var(--bg-app, #f8fafc);
-  padding-bottom: 4px;
-  margin-bottom: 12px;
+  padding-bottom: 2px;
+  margin-bottom: 8px;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
 }
 
-/* 다크 슬레이트 블루 대시보드 (Premium High-Contrast Theme) */
+/* 프리미엄 라이트 솔리드 대시보드 (Premium Solid White Theme - Compact Slim) */
 #tab-audit-planning .monitoring-dashboard-card {
-  background: #0f172a !important; /* 고대비 슬레이트 블랙 */
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  color: #f8fafc !important; /* 고대비 밝은 텍스트 */
-  border-radius: var(--radius-card, 12px) !important;
-  box-shadow: 0 15px 30px rgba(15, 23, 42, 0.2) !important;
+  background: var(--bg-card, #ffffff) !important; /* 순백색 솔리드 표면 */
+  border: 1px solid var(--border-card, #e2e8f0) !important; /* 표준 연그레이 테두리 */
+  color: var(--text-primary, #0f172a) !important; /* 주조색 텍스트 */
+  border-radius: 12px !important; /* 프리미엄 패널 라운드(12px) */
+  box-shadow: var(--shadow-base, 0 4px 6px -1px rgba(0, 0, 0, 0.05)) !important; /* 자연스러운 섀도우 */
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 #tab-audit-planning .monitoring-dashboard-card .left-boundary {
-  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-right: 1px solid var(--border-card, #e2e8f0) !important; /* 가볍고 맑은 테두리 */
 }
 
 /* 2x2 디테일 그리드 내 개별 정보 카드 */
 #tab-audit-planning .monitoring-dashboard-card .detail-info-block {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: var(--bg-app, #f8fafc) !important; /* 차분한 라이트 그레이 */
+  border: 1px solid var(--border-card, #e2e8f0) !important; /* 가벼운 테두리 */
   border-radius: 6px !important;
-  color: #f1f5f9 !important;
+  color: var(--text-primary, #0f172a) !important; /* 가독성 높은 주조색 텍스트 */
 }
 
 #tab-audit-planning .monitoring-dashboard-card .detail-info-title {
-  color: #94a3b8 !important; /* WCAG AA 만족용 회색 */
+  color: var(--text-muted-light, #64748b) !important; /* WCAG AA 만족용 회색 */
   font-weight: 700 !important;
 }
 
-/* 5대 KPI 가로 카드들 */
+/* 5대 KPI 가로 카드들 - 초슬림 고농축 패키지 */
 #tab-audit-planning .monitoring-dashboard-card .kpi-sub-card {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  background: var(--bg-app, #f8fafc) !important; /* 연한 회색/블루 조화 배경 */
+  border: 1px solid var(--border-card, #e2e8f0) !important; /* 미세한 그레이 테두리 */
   border-radius: 8px !important;
-  padding: 8px 6px !important;
+  padding: 6px 4px !important;
   display: flex !important;
   flex-direction: column !important;
-  justify-content: space-between !important;
+  justify-content: center !important;
+  align-items: center !important;
   text-align: center !important;
-  transition: all 0.25s ease !important;
+  min-height: 54px !important;
+  transition: all 0.2s ease !important;
 }
 
 #tab-audit-planning .monitoring-dashboard-card .kpi-sub-card:hover {
-  transform: translateY(-2px) !important;
-  background: rgba(255, 255, 255, 0.09) !important;
-  border-color: rgba(255, 255, 255, 0.18) !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
+  transform: translateY(-1.5px) !important;
+  background: #f1f5f9 !important; /* 미세한 마우스오버 효과 */
+  border-color: #cbd5e1 !important;
+  box-shadow: var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05)) !important;
 }
 
 #tab-audit-planning .monitoring-dashboard-card .kpi-sub-card .kpi-title {
-  font-size: 10px !important;
-  color: #cbd5e1 !important; /* 고대비 연그레이 */
+  font-size: 9px !important;
+  color: var(--text-muted-light, #64748b) !important; /* 가독성 높은 연그레이 */
   font-weight: 700 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.02em !important;
+  margin-bottom: 2px !important;
 }
 
 #tab-audit-planning .monitoring-dashboard-card .kpi-sub-card .kpi-value {
-  font-size: 18px !important;
+  font-size: 16px !important;
   font-weight: 800 !important;
-  font-family: monospace !important;
+  font-family: 'Outfit', sans-serif !important; /* 현대적인 테크 서체 */
+  line-height: 1.1 !important;
 }
 
 #tab-audit-planning .monitoring-dashboard-card .kpi-sub-card .kpi-sub-text {
-  font-size: 9px !important;
-  color: #94a3b8 !important; /* 가독성 높은 그레이 */
+  font-size: 8.5px !important;
+  color: var(--text-muted-light, #64748b) !important; /* 가독성 보장 */
+  margin-top: 2px !important;
+  line-height: 1.1 !important;
+  white-space: nowrap !important;
 }
 
 
