@@ -5637,8 +5637,35 @@ body {
 }
 
 .premium-compass-grid-2:not(.wide-mode) .premium-matrix-table-container {
-  height: 100%;
-  min-height: 0;
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex-grow: 1 !important;
+}
+
+.premium-compass-grid-2:not(.wide-mode) .premium-heatmap-container {
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex-grow: 1 !important;
+  overflow: hidden !important;
+}
+
+.premium-compass-grid-2:not(.wide-mode) .premium-heatmap-table {
+  height: 100% !important;
+  flex-grow: 1 !important;
+  border-collapse: separate !important;
+  margin: 0 !important;
+}
+
+.premium-compass-grid-2:not(.wide-mode) .premium-heatmap-table tbody {
+  height: 100% !important;
+}
+
+.premium-compass-grid-2:not(.wide-mode) .premium-heatmap-table tr {
+  height: calc(100% / 11) !important;
 }
 
 /* 와이드 모드 오버라이드 */
