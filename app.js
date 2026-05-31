@@ -7856,17 +7856,28 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
             dDayClass = 'badge-success';
           }
 
-          // 태스크 완료율 계산
+          // 태스크 완료율 및 진행/대기 계산 (3단 구성)
           const taskStates = this.state.planningChecklistStates[audit.id] || {};
           const totalTasks = (this.state.planningTasks || []).length;
           
           let completedCount = 0;
+          let inProgressCount = 0;
+          let pendingCount = 0;
+          
           (this.state.planningTasks || []).forEach(task => {
-            if (taskStates[task.id] === 'completed') {
+            const state = taskStates[task.id] || 'pending';
+            if (state === 'completed') {
               completedCount++;
+            } else if (state === 'in_progress') {
+              inProgressCount++;
+            } else {
+              pendingCount++;
             }
           });
-          const completionRate = totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
+          
+          const completedRate = totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
+          const inProgressRate = totalTasks > 0 ? (inProgressCount / totalTasks) * 100 : 0;
+          const pendingRate = totalTasks > 0 ? (pendingCount / totalTasks) * 100 : 0;
 
           // 공장 이름 찾기
           const plantObj = (this.state.commonCodes.plants || []).find(p => p.code === audit.PLANT);
@@ -7900,14 +7911,20 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
 
               <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 5px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
-                  <span style="color: var(--text-muted-light); font-weight: 500;">D-30 준비 완료도</span>
-                  <span style="color: var(--brand-blue); font-weight: 800; font-family: monospace;">${completionRate.toFixed(0)}%</span>
+                  <span style="color: var(--text-muted-light); font-weight: 500;">D-30 준비 진척도</span>
+                  <span style="color: var(--brand-blue); font-weight: 800; font-family: monospace;">${completedRate.toFixed(0)}%</span>
                 </div>
-                <div style="width: 100%; height: 5px; background: rgba(15, 23, 42, 0.06); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-card);">
-                  <div style="width: ${completionRate}%; height: 100%; background: linear-gradient(90deg, #2563eb, #00c8ff); border-radius: 3px; transition: width 0.3s ease;"></div>
+                <div style="width: 100%; height: 6px; background: rgba(15, 23, 42, 0.06); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-card); display: flex;">
+                  <div style="width: ${completedRate}%; height: 100%; background: linear-gradient(90deg, #2563eb, #00c8ff); transition: width 0.3s ease;" title="완료: ${completedRate.toFixed(1)}%"></div>
+                  <div style="width: ${inProgressRate}%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); transition: width 0.3s ease;" title="진행: ${inProgressRate.toFixed(1)}%"></div>
+                  <div style="width: ${pendingRate}%; height: 100%; background: rgba(203, 213, 225, 0.4); transition: width 0.3s ease;" title="대기: ${pendingRate.toFixed(1)}%"></div>
                 </div>
-                <span style="font-size: 10.5px; color: var(--text-muted-light); margin-top: 2px;">
-                  완료 <strong style="color: var(--text-primary);">${completedCount}건</strong> / 대기 <strong style="color: var(--text-primary);">${totalTasks - completedCount}건</strong>
+                <span style="font-size: 10.5px; color: var(--text-muted-light); margin-top: 2px; display: flex; gap: 8px; align-items: center;">
+                  <span>완료: <strong style="color: var(--brand-blue); font-weight: 700;">${completedCount}건</strong></span>
+                  <span style="color: rgba(15, 23, 42, 0.15);">|</span>
+                  <span>진행: <strong style="color: var(--text-status-medium); font-weight: 700;">${inProgressCount}건</strong></span>
+                  <span style="color: rgba(15, 23, 42, 0.15);">|</span>
+                  <span>대기: <strong style="color: var(--text-muted-light); font-weight: 700;">${pendingCount}건</strong></span>
                 </span>
               </div>
             </div>
