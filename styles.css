@@ -4091,6 +4091,10 @@ body {
   gap: 20px;
 }
 
+.premium-compass-grid-2 > * {
+  min-width: 0;
+}
+
 @media (max-width: 1200px) {
   .premium-compass-grid-2 {
     grid-template-columns: 1fr;
