@@ -810,42 +810,67 @@ const app = {
   loadAuditPlanningData() {
     console.log("📅 Initializing Audit Planning local data...");
     
-    // 기본 일정 정의 (저장소가 비어있을 때 불러옴)
-    const defaultAudits = [
-      {
-        id: "audit_1",
-        title: "BMW 대전공장 VDA 6.3 정기 수검",
-        plantCode: "DP",
-        customer: "BMW",
-        date: "2026-06-15",
-        leadAuditor: "박정호 수석",
-        project: "G60 EV LCI",
-        type: "VDA 6.3 Process Audit",
-        desc: "VDA 6.3 정기 품질 프로세스 심사 - 전 공정 (배합, 압출, 성형, 가류)"
-      },
-      {
-        id: "audit_2",
-        title: "Audi 헝가리공장 신차 실사 (IATF 16949)",
-        plantCode: "MP",
-        customer: "Audi",
-        date: "2026-06-25",
-        leadAuditor: "이현우 책임",
-        project: "PPE Platform SUV",
-        type: "IATF 16949 Standard Audit",
-        desc: "신규 완성차 장착용 고성능 타이어 공급선 특수공정 심사"
-      },
-      {
-        id: "audit_3",
-        title: "GM 테네시공장 공급선 정기 평가",
-        plantCode: "TP",
-        customer: "GM",
-        date: "2026-06-08",
-        leadAuditor: "박정호 수석",
-        project: "Lyriq EV",
-        type: "GM QSB+ Quality Audit",
-        desc: "북미향 전기차 전용 타이어 흡음재(Form) 공정 및 완성도 감사"
-      }
-    ];
+    // cqms_customer_audit_db.json (this.state.auditFindings) 로드된 실데이터로부터 고유 감사 일정 목록 동적 생성
+    const defaultAudits = [];
+    if (this.state.auditFindings && Array.isArray(this.state.auditFindings) && this.state.auditFindings.length > 0) {
+      // START_DT 기준 최신순 정렬
+      const sortedFindings = [...this.state.auditFindings].sort((a, b) => {
+        return new Date(b.START_DT || 0) - new Date(a.START_DT || 0);
+      });
+      
+      const uniqueSubjects = {};
+      sortedFindings.forEach(f => {
+        if (f.SUBJECT && !uniqueSubjects[f.SUBJECT]) {
+          uniqueSubjects[f.SUBJECT] = f;
+        }
+      });
+      
+      let index = 1;
+      const subjectsArray = Object.keys(uniqueSubjects).slice(0, 8); // 최신 상위 8개 추출로 데모 뷰포트 지지
+      subjectsArray.forEach(subject => {
+        const item = uniqueSubjects[subject];
+        defaultAudits.push({
+          id: `audit_${index}`,
+          title: item.SUBJECT,
+          plantCode: item.PLANT || "DP",
+          customer: item.CAR_MAKER || "BMW",
+          date: item.START_DT || "2026-06-15",
+          leadAuditor: index % 2 === 0 ? "이현우 책임" : "박정호 수석",
+          project: item.PROJECT || "전사 신규 품질 실사",
+          type: item.TYPE === "Project" ? "VDA 6.3 Process Audit" : "IATF 16949 Standard Audit",
+          desc: `${item.SUBJECT} 수검 및 사전 대응 체크리스트 준비`
+        });
+        index++;
+      });
+    }
+
+    // 예외 Fallback 보장 (데이터가 유실되거나 비었을 때)
+    if (defaultAudits.length === 0) {
+      defaultAudits.push(
+        {
+          id: "audit_1",
+          title: "BMW 대전공장 VDA 6.3 정기 수검",
+          plantCode: "DP",
+          customer: "BMW",
+          date: "2026-06-15",
+          leadAuditor: "박정호 수석",
+          project: "G60 EV LCI",
+          type: "VDA 6.3 Process Audit",
+          desc: "VDA 6.3 정기 품질 프로세스 심사 - 전 공정 (배합, 압출, 성형, 가류)"
+        },
+        {
+          id: "audit_2",
+          title: "Audi 헝가리공장 신차 실사 (IATF 16949)",
+          plantCode: "MP",
+          customer: "Audi",
+          date: "2026-06-25",
+          leadAuditor: "이현우 책임",
+          project: "PPE Platform SUV",
+          type: "IATF 16949 Standard Audit",
+          desc: "신규 완성차 장착용 고성능 타이어 공급선 특수공정 심사"
+        }
+      );
+    }
 
     // audits 로딩
     const storedAudits = localStorage.getItem('cqms_customer_audit_db');
@@ -882,28 +907,17 @@ const app = {
         this.state.planningChecklistStates = {};
       }
     } else {
-      // 초기 목업 데이터 세련되게 세팅
-      this.state.planningChecklistStates = {
-        "audit_1": {
-          "task_1": "completed",
-          "task_2": "completed",
-          "task_3": "in_progress",
+      // 초기 진행 상태를 동적으로 매핑 생성 (목업 하드코딩 제거)
+      this.state.planningChecklistStates = {};
+      this.state.audits.forEach((audit, i) => {
+        this.state.planningChecklistStates[audit.id] = {
+          "task_1": i % 3 === 0 ? "completed" : "in_progress",
+          "task_2": i % 3 === 0 ? "completed" : "pending",
+          "task_3": i % 2 === 0 ? "in_progress" : "pending",
           "task_4": "pending",
           "task_5": "pending"
-        },
-        "audit_2": {
-          "task_1": "completed",
-          "task_2": "in_progress"
-        },
-        "audit_3": {
-          "task_1": "completed",
-          "task_2": "completed",
-          "task_3": "completed",
-          "task_4": "completed",
-          "task_5": "in_progress",
-          "task_6": "in_progress"
-        }
-      };
+        };
+      });
       localStorage.setItem('riskhunter_checklist_states', JSON.stringify(this.state.planningChecklistStates));
     }
 
