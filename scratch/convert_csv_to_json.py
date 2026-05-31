@@ -8,7 +8,7 @@ from datetime import datetime
 
 def convert_csv_to_json():
     csv_file_path = "/home/jumasi/RiskHunter/documents/audit_checklists.csv"
-    json_file_path = "/home/jumasi/RiskHunter/data/audit_checklists.json"
+    json_file_path = "/home/jumasi/RiskHunter/data/oe_req_to_audit_checklist.json"
     
     # Ensure directory exists
     os.makedirs(os.path.dirname(json_file_path), exist_ok=True)

@@ -56,7 +56,7 @@
 Phase 1은 흩어져 있는 원천 CSV 파일들을 정밀 JSON 정적 데이터베이스 파일군으로 일괄 변환해 배치하고, 브라우저가 기동될 때 오동작 없이 비동기로 해석하여 글로벌 메모리에 상주시키는 단계입니다.
 
 ### 🔄 ① [Step 1-A] CSV to JSON 가상 마이그레이션 파이프라인 기동
-1.  **목적**: `documents/audit_checklists.csv` 파일로부터 중복과 데이터 유실 없이 `data/audit_checklists.json`을 구조화하여 자동 추출합니다.
+1.  **목적**: `documents/audit_checklists.csv` 파일로부터 중복과 데이터 유실 없이 `data/oe_req_to_audit_checklist.json`을 구조화하여 자동 추출합니다.
 2.  **도구**: 표준 파이썬 파싱 스크립트 `scratch/convert_csv_to_json.py` 설계 및 실행.
 3.  **데이터 무결성 주입 필드 규칙**:
     - **`id`**: 1부터 시작하는 유니크 순차 인덱스 주입.
@@ -69,7 +69,7 @@ Phase 1은 흩어져 있는 원천 CSV 파일들을 정밀 JSON 정적 데이터
 ### 🧠 ② [Step 1-B] 비동기 데이터 Fetch 엔진 및 가상 DB 전역화 (`app.js`)
 1.  **동작 흐름**:
     - `index.html` 로드 완료와 동시에 `app.js`에서 `initDatabase()` 함수를 즉각 호출합니다.
-    - `Promise.all()` 구조를 채택하여 6대 핵심 리소스 파일(`document_library.json`, `audit_checklists.json`, `quality_issues_qi.json`, `change_history_4m.json`, `audit_findings.json`, `users.json`)을 동시 비동기 호출(`fetch`) 처리합니다.
+    - `Promise.all()` 구조를 채택하여 6대 핵심 리소스 파일(`document_library.json`, `oe_req_to_audit_checklist.json`, `quality_issues_qi.json`, `change_history_4m.json`, `audit_findings.json`, `users.json`)을 동시 비동기 호출(`fetch`) 처리합니다.
 2.  **메모리 상주**:
     - 정상적으로 받아와 파싱된 JSON 배열들을 전역 데이터베이스 세션 객체인 `window.db_store` 내부에 안전하게 격리 상주시켜 실시간 가상 쿼리가 가능한 환경을 구축합니다:
       ```javascript
@@ -109,7 +109,7 @@ Phase 1은 흩어져 있는 원천 CSV 파일들을 정밀 JSON 정적 데이터
 1.  **일정 마스터 구축**:
     - 가상 일정 등록 모달창에서 신규 감사 이벤트를 생성 시, 전역 `window.db_store` 내에 신규 오브젝트를 푸시(Push)하고 로컬스토리지(`localStorage`)로 세션을 보존합니다.
 2.  **체크리스트 필터링**:
-    - 선택된 공장에 적용되는 고위험 감사 조항 피드를 `data/audit_checklists.json`에서 자동 색출하여 테이블로 로딩합니다.
+    - 선택된 공장에 적용되는 고위험 감사 조항 피드를 `data/oe_req_to_audit_checklist.json`에서 자동 색출하여 테이블로 로딩합니다.
 3.  **Exit Criteria**: 새로고침을 수행해도 등록한 감사 일정과 체크리스트의 토글(합격/불합격/대기) 상태가 완벽히 저장 유지될 것.
 
 ### 📋 Phase 4: 공장별 리스크 타임라인 및 지적사항 수검 제어 (Plant Risk & Action)

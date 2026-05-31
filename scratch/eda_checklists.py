@@ -5,7 +5,7 @@ import json
 from collections import Counter
 
 def run_eda():
-    json_path = "/home/jumasi/RiskHunter/data/audit_checklists.json"
+    json_path = "/home/jumasi/RiskHunter/data/oe_req_to_audit_checklist.json"
     
     try:
         with open(json_path, 'r', encoding='utf-8') as f:

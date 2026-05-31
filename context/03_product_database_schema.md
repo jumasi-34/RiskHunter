@@ -19,13 +19,13 @@
 | **⑤** | `change_history_4m.json` | `change_history_4m` | 생산 현장의 설비, 공정, 재료, 작업 표준(4M) 변경 이력 신청/승인 건 |
 | **⑥** | `audit_findings.json` | `audit_findings` | 과거 외부 완성차 고객사 및 제3자 Audit 지적사항(Point out) 및 시정 계획 |
 | **⑦** | `oe_quality_assessment_details.json` | `internal_audit_sheets` | **[내부 Audit 시트]** 공장 자체 진단 점검 항목, 부적합 세부 결과 및 예방조치안 |
-| **⑧** | `audit_checklists.json` | `unified_audit_checklists` | **[통합 Checklist]** 규격서(DOCUMENT) 및 현장 이력(DATABASE) 기반 AI 추출 질문 통합 저장소 |
+| **⑧** | `oe_req_to_audit_checklist.json` | `unified_audit_checklists` | **[통합 Checklist]** 규격서(DOCUMENT) 및 현장 이력(DATABASE) 기반 AI 추출 질문 통합 저장소 |
 
 ---
 
 ## 🔄 2. 데이터 흐름 및 AI 질문 변환 파이프라인
 
-원천 데이터셋(QI, 4M, 감사지적, 내부 Audit)이 수집되면, 클라이언트 엔진 또는 AI Extractor를 통해 **"실무 감사 질문"** 및 **"합치 증적 서류명"**으로 구조화된 감사 체크리스트로 가공되어 `audit_checklists.json`에 집결합니다.
+원천 데이터셋(QI, 4M, 감사지적, 내부 Audit)이 수집되면, 클라이언트 엔진 또는 AI Extractor를 통해 **"실무 감사 질문"** 및 **"합치 증적 서류명"**으로 구조화된 감사 체크리스트로 가공되어 `oe_req_to_audit_checklist.json`에 집결합니다.
 
 ```mermaid
 flowchart TD
@@ -45,7 +45,7 @@ flowchart TD
     end
 
     subgraph Consolidated_Virtual_DB ["3단계: 통합 감사 데이터베이스 적재"]
-        T_UAC[("📊 audit_checklists.json<br>(통합 Checklist 테이블)")]
+        T_UAC[("📊 oe_req_to_audit_checklist.json<br>(통합 Checklist 테이블)")]
     end
 
     %% 데이터 흐름 연결
@@ -229,7 +229,7 @@ flowchart TD
 
 ---
 
-### ⑧ `unified_audit_checklists` (`data/audit_checklists.json`)
+### ⑧ `unified_audit_checklists` (`data/oe_req_to_audit_checklist.json`)
 *   **설명**: 규격서(DOCUMENT) 및 과거 4대 제조 이력(QI, 4M, Audit Findings, 내부 Audit 지적)을 AI가 수석 감사원 시각으로 기하학적으로 연계하여 동적 변환한 최종 통합 질문 데이터베이스입니다.
 *   **스키마 구성**:
 

@@ -201,8 +201,8 @@ const app = {
         usersRes, 
         oeQualityRes
       ] = await Promise.all([
-        fetch('data/audit_checklists.json').then(r => {
-          if (!r.ok) throw new Error("Checklist file (audit_checklists.json) not found");
+        fetch('data/oe_req_to_audit_checklist.json').then(r => {
+          if (!r.ok) throw new Error("Checklist file (oe_req_to_audit_checklist.json) not found");
           return r.json();
         }),
         fetch('data/document_library.json').then(r => {

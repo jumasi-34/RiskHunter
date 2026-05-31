@@ -18,7 +18,7 @@
 4. **전문가 Fallback 사전(Fallback Dictionary)** 설계로 데이터 유실 및 데모 시연 상의 오동작 확률을 영(0)으로 수렴(Zero Crash Policy).
 
 ### ② 연동 데이터 리소스
-- **자체 감사 체크리스트 데이터**: [audit_checklists.json](file:///home/jumasi/RiskHunter/data/audit_checklists.json)
+- **자체 감사 체크리스트 데이터**: [oe_req_to_audit_checklist.json](file:///home/jumasi/RiskHunter/data/oe_req_to_audit_checklist.json)
   - 10,000건 이상의 고품질 자체 감사 질문 세트.
   - 주요 필드: `id`, `source_type`, `customer`, `doc_code`, `doc_name`, `section`, `audit_question`, `evidence_compliance`, `audit_method`, `process_category`, `related_4m`, `priority`, `plant_risk_score`.
 - **완성차 OEM 규격 문서 데이터**: [document_library.json](file:///home/jumasi/RiskHunter/data/document_library.json)
@@ -54,7 +54,7 @@
 
 ## 📋 3. 서브 탭 1: Full Checklist Library (공정별 감사 마스터 체크리스트)
 
-[audit_checklists.json](file:///home/jumasi/RiskHunter/data/audit_checklists.json) 및 [audit_findings.json](file:///home/jumasi/RiskHunter/data/audit_findings.json) 데이터를 비동기 fetch하여 사용자가 완성차 고객사 맞춤형 감사 질문과 과거 지적사항 이력을 교차 확인하고 정합성 높은 검색을 수행할 수 있도록 지원합니다.
+[oe_req_to_audit_checklist.json](file:///home/jumasi/RiskHunter/data/oe_req_to_audit_checklist.json) 및 [audit_findings.json](file:///home/jumasi/RiskHunter/data/audit_findings.json) 데이터를 비동기 fetch하여 사용자가 완성차 고객사 맞춤형 감사 질문과 과거 지적사항 이력을 교차 확인하고 정합성 높은 검색을 수행할 수 있도록 지원합니다.
 
 ### ① 상단 요약 대시보드 제거 및 필터 단순화 (Simplified Filter Panels)
 화면 가독성 및 직관적 데이터 도출 피드백을 수용하여, 상단의 불필요한 공정 요약보드는 완전히 삭제하고 필터를 대폭 단순화했습니다.

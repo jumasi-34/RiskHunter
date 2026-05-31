@@ -42,7 +42,7 @@ flowchart TD
         B2 --> C3[("change_history_4m.json")]
         B2 --> C4[("audit_findings.json")]
         
-        B1 & B2 -->|통합 및 AI 질문 도출| C5[("audit_checklists.json")]
+        B1 & B2 -->|통합 및 AI 질문 도출| C5[("oe_req_to_audit_checklist.json")]
     end
 
     subgraph Client_Runtime ["3단계: 클라이언트 메모리 적재 (app.js)"]
@@ -117,7 +117,7 @@ flowchart TD
 
 ---
 
-### ② 통합 감사 체크리스트 스키마 (`data/audit_checklists.json`)
+### ② 통합 감사 체크리스트 스키마 (`data/oe_req_to_audit_checklist.json`)
 
 *   **설명**: 규격 기반(DOCUMENT) 질문과 현장 품질 실패 이력 기반(DATABASE) 질문이 완벽히 병합된 핵심 감사 데이터셋입니다.
 
@@ -437,7 +437,7 @@ flowchart TD
 - 대시보드 진입 시 `quality_issues_qi.json`과 `change_history_4m.json`을 분석하여 공장별, 공정별 이벤트 건수를 자동 집계하고, [Context 3]에 설계된 리스크 계량 산출 공식에 따라 종합 리스크 가중치를 산정해 지도 및 카운터 패널에 실시간 렌더링합니다.
 
 ### [Phase 3: 감사 일정 등록 및 준비 가이드 연동]
-- `audit_checklists.json`에서 공장별 고위험 항목들을 필터링하여 오디터 맞춤형 예방 감사 조항 가이드를 주간 플래닝 시점에 자동 출력합니다.
+- `oe_req_to_audit_checklist.json`에서 공장별 고위험 항목들을 필터링하여 오디터 맞춤형 예방 감사 조항 가이드를 주간 플래닝 시점에 자동 출력합니다.
 
 ### [Phase 4 ~ 5: 수검 조치 및 AI 개선 액션 플랜 수립]
 - 수검 오딧 중 발견된 지적사항 등록 시, `quality_issues_qi.json` 내의 8D 영구 개선안 히스토리를 대조하여 정밀 템플릿 기반의 개선 대책 및 SOP 개정 가이드를 실시간 추론해 응답 화면을 데모 구현합니다.
