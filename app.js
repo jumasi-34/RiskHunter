@@ -3440,6 +3440,9 @@ const app = {
           const tabSelect = document.getElementById('tab3-plant-select');
           if (tabSelect) tabSelect.value = plantCode;
 
+          const systemSelect = document.getElementById('system-factory-select');
+          if (systemSelect) systemSelect.value = plantCode;
+
           const globalFilter = document.getElementById('filter-plant');
           if (globalFilter) globalFilter.value = plantCode;
 
@@ -3454,6 +3457,33 @@ const app = {
   // ================= Sub-Tab 2: OE Quality System Level 렌더링 =================
   renderSystemLevelTab(activePlantCode) {
     console.log(`📈 Rendering System Level sub-tab for plant: ${activePlantCode}`);
+
+    // Sync Dropdown Value & Bind Event Listener for seamless chart connection
+    const systemFactorySelect = document.getElementById('system-factory-select');
+    if (systemFactorySelect) {
+      systemFactorySelect.value = activePlantCode;
+      if (!systemFactorySelect.dataset.listenerBound) {
+        systemFactorySelect.addEventListener('change', (e) => {
+          const plantCode = e.target.value;
+          console.log(`🏭 system-factory-select changed to ${plantCode}`);
+          
+          this.state.plantRiskActivePlant = plantCode;
+          this.state.selectedPlant = plantCode;
+          
+          // Sync other related dropdowns & filter elements
+          const tabSelect = document.getElementById('tab3-plant-select');
+          if (tabSelect) tabSelect.value = plantCode;
+
+          const globalFilter = document.getElementById('filter-plant');
+          if (globalFilter) globalFilter.value = plantCode;
+          
+          // Re-render
+          this.renderPlantRiskScreen();
+          this.showToast(`${plantCode} 공장으로 리스크 돋보기가 전환되었습니다.`, "success");
+        });
+        systemFactorySelect.dataset.listenerBound = 'true';
+      }
+    }
 
     const processList = ['Incoming', 'Mixing', 'Extruding', 'Calendering', 'Cutting', 'Bead', 'Building', 'Curing', 'Inspection', 'Shipping'];
     const allAssessmentItems = this.state.oeQualityAssessmentDetails || [];

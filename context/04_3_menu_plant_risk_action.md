@@ -83,6 +83,14 @@ $$\text{CRI} = 0.4 \times (100 - \text{System Level}) + 0.3 \times (100 - \text{
 
 공정별 품질 시스템 인프라 구축 현황과 실제 현장 작동 부합률의 격차를 실증 분석하는 고차원 분석 레이아웃입니다.
 
+### ⓪ 서브탭 공장 선택 드롭다운 연동 및 다차원 통합 싱크 (Dropdown-Chart-Leaderboard Multi-way Sync)
+*   **공장 선택 드롭다운 (`#system-factory-select`)의 완벽한 상호 연동**:
+    *   2번 서브탭 내의 품질 시스템 분석 시각화의 주체 공장을 실시간 제어하는 드롭다운 메뉴입니다.
+    *   사용자가 본 드롭다운 값을 변경하는 순간, 전역 상태 변수(`this.state.plantRiskActivePlant` 및 `this.state.selectedPlant`)가 실시간으로 해당 공장 코드로 전환 업데이트됩니다.
+    *   그와 동시에 1번 서브탭의 공장 선택 드롭다운 (`#tab3-plant-select`) 및 최상단 전역 공장 필터 (`#filter-plant`)의 `value` 값을 동일 공장 코드로 완벽 동기화시킵니다.
+    *   최종적으로 전체 화면 렌더러 (`this.renderPlantRiskScreen()`)가 실행되어, 2번 서브탭에 속한 모든 차트(2D 산점도 및 Process Compliance 막대 차트)가 해당 공장 기준의 득점 분포 데이터로 0.1초 내에 실시간 재 연산 및 부드럽게 리 드로잉(Re-draw)되며, 1번 서브탭의 리스크 랭킹 카드(리더보드) 또한 액티브 선택 상태 테두리가 이 공장 카드로 자동 하이라이트 전환됩니다.
+    *   반대로 1번 서브탭의 리스크 리더보드 공장 카드를 클릭하여 타겟 공장을 바꾸는 경우에도, 2번 서브탭 내의 본 `#system-factory-select` 드롭다운 값이 함께 강제 싱크 백(Sync-back)되도록 구현하여 탭 전환 시의 오차와 데이터 왜곡 현상을 원천 방지합니다.
+
 ### ① 공정별 품질 인프라 및 부합도 2D 산점도 차트 (System Map - 2D Scatter Plot)
 각 공정의 시스템 인프라 기반을 튼튼히 갖추었는지(X축: Infra Score), 그리고 그에 걸맞게 실제 생산 현장에서 부합하게 수행하고 있는지(Y축: Process Compliance)에 대한 2차원 위상 격차를 시각화합니다.
 
