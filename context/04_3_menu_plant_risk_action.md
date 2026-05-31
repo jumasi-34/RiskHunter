@@ -27,6 +27,10 @@ CRI는 공장의 취약 위험도를 계량화하는 대표 지수입니다. 지
 
 $$\text{CRI} = 0.4 \times (100 - \text{System Level}) + 0.3 \times (100 - \text{Assessment Score}) + 0.3 \times \min(100, \text{Issues} \times 10)$$
 
+> [!NOTE]
+> **실시간 UI 데이터 바인딩**: 
+> 본 산출 모델의 연산 결과는 실시간으로 3번 메뉴 Tab 1 우측 상단의 **`Selected Target` 패널**(`#target-plant-code`, `#target-cri-value`, `#target-cri-status`, `#target-system-value`, `#target-assessment-value`)에 실시간 바인딩되어 동적 출력됩니다.
+
 *   **A. OE Quality System Level (품질 인프라 구축도 - 가중치 40%)**:
     *   **정의**: 글로벌 완성차 OEM 오딧 통과를 위해 기본적으로 구축해야 하는 10대 핵심 제조 공정 내의 총 260개 상세 품질 보증 인프라 요건 충족률입니다.
     *   **데이터 소스**: `internal_assessment_result.json` (공식명: **품질 시스템 인프라 평가 데이터** `category !== 'Process'`)

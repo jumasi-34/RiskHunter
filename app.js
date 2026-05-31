@@ -2996,7 +2996,22 @@ const app = {
     // ④ 종합 품질 리스크 지수 (CRI) 계산
     const cri = 0.4 * (100 - systemLevel) + 0.3 * (100 - assessmentScore) + 0.3 * issuesPenalty;
 
-    // UI LCD 패널 노티스 및 값 세팅
+    // UI LCD 패널 노티스 및 값 세팅 (SELECTED TARGET Panel 및 기존 패널 동시 지원)
+    const plantObj = (this.state.commonCodes.plants || []).find(p => p.code === activePlantCode);
+    const plantName = plantObj ? plantObj.name : activePlantCode;
+
+    const targetPlantNode = document.getElementById('target-plant-code');
+    const targetCriValueNode = document.getElementById('target-cri-value');
+    const targetCriStatusNode = document.getElementById('target-cri-status');
+    const targetSystemNode = document.getElementById('target-system-value');
+    const targetAssessmentNode = document.getElementById('target-assessment-value');
+
+    if (targetPlantNode) targetPlantNode.textContent = plantName;
+    if (targetCriValueNode) targetCriValueNode.textContent = cri.toFixed(1);
+    if (targetSystemNode) targetSystemNode.textContent = systemLevel.toFixed(1) + '%';
+    if (targetAssessmentNode) targetAssessmentNode.textContent = assessmentScore.toFixed(1) + '%';
+
+    // 기존 LCD 노드 (하위 호환성 유지)
     const criValueNode = document.getElementById('cri-value');
     const criStatusNode = document.getElementById('cri-status');
     const criSystemNode = document.getElementById('cri-system');
@@ -3024,6 +3039,14 @@ const app = {
       textColor = 'var(--text-status-medium)';
       borderColor = 'var(--border-status-medium)';
       bgColor = 'var(--bg-status-medium)';
+    }
+
+    if (targetCriStatusNode) {
+      targetCriStatusNode.textContent = statusText;
+      targetCriStatusNode.style.color = textColor;
+    }
+    if (targetCriValueNode) {
+      targetCriValueNode.style.color = textColor;
     }
 
     if (criStatusNode) {
