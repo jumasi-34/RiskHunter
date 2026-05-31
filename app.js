@@ -7879,19 +7879,26 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
           const inProgressRate = totalTasks > 0 ? (inProgressCount / totalTasks) * 100 : 0;
           const pendingRate = totalTasks > 0 ? (pendingCount / totalTasks) * 100 : 0;
 
-          // 공장 이름 찾기
-          const plantObj = (this.state.commonCodes.plants || []).find(p => p.code === audit.PLANT);
-          const plantName = plantObj ? plantObj.name : audit.PLANT;
+          // 공장 코드 및 이름 매핑 보정 (undefined 방지)
+          const plantCode = audit.plantCode || audit.PLANT || '';
+          const plantObj = (this.state.commonCodes.plants || []).find(p => p.code === plantCode);
+          const plantName = plantObj ? plantObj.name : plantCode;
+
+          // OEM / 제조사 매핑 보정 (undefined 방지)
+          const oemName = audit.customer || audit.OEM || audit.CAR_MAKER || 'OEM';
+
+          // 감사 제목(주제) 매핑 보정 (undefined 방지)
+          const auditTitle = audit.title || audit.SUBJECT || audit.subject || '품질 감사 일정';
 
           return `
             <div class="card-solid" style="padding: 16px; background: rgba(30, 41, 59, 0.03); border: 1px solid var(--border-card); border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; transition: all 0.2s ease-in-out;" onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='rgba(37, 99, 235, 0.35)'; this.style.boxShadow='0 8px 20px rgba(37, 99, 235, 0.08)';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border-card)'; this.style.boxShadow='none';">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
                 <div style="display: flex; align-items: center; gap: 6px;">
                   <span class="badge" style="background: rgba(37, 99, 235, 0.08); color: var(--brand-blue); border: 1px solid rgba(37, 99, 235, 0.15); font-weight: 700; font-size: 11px;">
-                    ${plantName} (${audit.PLANT})
+                    ${plantName} (${plantCode})
                   </span>
                   <span class="badge" style="background: rgba(15, 23, 42, 0.04); color: var(--text-primary); border: 1px solid var(--border-card); font-weight: 700; font-size: 11px;">
-                    ${audit.OEM || audit.CAR_MAKER || 'OEM'}
+                    ${oemName}
                   </span>
                 </div>
                 <span class="badge ${dDayClass}" style="font-weight: 800; font-family: monospace; font-size: 11px;">
@@ -7900,8 +7907,8 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
               </div>
               
               <div style="display: flex; flex-direction: column; gap: 4px;">
-                <h4 style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;" title="${audit.subject || audit.SUBJECT || ''}">
-                  ${audit.subject || audit.SUBJECT || ''}
+                <h4 style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;" title="${auditTitle}">
+                  ${auditTitle}
                 </h4>
                 <div style="font-size: 11.5px; color: var(--text-muted-light); display: flex; align-items: center; gap: 4px;">
                   <i data-lucide="calendar-days" style="width: 12px; height: 12px;"></i>
