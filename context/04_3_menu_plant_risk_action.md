@@ -162,6 +162,10 @@ $$\text{CRI} = 0.4 \times (100 - \text{System Level}) + 0.3 \times (100 - \text{
 *   **마이크로 프로그레스 게이지 바 (Micro Progress Gauge Bars)**:
     *   개별 공장의 CRI 지수 수치(0~100)에 완벽히 비례하여 채워지는 가로형 4px 미니 차트를 행 하단에 임베딩합니다.
     *   게이지 채우기 색상 또한 공장 리스크 수준(Red/Amber/Green)에 맞춰 실시간 연계 색상(CRITICAL: `#ef4444`, MODERATE: `#f59e0b`, LOW: `#10b981`)을 동적 매핑합니다.
+*   **동적 반응형 높이 밸런싱 (Dynamic Height Balancing - Flex Fill)**:
+    *   우측 컬럼의 다양한 상세 차트 및 패널(기본 총합 높이 약 560px 이상)과의 수직 그리드 높이 대칭을 아름답게 유지하기 위해, 8대 공장 리더보드 카드는 고정 높이가 아닌 동적 팽창형 `flex: 1;` 레이아웃을 채택합니다.
+    *   이를 통해 브라우저 세로 확대/축소나 OS 스케일링 설정에 따라 우측 영역이 팽창하더라도, 좌측 리더보드 카드 리스트가 하단에 보기 싫은 빈 여백(Empty Gap)을 한치의 오차도 없이 제거하며 공간을 완벽하게 등분(N분의 1)하여 꽉 채워줍니다.
+    *   가로/세로 압착 방지를 위해 최소 세로 높이(`min-height: 52px`) 및 세로 패딩(`padding: 12px 14px`)을 넉넉하게 확장하여 심미적인 럭셔리 밸런스와 시원한 클릭 조작감을 제공하며, 내부 텍스트 및 게이지바는 `justify-content: center;`에 의해 완벽하게 수직 정중앙에 정렬됩니다.
 *   **인터랙티브 클릭 완전 동기화 및 0.1초 전체 갱신 (Dynamic State Synchronization & Real-time Refresh)**:
     *   특정 공장 행을 마우스 클릭할 시, 전역 상태 변수인 `this.state.plantRiskActivePlant` 및 `this.state.selectedPlant` 에 해당 공장 코드 값이 실시간 할당됩니다.
     *   그와 동시에 상단 전역 필터 (`#filter-plant`) 및 3번 메뉴 전용 공장 선택 드롭다운 (`#tab3-plant-select`)의 `value` 값을 동일 공장 코드로 강제 동기화시킵니다.

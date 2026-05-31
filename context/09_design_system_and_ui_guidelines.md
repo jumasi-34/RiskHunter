@@ -363,6 +363,10 @@ graph TD
 *   **테이블 그리드 10열 연계 명세 및 상태 변경**:
     *   컬럼은 반드시 `구분 (TYPE)`, `공장 (PLANT)`, `고객사 (OEM)`, `차종 (VEHICLE)`, `발생일 (OCC DATE)`, `조치예정일 (TARGET DATE)`, `지적 사항 (POINT OUT)`, `원인 분석 및 대책 (ROOT CAUSE & COUNTERMEASURE)`, `상태 (STATUS)`, `E-QMS LINK` 10개 열 순서로 결합합니다.
     *   `상태 (STATUS)` 열 내의 뱃지 클릭 시 즉시 종결 및 재개 처리되는 클릭 핸들러가 탑재되며, 상태 뱃지 글자색은 WCAG AA AA 기준에 부합하게끔 HSL 레드(`#b91c1c`, On-going) 및 그린(`#15803d`, Closed)의 충분한 고대비 명도를 유지합니다.
+*   **공장별 종합 리스크 랭킹 (Leaderboard) 동적 균등 배포**:
+    *   좌측 리더보드 영역은 우측에 렌더링되는 다중 대형 차트 및 디테일 드로어들의 세로 신축(Stretch)에 맞춰 `flex: 1;` 기반의 동적 팽창형 레이아웃을 투사합니다.
+    *   이를 통해 하단에 잔존하는 공백 여백(Empty Gap)을 한치의 오차도 없이 일제히 소멸시킵니다.
+    *   각 행의 카드는 가로/세로 비율 뭉개짐 방지를 위해 `min-height: 52px;` 및 `padding: 12px 14px;` 과 `justify-content: center;`를 병합해 8대 공장 카드가 수직 균등 분할로 카드를 꽉 채우도록 지원합니다.
 
 ---
 

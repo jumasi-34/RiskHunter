@@ -3395,9 +3395,9 @@ const app = {
         }
 
         // Active Card Style
-        let cardStyle = 'padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-card); background: #ffffff; display: flex; flex-direction: column; gap: 6px; cursor: pointer; transition: all 0.2s ease-in-out;';
+        let cardStyle = 'padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-card); background: #ffffff; display: flex; flex-direction: column; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s ease-in-out; flex: 1; min-height: 52px;';
         if (isSelected) {
-          cardStyle = 'padding: 10px 12px; border-radius: 8px; border: 2px solid var(--brand-blue); background: rgba(37, 99, 235, 0.04); display: flex; flex-direction: column; gap: 6px; cursor: pointer; transition: all 0.2s ease-in-out; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);';
+          cardStyle = 'padding: 12px 14px; border-radius: 8px; border: 2px solid var(--brand-blue); background: rgba(37, 99, 235, 0.04); display: flex; flex-direction: column; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s ease-in-out; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1); flex: 1; min-height: 52px;';
         }
 
         lbHtml += `
