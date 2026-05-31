@@ -4743,6 +4743,20 @@ const app = {
     // 🌟 B. 표준 우수 관리 항목 (Score >= 8)
     const excellentItems = validItems.filter(item => parseFloat(item.score) >= 8);
 
+    // 📊 취약 항목 / 안정 항목 건수 실시간 연동 바인딩
+    const totalAssessmentCountEl = document.getElementById('tab3-total-assessment-count');
+    if (totalAssessmentCountEl) {
+      totalAssessmentCountEl.textContent = `${validItems.length}개 항목`;
+    }
+    const prepCountEl = document.getElementById('tab3-priority-prep-count');
+    if (prepCountEl) {
+      prepCountEl.textContent = `${prepItems.length}개 항목`;
+    }
+    const excellentCountEl = document.getElementById('tab3-excellent-count');
+    if (excellentCountEl) {
+      excellentCountEl.textContent = `${excellentItems.length}개 항목`;
+    }
+
     // A. 최우선 준비 아이템 테이블 채우기
     if (prepItems.length === 0) {
       prepTableBox.innerHTML = `
