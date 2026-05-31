@@ -2384,6 +2384,649 @@ body {
 }
 
 /* ==========================================================================
+   📅 [Menu 02] Audit Planning Specialized Styles & Premium Aesthetics
+   ========================================================================== */
+
+/* 1. 상단 필터 및 활성 일정 셀렉터 */
+.planning-filter-bar {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 16px;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-card, #e2e8f0);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.planning-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.planning-filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 160px;
+  flex: 1;
+}
+
+.planning-filter-label {
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  font-weight: 700;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.planning-selector-bar {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 6px 16px;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-card, #e2e8f0);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.planning-active-select-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.planning-active-select-label {
+  font-size: 12.5px;
+  color: var(--text-primary);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 2. 서브 탭 스타일 */
+.planning-subtab-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  padding-bottom: 6px;
+}
+
+.planning-subtab-btn {
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.planning-subtab-btn.active {
+  background: rgba(37, 99, 235, 0.08);
+  color: var(--brand-blue);
+}
+
+.planning-subtab-btn:hover:not(.active) {
+  background: rgba(15, 23, 42, 0.04);
+  color: var(--text-primary);
+}
+
+/* 3. Tab 1: Timeline 구조 */
+.planning-timeline-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .planning-timeline-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.planning-timeline-track-card {
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 마일스톤 피드 전용 스타일 */
+.milestone-timeline-container {
+  position: relative;
+  padding-left: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.milestone-timeline-line {
+  position: absolute;
+  top: 8px;
+  left: 11px;
+  width: 2px;
+  height: calc(100% - 16px);
+  background: linear-gradient(180deg, var(--brand-blue), var(--border-card) 70%, #e2e8f0);
+  z-index: 0;
+}
+
+.milestone-timeline-item {
+  position: relative;
+  z-index: 1;
+}
+
+.milestone-timeline-node {
+  position: absolute;
+  left: -32px;
+  top: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.milestone-timeline-node.pending {
+  background: #f1f5f9;
+  border: 2px solid var(--border-card);
+  color: var(--text-muted-light);
+}
+
+.milestone-timeline-node.completed {
+  background: #10b981;
+  border: 2px solid #059669;
+  color: white;
+}
+
+.milestone-timeline-node.active {
+  background: var(--brand-blue);
+  border: 2px solid var(--brand-blue-hover);
+  color: white;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
+}
+
+.milestone-timeline-card {
+  background: #ffffff;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+}
+
+.milestone-timeline-card:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow-md);
+}
+
+.milestone-timeline-card.active-glow {
+  border: 1.5px solid var(--brand-blue);
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08);
+}
+
+.milestone-timeline-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+/* 4. Tab 2: Calendar 구조 */
+.calendar-main-card {
+  min-height: 580px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  box-shadow: var(--shadow-base);
+}
+
+.calendar-header-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.calendar-progress-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(37, 99, 235, 0.03);
+  border: 1px dashed rgba(37, 99, 235, 0.2);
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.calendar-month-controller {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar-nav-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  border-radius: 50%;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.calendar-nav-btn:hover {
+  background: #f1f5f9;
+  color: var(--brand-blue);
+  border-color: var(--brand-blue);
+}
+
+.calendar-grid-layout {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr;
+  gap: 20px;
+  flex-grow: 1;
+}
+
+@media (max-width: 1024px) {
+  .calendar-grid-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.calendar-days-header-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  text-align: center;
+}
+
+.calendar-day-header-cell {
+  padding: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #475569;
+}
+
+.calendar-day-header-cell.sunday {
+  color: #ef4444;
+}
+
+.calendar-day-header-cell.saturday {
+  color: #2563eb;
+}
+
+/* 달력 그리드 상자 */
+.calendar-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calendar-cell-premium {
+  position: relative;
+  min-height: 105px;
+  padding: 8px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.calendar-cell-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  z-index: 5;
+}
+
+.calendar-cell-premium.other-month {
+  opacity: 0.5;
+}
+
+.calendar-cell-premium.default-day {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-card) !important;
+}
+
+.calendar-cell-premium.other-month.default-day {
+  background-color: var(--bg-app) !important;
+  border: 1px solid rgba(15, 23, 42, 0.04) !important;
+}
+
+.calendar-cell-premium.selected {
+  border: 2px solid var(--brand-blue) !important;
+  background-color: var(--bg-status-info) !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15) !important;
+  transform: scale(1.02);
+  z-index: 10;
+}
+
+.calendar-cell-premium.selected .calendar-day-number {
+  color: var(--brand-blue) !important;
+}
+
+.calendar-cell-premium.audit-day {
+  border: 1.5px solid var(--color-status-high) !important;
+  background-color: var(--bg-status-high) !important;
+  box-shadow: inset 0 0 8px rgba(239, 68, 68, 0.05);
+}
+
+.calendar-cell-premium.audit-day .calendar-day-number {
+  color: var(--color-status-high) !important;
+}
+
+.calendar-cell-premium.today {
+  border: 1.5px solid var(--color-status-medium) !important;
+  background-color: var(--bg-status-medium) !important;
+  box-shadow: inset 0 0 8px rgba(245, 158, 11, 0.1);
+}
+
+.calendar-cell-premium.today .calendar-day-number {
+  color: var(--text-status-medium) !important;
+}
+
+.calendar-cell-premium .calendar-day-number {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.calendar-cell-premium.other-month .calendar-day-number {
+  color: var(--text-muted-light);
+}
+
+.calendar-detail-empty-state {
+  padding: 24px 16px;
+  text-align: center;
+  border: 1px dashed var(--border-card);
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 11.5px;
+  background: var(--bg-card);
+  color: var(--text-muted-light);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar-cell-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2.5px 5px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  max-width: 100%;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  transition: all 0.15s ease;
+}
+
+.calendar-cell-badge:hover {
+  transform: scale(1.03);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* 달력 우측 상세 패널 */
+.calendar-detail-panel {
+  background: #f8fafc;
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 480px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
+}
+
+.calendar-detail-task-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.calendar-detail-task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 5. Tab 3: Checklist (Scheduler) 구조 */
+.checklist-main-card {
+  min-height: 580px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  box-shadow: var(--shadow-base);
+}
+
+.checklist-header-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.checklist-tools-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.checklist-table-container {
+  overflow-x: auto;
+  flex-grow: 1;
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.01);
+}
+
+.checklist-table-container table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  background: var(--bg-card);
+}
+
+.checklist-table-container th {
+  padding: 12px 10px;
+  color: var(--text-primary);
+  font-weight: 800;
+  border-top: 1px solid var(--border-card);
+  border-bottom: 1px solid var(--border-card);
+}
+
+.checklist-table-container tr {
+  border-bottom: 1px solid var(--border-card);
+  background: var(--bg-card);
+  transition: background 0.15s;
+}
+
+.checklist-table-container tr:hover {
+  background-color: var(--bg-app) !important;
+}
+
+.checklist-table-container td {
+  padding: 12px 10px;
+}
+
+.checklist-table-container input[type="text"],
+.checklist-table-container input[type="date"] {
+  width: 100%;
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-card) !important;
+  color: var(--text-primary) !important;
+  padding: 6px 8px;
+  border-radius: var(--radius-chip);
+  font-size: 12px;
+  font-weight: 600;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.checklist-table-container input[type="text"]:focus,
+.checklist-table-container input[type="date"]:focus {
+  border-color: var(--brand-blue) !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1) !important;
+}
+
+.checklist-table-container input[type="date"] {
+  padding: 5px 8px;
+  font-family: var(--font-family-mono), monospace;
+}
+
+/* ==========================================================================
+   📅 Menu 2 Calendar & Scheduler Refined Styles (Anti-Inline Styling Refactor)
+   ========================================================================== */
+
+/* 캘린더 일자 뱃지 색상 클래스화 */
+.calendar-cell-badge.completed {
+  background-color: var(--bg-status-low) !important;
+  border: 1px solid var(--border-status-low) !important;
+  color: var(--text-status-low) !important;
+}
+.calendar-cell-badge.in_progress {
+  background-color: var(--bg-status-info) !important;
+  border: 1px solid var(--border-status-info) !important;
+  color: var(--brand-blue) !important;
+}
+.calendar-cell-badge.delayed {
+  background-color: var(--bg-status-high) !important;
+  border: 1px solid var(--border-status-high) !important;
+  color: var(--color-status-high) !important;
+}
+.calendar-cell-badge.pending {
+  background-color: var(--bg-app) !important;
+  border: 1px solid var(--border-card) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* 캘린더 우측 선택 상세 태스크 카드 내부 전용 스타일 */
+.calendar-detail-task-card .task-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.calendar-detail-task-card .task-card-id {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--brand-blue);
+  font-family: var(--font-family-mono), monospace;
+}
+.calendar-detail-task-card .task-card-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+.calendar-detail-task-card .task-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+  border-top: 1px dashed var(--border-card);
+  padding-top: 8px;
+}
+.calendar-detail-task-card .task-card-footer span {
+  font-size: 11px;
+  color: var(--text-muted-light);
+}
+.calendar-detail-task-card .task-card-footer strong {
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+/* 스케줄러(체크리스트) 버튼 전용 스타일 */
+.checklist-table-container .btn-checklist-state {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  color: var(--text-primary);
+  padding: 6px 10px;
+  border-radius: var(--radius-chip);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.checklist-table-container .btn-checklist-state:hover {
+  background-color: var(--bg-app);
+}
+
+.checklist-table-container .btn-checklist-save {
+  background: var(--brand-blue);
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: var(--radius-chip);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px rgba(37,99,235,0.2);
+}
+.checklist-table-container .btn-checklist-save:hover {
+  background-color: var(--brand-blue-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+}
+
+/* ==========================================================================
    🗂️ 260-item Quality Matrix Table Custom Styles
    ========================================================================== */
 .matrix-row {

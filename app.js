@@ -1565,10 +1565,10 @@ const app = {
         activeMilestoneKey = "D-30";
       }
 
-      let timelineHTML = `<div class="milestone-timeline" style="position: relative; padding-left: 32px; display: flex; flex-direction: column; gap: 24px;">`;
+      let timelineHTML = `<div class="milestone-timeline-container">`;
       
       // 세로 은은한 그라데이션 라인
-      timelineHTML += `<div style="position: absolute; top: 8px; left: 11px; width: 2px; height: calc(100% - 16px); background: linear-gradient(180deg, var(--brand-blue), var(--border-card) 70%, #e2e8f0); z-index: 0;"></div>`;
+      timelineHTML += `<div class="milestone-timeline-line"></div>`;
 
       milestones.forEach(m => {
         // 이 마일스톤에 속한 태스크 분석
@@ -1582,14 +1582,10 @@ const app = {
 
         // 노드 상태 결정
         let nodeClass = "pending";
-        let nodeStyle = "background: #f1f5f9; border: 2px solid var(--border-card); color: var(--text-muted-light);";
-        
         if (isAllDone) {
           nodeClass = "completed";
-          nodeStyle = "background: #10b981; border: 2px solid #059669; color: white;";
         } else if (isCurrentActive) {
           nodeClass = "active";
-          nodeStyle = "background: var(--brand-blue); border: 2px solid var(--brand-blue-hover); color: white; box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);";
         }
 
         const iconHTML = isAllDone 
@@ -1597,15 +1593,15 @@ const app = {
           : (isCurrentActive ? `<i data-lucide="activity" style="width: 12px; height: 12px;" class="animate-pulse"></i>` : `<span style="font-size: 10px; font-weight: 700; font-family: monospace;">-</span>`);
 
         timelineHTML += `
-          <div class="milestone-item ${isCurrentActive ? 'active' : ''}" style="position: relative; z-index: 1;">
+          <div class="milestone-timeline-item ${isCurrentActive ? 'active' : ''}">
             <!-- 마일스톤 불렛 노드 -->
-            <div class="milestone-node ${nodeClass}" style="position: absolute; left: -32px; top: 4px; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; ${nodeStyle}">
+            <div class="milestone-timeline-node ${nodeClass}">
               ${iconHTML}
             </div>
 
-            <!-- 마일스톤 내용 카드 -->
-            <div class="card-solid milestone-card ${isCurrentActive ? 'active-glow' : ''}" style="background: #ffffff; border: 1px solid ${isCurrentActive ? 'var(--brand-blue)' : 'var(--border-card)'}; box-shadow: ${isCurrentActive ? 'var(--shadow-md)' : 'var(--shadow-sm)'}; padding: 14px 18px; border-radius: 8px; transition: all 0.2s ease-in-out;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 6px;">
+            <!-- 마일스톤 내용 카드 (인라인 복잡 스타일 소거 및 styles.css 클래스 기반 제어) -->
+            <div class="milestone-timeline-card ${isCurrentActive ? 'active-glow' : ''}">
+              <div class="milestone-timeline-card-header">
                 <div>
                   <span style="font-size: 11px; font-weight: 800; font-family: monospace; color: ${isCurrentActive ? 'var(--brand-blue)' : 'var(--text-muted-light)'}; text-transform: uppercase;">
                     ${m.key} ${isCurrentActive ? '• 현재 실행 마일스톤' : ''}
@@ -1637,14 +1633,14 @@ const app = {
     const taskListNode = document.getElementById('planning-task-list');
     if (taskListNode) {
       let tableHTML = `
-        <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12.5px;">
+        <table class="data-table">
           <thead>
-            <tr style="border-bottom: 1px solid var(--border-card); background: #f8fafc;">
-              <th style="padding: 10px 12px; text-align: left; width: 70px; color: var(--text-secondary); font-weight: 700;">단계</th>
-              <th style="padding: 10px 12px; text-align: left; color: var(--text-secondary); font-weight: 700;">검증 준비 과제</th>
-              <th style="padding: 10px 12px; text-align: left; color: var(--text-secondary); font-weight: 700; width: 42%;">세부 검증 설명</th>
-              <th style="padding: 10px 12px; text-align: center; width: 100px; color: var(--text-secondary); font-weight: 700;">준비 상태</th>
-              <th style="padding: 10px 12px; text-align: center; width: 90px; color: var(--text-secondary); font-weight: 700;">상태 전환</th>
+            <tr>
+              <th style="width: 70px;">단계</th>
+              <th>검증 준비 과제</th>
+              <th style="width: 42%;">세부 검증 설명</th>
+              <th style="width: 100px; text-align: center;">준비 상태</th>
+              <th style="width: 90px; text-align: center;">상태 전환</th>
             </tr>
           </thead>
           <tbody>
@@ -1654,13 +1650,13 @@ const app = {
         const state = taskStates[task.id] || "pending";
         
         let statusBadge = "";
-        let rowStyle = "";
+        let rowClass = "";
         if (state === "completed") {
           statusBadge = `<span class="badge" style="background: var(--bg-status-low); border: 1px solid var(--border-status-low); color: var(--text-status-low); font-weight: 700; display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px;">완료</span>`;
-          rowStyle = "opacity: 0.85; background: rgba(16, 185, 129, 0.01);";
+          rowClass = "row-completed";
         } else if (state === "in_progress") {
           statusBadge = `<span class="badge" style="background: var(--bg-status-info); border: 1px solid var(--border-status-info); color: var(--text-status-info); font-weight: 700; display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; animation: pulse-blue 1.5s infinite;">진행 중</span>`;
-          rowStyle = "background: rgba(59, 130, 246, 0.01);";
+          rowClass = "row-in-progress";
         } else {
           statusBadge = `<span class="badge" style="background: #f1f5f9; border: 1px solid var(--border-card); color: var(--text-muted-light); font-weight: 600; display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px;">대기</span>`;
         }
@@ -1673,12 +1669,12 @@ const app = {
         }
 
         tableHTML += `
-          <tr style="border-bottom: 1px solid var(--border-card); ${rowStyle} transition: background 0.15s;">
+          <tr class="${rowClass}">
             <!-- 마일스톤 기준일 -->
-            <td style="padding: 12px; font-family: monospace; font-weight: 800; color: var(--brand-blue);">${task.milestone}</td>
+            <td style="font-family: monospace; font-weight: 800; color: var(--brand-blue);">${task.milestone}</td>
             
             <!-- 태스크 제목 -->
-            <td style="padding: 12px; font-weight: 700; color: var(--text-primary); line-height: 1.4;">
+            <td style="font-weight: 700; color: var(--text-primary); line-height: 1.4;">
               <div style="display: flex; align-items: center; flex-wrap: wrap;">
                 <span>${task.title}</span>
                 ${delayBadgeHTML}
@@ -1686,13 +1682,13 @@ const app = {
             </td>
             
             <!-- 태스크 설명 -->
-            <td style="padding: 12px; color: var(--text-secondary); font-weight: 500; line-height: 1.5;">${task.desc}</td>
+            <td style="color: var(--text-secondary); font-weight: 500; line-height: 1.5;">${task.desc}</td>
             
             <!-- 현재 상태 뱃지 -->
-            <td style="padding: 12px; text-align: center;">${statusBadge}</td>
+            <td style="text-align: center;">${statusBadge}</td>
             
             <!-- 상태 전환 버튼 -->
-            <td style="padding: 12px; text-align: center;">
+            <td style="text-align: center;">
               <button class="btn-toggle-task" data-id="${task.id}" style="padding: 5px 10px; font-size: 11px; font-weight: 700; border-radius: 4px; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border-card); background: #ffffff; color: var(--text-primary); display: inline-flex; align-items: center; gap: 4px;">
                 <i data-lucide="refresh-cw" style="width: 10px; height: 10px;"></i>
                 <span>전환</span>
@@ -2025,7 +2021,7 @@ const app = {
   renderCalendarCellHTML(year, month, day, isOtherMonth, activeAudit, today, taskStates) {
     const cellDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-    let classes = ['calendar-cell'];
+    let classes = ['calendar-cell-premium'];
     if (isOtherMonth) {
       classes.push('other-month');
     }
@@ -2048,31 +2044,17 @@ const app = {
       classes.push('selected');
     }
 
-    // 오늘, 감사예정일, 선택여부 등 테두리 및 효과 다이내믹 주입
-    let inlineStyle = "";
-    if (isSelected) {
-      inlineStyle = "border: 2.5px solid #2563eb !important; background: #f0f6ff !important; box-shadow: 0 4px 12px rgba(37,99,235,0.15) !important; transform: scale(1.02); z-index: 10;";
-    } else if (isAuditDay) {
-      inlineStyle = "border: 1.5px solid #ef4444 !important; background: #fef2f2 !important; box-shadow: inset 0 0 8px rgba(239,68,68,0.05);";
-    } else if (isToday) {
-      inlineStyle = "border: 1.5px solid #ffd700 !important; background: #fffbeb !important; box-shadow: inset 0 0 8px rgba(255,215,0,0.1);";
-    } else {
-      inlineStyle = `background: ${isOtherMonth ? '#f8fafc' : '#ffffff'} !important; border: 1px solid ${isOtherMonth ? '#f1f5f9' : '#e2e8f0'} !important;`;
+    // 어느 특수 상태도 아닐 경우 기본 날짜 배경 클래스 지정
+    if (!isToday && !isAuditDay && !isSelected) {
+      classes.push('default-day');
     }
 
-    // 일자 텍스트 컬러 설정
-    let dayTextColor = "var(--text-primary)";
-    if (isOtherMonth) dayTextColor = "#94a3b8";
-    else if (isSelected) dayTextColor = "#2563eb";
-    else if (isToday) dayTextColor = "#d97706";
-    else if (isAuditDay) dayTextColor = "#ef4444";
-
     let cellHTML = `
-      <div class="${classes.join(' ')}" data-date="${cellDateStr}" style="position: relative; min-height: 105px; padding: 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; transition: all 0.2s; ${inlineStyle}">
+      <div class="${classes.join(' ')}" data-date="${cellDateStr}">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 11.5px; font-weight: ${isToday || isAuditDay || isSelected ? '900' : '700'}; color: ${dayTextColor};">${day}</span>
-          ${isToday ? '<span style="font-size: 8px; font-weight: 800; color: #d97706; background: rgba(217,119,6,0.08); padding: 1px 3px; border-radius: 3px; font-family: \'Inter\', sans-serif;">TODAY</span>' : ''}
-          ${isAuditDay ? '<span style="font-size: 8px; font-weight: 800; color: #ef4444; background: rgba(239,68,68,0.08); padding: 1px 3px; border-radius: 3px; font-family: \'Inter\', sans-serif;">AUDIT</span>' : ''}
+          <span class="calendar-day-number" style="${isToday || isAuditDay || isSelected ? 'font-weight: 900;' : ''}">${day}</span>
+          ${isToday ? '<span style="font-size: 8px; font-weight: 800; color: var(--text-status-medium); background: var(--bg-status-medium); padding: 1px 4px; border-radius: 3px; font-family: \'Inter\', sans-serif;">TODAY</span>' : ''}
+          ${isAuditDay ? '<span style="font-size: 8px; font-weight: 800; color: var(--color-status-high); background: var(--bg-status-high); padding: 1px 4px; border-radius: 3px; font-family: \'Inter\', sans-serif;">AUDIT</span>' : ''}
         </div>
         <div class="calendar-events-container" style="flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; gap: 4px; justify-content: flex-end; padding-top: 2px;">
     `;
@@ -2080,7 +2062,7 @@ const app = {
     // 감사 당일이면 화려한 고객 감사 일정 배지 추가
     if (isAuditDay) {
       cellHTML += `
-        <div style="font-size: 10px; font-weight: 800; color: #ef4444; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); padding: 4px; border-radius: 4px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 3px; width: 100%; box-sizing: border-box;" title="${activeAudit.title}">
+        <div style="font-size: 10px; font-weight: 800; color: var(--color-status-high); background: var(--bg-status-high); border: 1px solid var(--border-status-high); padding: 4px; border-radius: 4px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 3px; width: 100%; box-sizing: border-box;" title="${activeAudit.title}">
           <span>★ 본감사 수검</span>
         </div>
       `;
@@ -2119,28 +2101,28 @@ const app = {
 
         if (completedCount > 0) {
           cellHTML += `
-            <div class="calendar-task-badge" style="font-size: 9.5px; font-weight: 700; background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; padding: 2.5px 5px; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 3px; max-width: 100%;" title="완료된 과제 ${completedCount}건">
+            <div class="calendar-cell-badge calendar-task-badge completed" title="완료된 과제 ${completedCount}건" data-task-id="completed">
               <span>● 완료 ${completedCount}</span>
             </div>
           `;
         }
         if (inProgressCount > 0) {
           cellHTML += `
-            <div class="calendar-task-badge" style="font-size: 9.5px; font-weight: 700; background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; padding: 2.5px 5px; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 3px; max-width: 100%;" title="진행 중 과제 ${inProgressCount}건">
+            <div class="calendar-cell-badge calendar-task-badge in_progress" title="진행 중 과제 ${inProgressCount}건" data-task-id="in_progress">
               <span>▶ 진행 ${inProgressCount}</span>
             </div>
           `;
         }
         if (delayedCount > 0) {
           cellHTML += `
-            <div class="calendar-task-badge" style="font-size: 9.5px; font-weight: 700; background: #fef2f2; border: 1px solid #fca5a5; color: #ef4444; padding: 2.5px 5px; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 3px; max-width: 100%;" title="지연 위험 과제 ${delayedCount}건">
+            <div class="calendar-cell-badge calendar-task-badge delayed" title="지연 위험 과제 ${delayedCount}건" data-task-id="delayed">
               <span>⚠ 지연 ${delayedCount}</span>
             </div>
           `;
         }
         if (pendingCount > 0) {
           cellHTML += `
-            <div class="calendar-task-badge" style="font-size: 9.5px; font-weight: 700; background: #f8fafc; border: 1px solid #cbd5e1; color: #475569; padding: 2.5px 5px; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 3px; max-width: 100%;" title="대기 중 과제 ${pendingCount}건">
+            <div class="calendar-cell-badge calendar-task-badge pending" title="대기 중 과제 ${pendingCount}건" data-task-id="pending">
               <span>○ 대기 ${pendingCount}</span>
             </div>
           `;
@@ -2208,7 +2190,7 @@ const app = {
 
     if (dueTasks.length === 0) {
       listNode.innerHTML = `
-        <div style="padding: 24px 16px; text-align: center; color: var(--text-muted-light); border: 1px dashed var(--border-card); border-radius: 8px; font-weight: 500; font-size: 11.5px; background: #ffffff;">
+        <div class="calendar-detail-empty-state">
           <i data-lucide="info" style="width: 18px; height: 18px; display: block; margin: 0 auto 8px auto; opacity: 0.6; color: var(--brand-blue);"></i>
           해당 일자에 예정된 감사 준비 태스크가 없습니다. 달력의 마일스톤이나 스케줄러 일정을 확인해 주십시오.
         </div>
@@ -2225,37 +2207,37 @@ const app = {
         let stateBadge = '';
 
         if (state === "completed") {
-          stateBadge = `<span style="font-size: 10px; font-weight: 800; color: #15803d; background: #dcfce7; border: 1px solid #bbf7d0; padding: 2px 6px; border-radius: 4px; cursor: pointer;">완료</span>`;
+          stateBadge = `<span class="badge badge-success" style="cursor: pointer;">완료</span>`;
         } else if (state === "in_progress") {
-          stateBadge = `<span style="font-size: 10px; font-weight: 800; color: #1d4ed8; background: #dbeafe; border: 1px solid #bfdbfe; padding: 2px 6px; border-radius: 4px; cursor: pointer;">진행</span>`;
+          stateBadge = `<span class="badge badge-info" style="cursor: pointer;">진행</span>`;
         } else {
           // 지연 판단 (2026-05-29 기준)
           const todayDateObj = new Date("2026-05-29");
           const dueD = new Date(selectedDate);
           if (todayDateObj >= dueD) {
-            stateBadge = `<span class="blink" style="font-size: 10px; font-weight: 800; color: #ef4444; background: #fee2e2; border: 1px solid #fca5a5; padding: 2px 6px; border-radius: 4px; cursor: pointer;">지연</span>`;
+            stateBadge = `<span class="badge badge-danger blink" style="cursor: pointer;">지연</span>`;
           } else {
-            stateBadge = `<span style="font-size: 10px; font-weight: 800; color: #475569; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 2px 6px; border-radius: 4px; cursor: pointer;">대기</span>`;
+            stateBadge = `<span class="badge" style="cursor: pointer; background: var(--bg-app); border: 1px solid var(--border-card); color: var(--text-secondary);">대기</span>`;
           }
         }
 
         listNode.innerHTML += `
-          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 8px; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.02);" class="selected-task-card">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 11.5px; font-weight: 800; color: #2563eb; font-family: monospace;">${task.id.toUpperCase()}</span>
+          <div class="calendar-detail-task-card">
+            <div class="task-card-header">
+              <span class="task-card-id">${task.id.toUpperCase()}</span>
               <div onclick="window.antigravity.toggleTaskState('${task.id}')" title="클릭 시 상태 전환">
                 ${stateBadge}
               </div>
             </div>
             
-            <div style="font-size: 12.5px; font-weight: 800; color: #0f172a; line-height: 1.4;">${task.title}</div>
+            <div class="task-card-title">${task.title}</div>
             
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 6px; border-top: 1px dashed #e2e8f0; padding-top: 8px;">
-              <span style="font-size: 11px; color: #64748b;">
-                배치팀: <strong style="color: #334155; font-weight: 700;">${team}</strong>
+            <div class="task-card-footer">
+              <span>
+                배치팀: <strong>${team}</strong>
               </span>
-              <span style="font-size: 11px; color: #64748b;">
-                담당: <strong style="color: #334155; font-weight: 700;">${lead}</strong>
+              <span>
+                담당: <strong>${lead}</strong>
               </span>
             </div>
           </div>
@@ -2276,7 +2258,7 @@ const app = {
     const audit = this.state.audits.find(a => a.id === this.state.selectedAuditId);
     if (!audit) {
       tableBox.innerHTML = `
-        <div style="padding: 40px; text-align: center; color: var(--text-muted-light); font-weight: 500;">
+        <div class="calendar-detail-empty-state" style="padding: 40px;">
           <i data-lucide="info" style="width: 24px; height: 24px; display: block; margin: 0 auto 10px auto; color: var(--text-muted-light);"></i>
           활성 감사 일정을 먼저 등록하거나 선택해 주십시오.
         </div>
@@ -2289,20 +2271,21 @@ const app = {
     const assignments = this.state.planningTaskAssignments[auditId] || {};
 
     let tableHTML = `
-      <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12.5px; background: #ffffff;">
-        <thead>
-          <tr style="border-bottom: 2px solid #cbd5e1; background: #f1f5f9;">
-            <th style="padding: 12px 10px; text-align: left; width: 90px; color: #334155; font-weight: 800; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1;">Task ID</th>
-            <th style="padding: 12px 10px; text-align: center; width: 85px; color: #334155; font-weight: 800; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; line-height: 1.2;">추진 마일<br>스톤</th>
-            <th style="padding: 12px 10px; text-align: left; color: #334155; font-weight: 800; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1;">검증 준비 과제 (체크리스트)</th>
-            <th style="padding: 12px 10px; text-align: left; width: 150px; color: #334155; font-weight: 800; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1;">배치팀 (Team)</th>
-            <th style="padding: 12px 10px; text-align: left; width: 110px; color: #334155; font-weight: 800; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1;">담당 실무자</th>
-            <th style="padding: 12px 10px; text-align: left; width: 140px; color: #334155; font-weight: 800; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1;">조치 기한 (Due Date)</th>
-            <th style="padding: 12px 10px; text-align: center; width: 100px; color: #334155; font-weight: 800; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1;">준비 상태</th>
-            <th style="padding: 12px 10px; text-align: center; width: 150px; color: #334155; font-weight: 800; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1;">작업</th>
-          </tr>
-        </thead>
-        <tbody>
+      <div class="checklist-table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align: left; width: 90px;">Task ID</th>
+              <th style="text-align: center; width: 85px; line-height: 1.2;">추진 마일<br>스톤</th>
+              <th style="text-align: left;">검증 준비 과제 (체크리스트)</th>
+              <th style="text-align: left; width: 150px;">배치팀 (Team)</th>
+              <th style="text-align: left; width: 110px;">담당 실무자</th>
+              <th style="text-align: left; width: 140px;">조치 기한 (Due Date)</th>
+              <th style="text-align: center; width: 100px;">준비 상태</th>
+              <th style="text-align: center; width: 150px;">작업</th>
+            </tr>
+          </thead>
+          <tbody>
     `;
 
     this.state.planningTasks.forEach(task => {
@@ -2319,52 +2302,51 @@ const app = {
         dueVal = this.getTaskDueDate(audit, task);
       }
 
-      // 상태 배지 HTML 분기 (Static badges with light rounded borders)
+      // 상태 배지 HTML 분기
       let stateBadgeHTML = '';
       if (state === "completed") {
-        stateBadgeHTML = `<span style="font-size: 11px; font-weight: 800; color: #15803d; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 4px 8px; border-radius: 4px; display: inline-block; width: 80px; text-align: center;">완료</span>`;
+        stateBadgeHTML = `<span class="badge badge-success" style="width: 80px; text-align: center; justify-content: center;">완료</span>`;
       } else if (state === "in_progress") {
-        stateBadgeHTML = `<span style="font-size: 11px; font-weight: 800; color: #1d4ed8; background: #eff6ff; border: 1px solid #bfdbfe; padding: 4px 8px; border-radius: 4px; display: inline-block; width: 80px; text-align: center;">진행</span>`;
+        stateBadgeHTML = `<span class="badge badge-info" style="width: 80px; text-align: center; justify-content: center;">진행</span>`;
       } else {
         // 지연 감지 (2026-05-29 기준 기한 초과 여부 확인)
         const todayDateObj = new Date("2026-05-29");
         const dueD = new Date(dueVal);
         if (todayDateObj >= dueD) {
-          stateBadgeHTML = `<span class="blink" style="font-size: 11px; font-weight: 800; color: #ef4444; background: #fef2f2; border: 1px solid #fca5a5; padding: 4px 8px; border-radius: 4px; display: inline-block; width: 80px; text-align: center;">지연 위험</span>`;
+          stateBadgeHTML = `<span class="badge badge-danger blink" style="width: 80px; text-align: center; justify-content: center;">지연 위험</span>`;
         } else {
-          stateBadgeHTML = `<span style="font-size: 11px; font-weight: 800; color: #475569; background: #f8fafc; border: 1px solid #cbd5e1; padding: 4px 8px; border-radius: 4px; display: inline-block; width: 80px; text-align: center;">대기</span>`;
+          stateBadgeHTML = `<span class="badge" style="width: 80px; text-align: center; justify-content: center; background: var(--bg-app); border: 1px solid var(--border-card); color: var(--text-secondary);">대기</span>`;
         }
       }
 
-      // 입력란 텍스트 박스는 검정 색상(#0f172a)과 순수 흰색(#ffffff)을 매핑하여 가독성 대비율(Contrast Ratio) 극대화 (WCAG 2.1 AA)
       tableHTML += `
-        <tr style="border-bottom: 1px solid #e2e8f0; background: #ffffff; transition: background 0.15s;" id="row-${task.id}" onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background='#ffffff'">
-          <td style="padding: 12px 10px; font-family: monospace; font-weight: 700; color: #334155;">${task.id.toUpperCase()}</td>
-          <td style="padding: 12px 10px; text-align: center; color: #2563eb; font-weight: 800; font-family: monospace; font-size: 13px;">
+        <tr id="row-${task.id}">
+          <td style="font-family: var(--font-family-mono), monospace; font-weight: 700; color: var(--text-secondary);">${task.id.toUpperCase()}</td>
+          <td style="text-align: center; color: var(--brand-blue); font-weight: 800; font-family: var(--font-family-mono), monospace; font-size: 13px;">
             ${task.milestone}
           </td>
-          <td style="padding: 12px 10px; line-height: 1.4; text-align: left;">
-            <div style="font-weight: 800; color: #0f172a; margin-bottom: 4px; font-size: 12.5px;">${task.title}</div>
-            <div style="font-size: 11px; color: #64748b; line-height: 1.3;">${task.desc}</div>
+          <td style="line-height: 1.4; text-align: left;">
+            <div style="font-weight: 800; color: var(--text-primary); margin-bottom: 4px; font-size: 12.5px;">${task.title}</div>
+            <div style="font-size: 11px; color: var(--text-muted-light); line-height: 1.3;">${task.desc}</div>
           </td>
-          <td style="padding: 12px 10px;">
-            <input type="text" id="input-team-${task.id}" value="${teamVal}" placeholder="예: 품질보증부" style="width: 100%; background: #ffffff !important; border: 1px solid #cbd5e1 !important; color: #0f172a !important; padding: 6px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; outline: none; box-sizing: border-box;">
+          <td>
+            <input type="text" id="input-team-${task.id}" value="${teamVal}" placeholder="예: 품질보증부">
           </td>
-          <td style="padding: 12px 10px;">
-            <input type="text" id="input-lead-${task.id}" value="${leadVal}" placeholder="예: 박정호 수석" style="width: 100%; background: #ffffff !important; border: 1px solid #cbd5e1 !important; color: #0f172a !important; padding: 6px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; outline: none; box-sizing: border-box;">
+          <td>
+            <input type="text" id="input-lead-${task.id}" value="${leadVal}" placeholder="예: 박정호 수석">
           </td>
-          <td style="padding: 12px 10px;">
-            <input type="date" id="input-due-${task.id}" value="${dueVal}" style="width: 100%; background: #ffffff !important; border: 1px solid #cbd5e1 !important; color: #0f172a !important; padding: 5px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; font-family: monospace; outline: none; box-sizing: border-box;">
+          <td>
+            <input type="date" id="input-due-${task.id}" value="${dueVal}">
           </td>
-          <td style="padding: 12px 10px; text-align: center;">
+          <td style="text-align: center;">
             ${stateBadgeHTML}
           </td>
-          <td style="padding: 12px 10px; text-align: center;">
+          <td style="text-align: center;">
             <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
-              <button onclick="window.antigravity.toggleTaskStateInChecklist('${task.id}')" style="background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px;" onmouseenter="this.style.background='#f1f5f9'" onmouseleave="this.style.background='#ffffff'">
+              <button onclick="window.antigravity.toggleTaskStateInChecklist('${task.id}')" class="btn-checklist-state">
                 <i data-lucide="refresh-cw" style="width: 11px; height: 11px;"></i> 상태
               </button>
-              <button onclick="window.antigravity.saveTaskRowAssignment('${task.id}')" style="background: #2563eb; border: none; color: white; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s; box-shadow: 0 1px 3px rgba(37,99,235,0.2);" onmouseenter="this.style.background='#1d4ed8'" onmouseleave="this.style.background='#2563eb'">
+              <button onclick="window.antigravity.saveTaskRowAssignment('${task.id}')" class="btn-checklist-save">
                 <i data-lucide="save" style="width: 11px; height: 11px;"></i> 저장
               </button>
             </div>
@@ -2374,8 +2356,9 @@ const app = {
     });
 
     tableHTML += `
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     `;
 
     tableBox.innerHTML = tableHTML;

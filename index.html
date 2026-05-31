@@ -423,11 +423,11 @@
         <!-- 📌 상단 위 고정 영역 컨테이너 시작 (위 고정 설계 구현) -->
         <div class="sticky-planning-header">
           <!-- ⚙️ 상단 공장/OEM/유형 정밀 필터 바 -->
-          <div class="card-solid" style="margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 8px 16px; background: #ffffff; border: 1px solid var(--border-card);">
-            <div style="display: flex; align-items: center; gap: 12px; flex: 1; flex-wrap: wrap;">
+          <div class="planning-filter-bar">
+            <div class="planning-filter-group">
               <!-- 대상 공장 -->
-              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 160px; flex: 1;">
-                <span style="font-size: 10.5px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
+              <div class="planning-filter-item">
+                <span class="planning-filter-label">
                   <i data-lucide="factory" style="width: 11px; height: 11px; color: var(--brand-blue);"></i> 대상 공장
                 </span>
                 <select id="planning-filter-plant" class="filter-select" style="width: 100%; font-size: 12.5px; font-weight: 700; height: 34px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; outline: none; padding: 0 8px;">
@@ -435,8 +435,8 @@
                 </select>
               </div>
               <!-- 완성차 고객사 -->
-              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 160px; flex: 1;">
-                <span style="font-size: 10.5px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
+              <div class="planning-filter-item">
+                <span class="planning-filter-label">
                   <i data-lucide="car" style="width: 11px; height: 11px; color: var(--brand-blue);"></i> 완성차 고객사 (OEM)
                 </span>
                 <select id="planning-filter-customer" class="filter-select" style="width: 100%; font-size: 12.5px; font-weight: 700; height: 34px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; outline: none; padding: 0 8px;">
@@ -444,8 +444,8 @@
                 </select>
               </div>
               <!-- AUDIT TYPE -->
-              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 160px; flex: 1;">
-                <span style="font-size: 10.5px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
+              <div class="planning-filter-item">
+                <span class="planning-filter-label">
                   <i data-lucide="settings" style="width: 11px; height: 11px; color: var(--brand-blue);"></i> AUDIT TYPE
                 </span>
                 <select id="planning-filter-audit-type" class="filter-select" style="width: 100%; font-size: 12.5px; font-weight: 700; height: 34px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; outline: none; padding: 0 8px;">
@@ -457,9 +457,9 @@
           </div>
 
           <!-- 📅 활성 수검 일정 선택 바 -->
-          <div class="card-solid" style="margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 6px 16px; background: #ffffff; border: 1px solid var(--border-card);">
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-              <span style="font-size: 12.5px; color: var(--text-primary); font-weight: 700; display: flex; align-items: center; gap: 4px;">
+          <div class="planning-selector-bar">
+            <div class="planning-active-select-group">
+              <span class="planning-active-select-label">
                 <i data-lucide="calendar-days" style="color: var(--brand-blue); width: 14px; height: 14px;"></i>
                 활성 수검 일정 선택:
               </span>
@@ -474,7 +474,7 @@
           </div>
 
           <!-- ⬜ 실시간 감사 준비 현황 모니터링 계기판 (Premium Light Solid Theme) -->
-          <div class="monitoring-dashboard-card card-solid" style="padding: 16px 20px; margin-bottom: 8px; width: 100%; display: flex; flex-direction: column; gap: 16px;">
+          <div class="monitoring-dashboard-card card-solid">
             
             <!-- [상단 영역] 제목 및 모니터링 상태 배지 -->
             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
@@ -490,34 +490,34 @@
             <!-- [중단 영역] 5대 KPI 카드 (화면 전체 100% 균등 5분할하여 가득 채움) -->
             <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; width: 100%;">
               <!-- D-DAY -->
-              <div class="kpi-sub-card" style="padding: 10px 8px !important; min-height: 64px !important;">
-                <span class="kpi-title" style="font-size: 9.5px !important; margin-bottom: 4px !important;">D-DAY</span>
-                <div id="panel-kpi-dday" class="kpi-value" style="color: var(--brand-blue); font-size: 20px !important;">-</div>
-                <span id="panel-kpi-dday-sub" class="kpi-sub-text" style="font-size: 9px !important; margin-top: 4px !important;">심사일: -</span>
+              <div class="kpi-sub-card">
+                <span class="kpi-title">D-DAY</span>
+                <div id="panel-kpi-dday" class="kpi-value" style="color: var(--brand-blue);">-</div>
+                <span id="panel-kpi-dday-sub" class="kpi-sub-text">심사일: -</span>
               </div>
               <!-- 전체 항목 수 -->
-              <div class="kpi-sub-card" style="padding: 10px 8px !important; min-height: 64px !important;">
-                <span class="kpi-title" style="font-size: 9.5px !important; margin-bottom: 4px !important;">전체 항목 수</span>
-                <div id="panel-kpi-total" class="kpi-value" style="color: var(--text-primary); font-size: 20px !important;">-</div>
-                <span class="kpi-sub-text" style="font-size: 9px !important; margin-top: 4px !important;">준비 과제 수량</span>
+              <div class="kpi-sub-card">
+                <span class="kpi-title">전체 항목 수</span>
+                <div id="panel-kpi-total" class="kpi-value" style="color: var(--text-primary);">-</div>
+                <span class="kpi-sub-text">준비 과제 수량</span>
               </div>
               <!-- 완료 -->
-              <div class="kpi-sub-card" style="padding: 10px 8px !important; min-height: 64px !important;">
-                <span class="kpi-title" style="font-size: 9.5px !important; margin-bottom: 4px !important;">완료</span>
-                <div id="panel-kpi-completed" class="kpi-value" style="color: #10b981; font-size: 20px !important;">-</div>
-                <span id="panel-kpi-completed-sub" class="kpi-sub-text" style="font-size: 9px !important; margin-top: 4px !important;">준비 달성률: -</span>
+              <div class="kpi-sub-card">
+                <span class="kpi-title">완료</span>
+                <div id="panel-kpi-completed" class="kpi-value" style="color: #10b981;">-</div>
+                <span id="panel-kpi-completed-sub" class="kpi-sub-text">준비 달성률: -</span>
               </div>
               <!-- 진행중 / 대기 -->
-              <div class="kpi-sub-card" style="padding: 10px 8px !important; min-height: 64px !important;">
-                <span class="kpi-title" style="font-size: 9.5px !important; margin-bottom: 4px !important;">진행중 / 대기</span>
-                <div id="panel-kpi-progress" class="kpi-value" style="color: #3b82f6; font-size: 20px !important;">-</div>
-                <span id="panel-kpi-progress-sub" class="kpi-sub-text" style="font-size: 9px !important; margin-top: 4px !important;">대기/미시작: -</span>
+              <div class="kpi-sub-card">
+                <span class="kpi-title">진행중 / 대기</span>
+                <div id="panel-kpi-progress" class="kpi-value" style="color: #3b82f6;">-</div>
+                <span id="panel-kpi-progress-sub" class="kpi-sub-text">대기/미시작: -</span>
               </div>
               <!-- 지연 -->
-              <div class="kpi-sub-card" style="padding: 10px 8px !important; min-height: 64px !important;">
-                <span class="kpi-title" style="font-size: 9.5px !important; margin-bottom: 4px !important;">지연</span>
-                <div id="panel-kpi-delayed" class="kpi-value" style="color: #ef4444; font-size: 20px !important;">-</div>
-                <span id="panel-kpi-delayed-sub" class="kpi-sub-text" style="font-size: 9px !important; margin-top: 4px !important;">일정 초과 리스크 감지</span>
+              <div class="kpi-sub-card">
+                <span class="kpi-title">지연</span>
+                <div id="panel-kpi-delayed" class="kpi-value" style="color: #ef4444;">-</div>
+                <span id="panel-kpi-delayed-sub" class="kpi-sub-text">일정 초과 리스크 감지</span>
               </div>
             </div>
 
@@ -566,23 +566,23 @@
         <!-- 📌 상단 위 고정 영역 컨테이너 끝 -->
 
         <!-- 3중 서브 탭 셀렉터 (글래스모피즘 스타일) -->
-        <div class="sub-tabs-container" style="display: flex; gap: 10px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px;">
-          <button class="sub-tab-btn active" data-subtab="planning-timeline" style="font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 6px; font-weight: 700;">
+        <div class="planning-subtab-container">
+          <button class="planning-subtab-btn active" data-subtab="planning-timeline">
             <i data-lucide="compass" style="width: 14px; height: 14px;"></i> Timeline (일정 및 추진 트랙)
           </button>
-          <button class="sub-tab-btn" data-subtab="planning-calendar" style="font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 6px; font-weight: 700;">
+          <button class="planning-subtab-btn" data-subtab="planning-calendar">
             <i data-lucide="calendar" style="width: 14px; height: 14px;"></i> Calendar (수검 타임라인 달력)
           </button>
-          <button class="sub-tab-btn" data-subtab="planning-checklist" style="font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 6px; font-weight: 700;">
+          <button class="planning-subtab-btn" data-subtab="planning-checklist">
             <i data-lucide="check-square" style="width: 14px; height: 14px;"></i> Checklist (수동 계획 수립 및 배포)
           </button>
         </div>
 
         <!-- ================= Sub-Tab 1: Timeline Feed ================= -->
         <div class="sub-tab-pane active-sub-pane" id="subtab-planning-timeline">
-          <div class="grid-2col" style="grid-template-columns: 1fr 1.2fr;">
+          <div class="planning-timeline-grid">
             <!-- 마일스톤 타임라인 트랙 -->
-            <div class="card-solid flex-col" style="min-height: 520px;">
+            <div class="card-solid flex-col planning-timeline-track-card">
               <div class="card-header" style="border-bottom: 1px solid var(--border-card); padding-bottom: 12px; margin-bottom: 15px;">
                 <h2 class="card-title" id="timeline-audit-title">수검 일정 마일스톤 (Milestone Tracker)</h2>
                 <p class="card-subtitle">D-30 감사 계획 단계별 추진 마일스톤 및 예정 대비 진척도</p>
@@ -594,7 +594,7 @@
             </div>
 
             <!-- 트리-뷰 태스크 리스트 -->
-            <div class="card-solid flex-col" style="min-height: 520px;">
+            <div class="card-solid flex-col planning-timeline-track-card">
               <div class="card-header" style="border-bottom: 1px solid var(--border-card); padding-bottom: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <div>
                   <h2 class="card-title">단계별 상세 준비 과제 (Readiness Checklist)</h2>
@@ -615,9 +615,9 @@
 
         <!-- ================= Sub-Tab 2: Audit Calendar ================= -->
         <div class="sub-tab-pane" id="subtab-planning-calendar" style="display: none;">
-          <div class="card-solid flex-col" style="min-height: 580px; padding: 20px; background: #ffffff; border: 1px solid var(--border-card);">
+          <div class="calendar-main-card">
             <!-- 달력 상단 정렬 행 (타이틀 + 프로그레스 배너 + 연월이동) -->
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+            <div class="calendar-header-toolbar">
               <!-- 좌측 타이틀 -->
               <div style="display: flex; flex-direction: column;">
                 <h3 style="font-size: 14px; font-weight: 800; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 6px;">
@@ -628,7 +628,7 @@
               </div>
 
               <!-- 중앙 감사 진척률 배너 -->
-              <div id="calendar-prep-progress-banner" style="display: flex; align-items: center; gap: 12px; background: rgba(37, 99, 235, 0.03); border: 1px dashed rgba(37, 99, 235, 0.2); padding: 6px 12px; border-radius: 8px;">
+              <div id="calendar-prep-progress-banner" class="calendar-progress-banner">
                 <div style="display: flex; flex-direction: column; gap: 2px;">
                   <span style="font-size: 9px; color: var(--text-muted-light); font-weight: 700; text-transform: uppercase;">감사 진척률</span>
                   <div style="display: flex; align-items: center; gap: 6px;">
@@ -653,36 +653,36 @@
               </div>
 
               <!-- 우측 연월 이동 컨트롤 -->
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <button class="btn-cal-arrow" id="btn-calendar-prev" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 50%; color: #475569; cursor: pointer; transition: all 0.2s;"><i data-lucide="chevron-left" style="width: 14px; height: 14px;"></i></button>
+              <div class="calendar-month-controller">
+                <button class="calendar-nav-btn" id="btn-calendar-prev"><i data-lucide="chevron-left" style="width: 14px; height: 14px;"></i></button>
                 <span id="calendar-month-title" style="font-size: 13px; font-weight: 800; color: var(--text-primary); font-family: 'Inter', sans-serif; min-width: 90px; text-align: center;">2026년 06월</span>
-                <button class="btn-cal-arrow" id="btn-calendar-next" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 50%; color: #475569; cursor: pointer; transition: all 0.2s;"><i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i></button>
+                <button class="calendar-nav-btn" id="btn-calendar-next"><i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i></button>
               </div>
             </div>
 
             <!-- 달력 콘텐츠 가로 2단 그리드 영역 (7.2 : 2.8 분할) -->
-            <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 20px; flex-grow: 1;">
+            <div class="calendar-grid-layout">
               <!-- 1) 좌측: 달력 본체 영역 -->
               <div style="display: flex; flex-direction: column; gap: 8px;">
                 <!-- 요일 헤더 -->
-                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center;">
-                  <div class="calendar-day-header sunday" style="padding: 8px; font-size: 11px; font-weight: 800; color: #ef4444;">일 (SUN)</div>
-                  <div class="calendar-day-header" style="padding: 8px; font-size: 11px; font-weight: 800; color: #475569;">월 (MON)</div>
-                  <div class="calendar-day-header" style="padding: 8px; font-size: 11px; font-weight: 800; color: #475569;">화 (TUE)</div>
-                  <div class="calendar-day-header" style="padding: 8px; font-size: 11px; font-weight: 800; color: #475569;">수 (WED)</div>
-                  <div class="calendar-day-header" style="padding: 8px; font-size: 11px; font-weight: 800; color: #475569;">목 (THU)</div>
-                  <div class="calendar-day-header" style="padding: 8px; font-size: 11px; font-weight: 800; color: #475569;">금 (FRI)</div>
-                  <div class="calendar-day-header" style="padding: 8px; font-size: 11px; font-weight: 800; color: #2563eb;">토 (SAT)</div>
+                <div class="calendar-days-header-row">
+                  <div class="calendar-day-header-cell sunday">일 (SUN)</div>
+                  <div class="calendar-day-header-cell">월 (MON)</div>
+                  <div class="calendar-day-header-cell">화 (TUE)</div>
+                  <div class="calendar-day-header-cell">수 (WED)</div>
+                  <div class="calendar-day-header-cell">목 (THU)</div>
+                  <div class="calendar-day-header-cell">금 (FRI)</div>
+                  <div class="calendar-day-header-cell saturday">토 (SAT)</div>
                 </div>
 
                 <!-- 날짜 그리드 박스 (7x6 그리드) -->
-                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;" id="calendar-grid-box">
+                <div class="calendar-days-grid" id="calendar-grid-box">
                   <!-- JS에서 동적으로 채워넣음 -->
                 </div>
               </div>
 
               <!-- 2) 우측: 일자별 상세 과제 패널 -->
-              <div style="background: #f8fafc; border: 1px solid var(--border-card); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-height: 480px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);">
+              <div class="calendar-detail-panel">
                 <div style="border-bottom: 1px solid var(--border-card); padding-bottom: 10px;">
                   <h4 id="calendar-selected-date-title" style="font-size: 12.5px; font-weight: 800; color: var(--brand-blue); margin: 0; display: flex; align-items: center; gap: 6px;">
                     <i data-lucide="calendar-check" style="width: 15px; height: 15px;"></i>
@@ -701,10 +701,10 @@
 
         <!-- ================= Sub-Tab 3: Checklist (수동 계획 수립 및 배포) ================= -->
         <div class="sub-tab-pane" id="subtab-planning-checklist" style="display: none;">
-          <div class="card-solid flex-col" style="min-height: 580px; padding: 20px; background: #ffffff; border: 1px solid var(--border-card);">
+          <div class="checklist-main-card">
             
             <!-- 상단 제목 및 우측 자동 생성/엑셀 내보내기/가져오기 도구 모음 -->
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+            <div class="checklist-header-toolbar">
               <div style="display: flex; flex-direction: column;">
                 <h3 style="font-size: 14px; font-weight: 800; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 6px;">
                   <i data-lucide="check-square" style="width: 18px; height: 18px; color: var(--brand-blue);"></i>
@@ -714,7 +714,7 @@
               </div>
 
               <!-- 우측 툴 버튼 3종 -->
-              <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <div class="checklist-tools-group">
                 <button class="btn" id="btn-planning-checklist-generate" style="background: rgba(0, 200, 255, 0.05); border: 1px solid rgba(0, 200, 255, 0.3); color: #0088cc; padding: 8px 14px; border-radius: 6px; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s;">
                   <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> ASM-01-EN-OE 감사 기준 자동 생성
                 </button>
@@ -729,7 +729,7 @@
             </div>
 
             <!-- 계획 체크리스트 테이블 박스 -->
-            <div id="planning-checklist-table-box" style="overflow-x: auto; flex-grow: 1; border: 1px solid var(--border-card); border-radius: 8px;">
+            <div id="planning-checklist-table-box" class="checklist-table-container">
               <!-- 동적으로 과제 테이블 렌더링 -->
             </div>
 
