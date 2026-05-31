@@ -8004,7 +8004,7 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
 
         return `
           <div class="card-solid" 
-               style="height: 130px; box-sizing: border-box; padding: 14px 12px; background: rgba(30, 41, 59, 0.03); border: 1px solid var(--border-card); border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; cursor: pointer; transition: all 0.2s ease-in-out; margin: 0; box-shadow: none;" 
+               style="height: 156px; box-sizing: border-box; padding: 14px 12px; background: rgba(30, 41, 59, 0.03); border: 1px solid var(--border-card); border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; cursor: pointer; transition: all 0.2s ease-in-out; margin: 0; box-shadow: none;" 
                onclick="antigravity.navigateToPlantRisk('${item.code}')"
                onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='var(--brand-blue)'; this.style.boxShadow='0 8px 20px rgba(37, 99, 235, 0.08)';" 
                onmouseout="this.style.transform='none'; this.style.borderColor='var(--border-card)'; this.style.boxShadow='none';">
