@@ -955,6 +955,8 @@ const app = {
       this.state.audits = defaultAudits;
       localStorage.setItem('cqms_customer_audit_db', JSON.stringify(defaultAudits));
     }
+    // 활성 감사 일정을 가까운 시일(오름차순) 순으로 정렬
+    this.state.audits.sort((a, b) => a.date.localeCompare(b.date));
 
     // selectedAuditId 로딩 (캐시 잠김 해소를 위해 과거 mock ID인 audit_1, audit_2 등은 최신 고유 ID로 스마트 마이그레이션 적용)
     const storedSelectedId = localStorage.getItem('riskhunter_selected_audit_id');
@@ -1835,6 +1837,7 @@ const app = {
 
     // 3. 전역 State 및 LocalStorage 에 세션 보존 영속화
     this.state.audits.push(newAudit);
+    this.state.audits.sort((a, b) => a.date.localeCompare(b.date));
     localStorage.setItem('cqms_customer_audit_db', JSON.stringify(this.state.audits));
 
     // 신규 등록 일정을 즉시 활성 감사 일정으로 격상 선택

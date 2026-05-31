@@ -100,6 +100,8 @@ graph TD
     `const matchType = selectedType === 'ALL' || audit.type === selectedType;`
 
 ### ② 날짜 정렬(Date Sorting) 및 유효성 보호 장치
+*   수검 일정의 가시성과 일정 혼선을 방지하기 위해, 드롭다운 및 전체 `this.state.audits` 목록은 감사 시작일(`date`) 기준 오름차순 정렬(`localeCompare`)되어 가까운 시일이 최상단에 오도록 설계되었습니다.
 *   공장 내 과거 수검 이력 중 감사 예정일(`START_DT`)이 누락되었거나 날짜 포맷이 비정상적인 데이터가 포함되더라도, 자바스크립트 `sort` 함수가 `NaN` (Invalid Date)을 반환하여 전체 감사 일정 목록의 정렬과 바인딩이 붕괴되는 것을 물리적으로 차단합니다.
 *   `isNaN(date.getTime())` 검증을 통과한 온전한 타임스탬프 밀리초만 정렬 비교 대상으로 연산합니다.
+
 

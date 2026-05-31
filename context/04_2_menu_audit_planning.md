@@ -259,7 +259,7 @@ toggleTaskState(taskId) {
 고유 ID가 `#planning-audit-select`인 상단 "활성 수검 일정 선택" 셀렉터 드롭다운은 `data/cqms_customer_audit_db.json` 파일에서 동적 추출되어 `this.state.audits`에 적재된 모든 미래 예정(STATUS: Open) 감사 일정과 기하학적으로 연동 구동됩니다.
 
 1. **동적 드롭다운 렌더링 메커니즘**:
-   - `this.state.audits` 리스트를 동적 루프 처리하여, 각 감사 일정의 고유 식별자(`audit.id`)를 `value`로, 완성차 OEM/공장 주제 및 감사 시작일자를 조합한 문자열(`${audit.title} (${audit.date})`)을 `textContent`로 삼아 `<option>` 노드를 무지연 재생성 및 인서트합니다.
+   - `this.state.audits` 리스트를 감사일자(`date`) 기준 오름차순(가까운 시일이 위로 가도록) 정렬한 뒤 동적 루프 처리하여, 각 감사 일정의 고유 식별자(`audit.id`)를 `value`로, 완성차 OEM/공장 주제 및 감사 시작일자를 조합한 문자열(`${audit.title} (${audit.date})`)을 `textContent`로 삼아 `<option>` 노드를 무지연 재생성 및 인서트합니다.
    - `this.state.selectedAuditId`와 정확하게 매치되는 옵션에 `selected = true` 속성을 강제 바인딩하여 새로고침 시에도 활성 컨텍스트 상태를 완벽히 유지시킵니다.
    - **조회 필터 바인딩 일치화(Type vs TypeName)**: HTML 내 Audit Type 검색 필터(`#planning-filter-audit-type`)의 값인 `"Project"`/`"System"`과 감사 데이터의 물리적 속성 `"type"`을 100% 매칭하여 조회 시 누락되지 않도록 설계하고, 화면에는 세련되게 변형된 `"typeName"` 필드(`"VDA 6.3 Process Audit"` 또는 `"IATF 16949 Standard Audit"`)를 활용하여 고품질 한글 분류(예: `VDA 6.3 Process Audit (제조공정)`)를 출력합니다.
 2. **리액티브 연쇄적 연동 흐름 (Chained Reaction Logic)**:
