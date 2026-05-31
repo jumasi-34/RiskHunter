@@ -254,6 +254,19 @@ toggleTaskState(taskId) {
 }
 ```
 
+### ③ "활성 수검 일정 선택" 드롭다운 필터 및 실시간 캘린더/체크리스트 연동 흐름
+
+고유 ID가 `#planning-audit-select`인 상단 "활성 수검 일정 선택" 셀렉터 드롭다운은 `data/cqms_customer_audit_db.json` 파일에서 동적 추출되어 `this.state.audits`에 적재된 모든 미래 예정(STATUS: Open) 감사 일정과 기하학적으로 연동 구동됩니다.
+
+1. **동적 드롭다운 렌더링 메커니즘**:
+   - `this.state.audits` 리스트를 동적 루프 처리하여, 각 감사 일정의 고유 식별자(`audit.id`)를 `value`로, 완성차 OEM/공장 주제 및 감사 시작일자를 조합한 문자열(`${audit.title} (${audit.date})`)을 `textContent`로 삼아 `<option>` 노드를 무지연 재생성 및 인서트합니다.
+   - `this.state.selectedAuditId`와 정확하게 매치되는 옵션에 `selected = true` 속성을 강제 바인딩하여 새로고침 시에도 활성 컨텍스트 상태를 완벽히 유지시킵니다.
+2. **리액티브 연쇄적 연동 흐름 (Chained Reaction Logic)**:
+   - 사용자가 드롭다운 셀렉터를 조작하여 다른 감사 예정 일정으로 전환(onchange 이벤트 트리거)하면 다음 연쇄 프로세스가 비동기·실시간 실행됩니다:
+     - **영속 캐시 즉각 보존**: 선택한 새로운 감사 ID를 `this.state.selectedAuditId` 상태에 매핑하고 로컬 캐시인 `riskhunter_selected_audit_id`에 즉시 쓰기 처리합니다.
+     - **달력 월(Month) 리액티브 포커싱**: 활성 일정의 감사일(`audit.date`) 날짜 속성을 JS `Date` 객체로 파싱하고 연도/월 값을 역산하여, 달력 전용 제어 상태 변수인 `this.state.calendarYear` 및 `this.state.calendarMonth`에 자동 대입합니다. 이를 통해 **선택한 감사의 목표 수검월로 캘린더 화면이 자동 이동(스크롤) 포커싱**되어 오디터의 오작동 및 날짜 혼선을 원천 방지합니다.
+     - **화면 일괄 반응형 렌더링**: `this.renderPlanningScreen()`을 연속 기동하여, 현재 전환된 활성 감사 ID에 속한 타임라인 D-Day 단계 피드, 캘린더 일별 그리드 배너(진척률), 체크리스트 테이블 조치 담당 정보 등을 일관되게 동적 맵핑하여 갱신하고, 사용자에게 우아한 전환 완료 알림 토스트를 노출합니다.
+
 ---
 
 ## 6. 재건(Reconstruction) 및 자가 검증(Test Checklist) 프로토콜
