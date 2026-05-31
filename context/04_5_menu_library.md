@@ -21,7 +21,7 @@
 - **자체 감사 체크리스트 데이터**: [oe_req_to_audit_checklist.json](file:///home/jumasi/RiskHunter/data/oe_req_to_audit_checklist.json)
   - 10,000건 이상의 고품질 자체 감사 질문 세트.
   - 주요 필드: `id`, `source_type`, `customer`, `doc_code`, `doc_name`, `section`, `audit_question`, `evidence_compliance`, `audit_method`, `process_category`, `related_4m`, `priority`, `plant_risk_score`.
-- **완성차 OEM 규격 문서 데이터**: [document_library.json](file:///home/jumasi/RiskHunter/data/document_library.json)
+- **완성차 OEM 규격 문서 데이터**: [oe_req_to_doc_summary.json](file:///home/jumasi/RiskHunter/data/oe_req_to_doc_summary.json)
   - 주요 고객사(BMW, Audi, Hyundai 등)의 최신 기술 요건 및 AI 분석 요약 스키마.
   - 주요 필드: `id`, `filename`, `customer`, `doc_code`, `doc_name`, `revision_date`, `doc_type`, `file_size`, `review_summary`, `tire_process_translation`.
 - **과거 OE Audit 지적사항 데이터**: [cqms_customer_audit_db.json](file:///home/jumasi/RiskHunter/data/cqms_customer_audit_db.json)
@@ -123,7 +123,7 @@ const lowerTargetOems = targetOems.map(o => o.toLowerCase());
 
 ## 📂 4. 서브 탭 2: Customer Requirements Library (완성차 OEM 규격 요약 및 다운로드)
 
-[document_library.json](file:///home/jumasi/RiskHunter/data/document_library.json) 파일에 수록된 각 고객사별 실제 기술 규격 원본 데이터의 명세를 한눈에 확인하고, 다운로드 요구를 처리합니다.
+[oe_req_to_doc_summary.json](file:///home/jumasi/RiskHunter/data/oe_req_to_doc_summary.json) 파일에 수록된 각 고객사별 실제 기술 규격 원본 데이터의 명세를 한눈에 확인하고, 다운로드 요구를 처리합니다.
 
 ### ① 상단 메트릭 요약 보드 (Metric Summary Cards)
 - **4대 메트릭 요약 (4-Column)**:

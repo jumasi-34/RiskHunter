@@ -37,7 +37,7 @@ flowchart TD
         A1 --> B1
         A2 & A3 & A4 --> B2
         
-        B1 --> C1[("document_library.json")]
+        B1 --> C1[("oe_req_to_doc_summary.json")]
         B2 --> C2[("quality_issues_qi.json")]
         B2 --> C3[("cqms_4m_db.json")]
         B2 --> C4[("cqms_customer_audit_db.json")]
@@ -70,7 +70,7 @@ flowchart TD
 
 `data/` 디렉토리에 위치한 모든 정적 JSON 파일은 다음 정의된 스키마 구조와 타입 사양을 100% 만족해야 합니다.
 
-### ① 완제품 규격서 라이브러리 스키마 (`data/document_library.json`)
+### ① 완제품 규격서 라이브러리 스키마 (`data/oe_req_to_doc_summary.json`)
 
 *   **설명**: 완성차 고객사별 최신 기술 규격서 메타정보와 타이어 제조공정 역해석 번역 데이터가 구조화되어 있는 마스터 리소스입니다.
 
@@ -404,7 +404,7 @@ flowchart TD
 ## 🛡️ 7. 정적 데이터 반복 생성(휴리스틱 Fallback) 방지 및 품질 관리 대책 (Data Quality & Anti-Repetitive Guard)
 
 ### ① 반복성(Low Entropy) 데이터 노이즈의 발생 원인
-- `data/document_library.json` 생성 파이프라인(`scratch/generate_library.py`) 가동 시, 수동 매핑 프리셋(`premium_presets`)에 존재하지 않는 규격서 파일들은 파일명을 분석하는 **휴리스틱 판단 엔진(`infer_properties_from_filename`)**으로 이관됩니다.
+- `data/oe_req_to_doc_summary.json` 생성 파이프라인(`scratch/generate_library.py`) 가동 시, 수동 매핑 프리셋(`premium_presets`)에 존재하지 않는 규격서 파일들은 파일명을 분석하는 **휴리스틱 판단 엔진(`infer_properties_from_filename`)**으로 이관됩니다.
 - 입고 원부재, 품질 통계, 완제품 테스트, 실수방지 키워드 매칭에 모두 실패한 잔여 규격서들은 공통 Fallback 블록(`else`)으로 수렴합니다.
 - 이 과정에서 완성차 제조사명(`customer`)을 제외한 나머지 개요(`overview`), 통제 조항(`clauses`), 매개변수 점검(`param_check`) 텍스트가 **단 하나의 고정 템플릿 양식**(`"완성차 제조사 {customer}의 전사적 부품 양산 개발 게이트, 공장 품질 감사..."`)으로 일괄 포맷팅되어 출력되면서 동일한 문장이 과도하게 중복 적재되는 노이즈가 발생하였습니다.
 
@@ -422,7 +422,7 @@ flowchart TD
 - 추출된 실제 맥락에 맞추어 개요(`overview`) 및 핵심 통제 조항(`clauses`)을 문서 본질에 가깝게 동적 요약 생성함으로써 100% 무결한 고유 요약 데이터를 영속화합니다.
 
 #### 3. ETL 데이터 유사도 및 반복성 검증 린터(Similarity Guard Linter) 탑재
-- `generate_library.py` 스크립트 실행 마감 시점에 생성된 `document_library.json` 배열 내의 모든 `overview` 및 `review_summary` 필드를 대조 분석하는 자체 린팅 검사를 가동합니다.
+- `generate_library.py` 스크립트 실행 마감 시점에 생성된 `oe_req_to_doc_summary.json` 배열 내의 모든 `overview` 및 `review_summary` 필드를 대조 분석하는 자체 린팅 검사를 가동합니다.
 - **품질 임계치 통제**: 전체 리포트 중 동일한 구문 유형(변수명만 다른 정적 중복도)을 공유하는 비율이 **20%를 초과할 경우 빌드가 즉각 실패(Fail)** 처리되도록 제어하여, 개발 단계에서 노이즈 데이터가 데이터베이스로 릴리즈되는 것을 원천 차단합니다.
 
 ---

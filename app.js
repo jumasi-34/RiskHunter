@@ -205,8 +205,8 @@ const app = {
           if (!r.ok) throw new Error("Checklist file (oe_req_to_audit_checklist.json) not found");
           return r.json();
         }),
-        fetch('data/document_library.json').then(r => {
-          if (!r.ok) throw new Error("Document library file (document_library.json) not found");
+        fetch('data/oe_req_to_doc_summary.json').then(r => {
+          if (!r.ok) throw new Error("Document library file (oe_req_to_doc_summary.json) not found");
           return r.json();
         }),
         fetch('data/common_codes.json').then(r => {

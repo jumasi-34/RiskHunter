@@ -31,7 +31,7 @@ graph TD
         JSON_Findings["🗄️ cqms_customer_audit_db.json<br>(Past Auditor Findings)"]
         JSON_QI["🗄️ quality_issues_qi.json<br>(Quality Failure History)"]
         JSON_4M["🗄️ cqms_4m_db.json<br>(4M Process Changes)"]
-        JSON_Doc["🗄️ document_library.json<br>(OEM Technical Specifications)"]
+        JSON_Doc["🗄️ oe_req_to_doc_summary.json<br>(OEM Technical Specifications)"]
         JSON_Users["🗄️ users.json<br>(Auditor Profiles & 3-Role RBAC Metadata)"]
     end
 
@@ -86,7 +86,7 @@ graph TD
 │   ├── cqms_customer_audit_db.json     # 과거 공장별 오디트 지적 사항 이력 데이터
 │   ├── quality_issues_qi.json  # 과거 공장별 생산 현장 품질 실패(QI) 이력 데이터
 │   ├── cqms_4m_db.json         # 과거 공장별 4M(Man, Machine, Material, Method) 변경점 이력
-│   ├── document_library.json   # 글로벌 완성차 고객사(OEM) 규격 문서 목록 데이터
+│   ├── oe_req_to_doc_summary.json   # 글로벌 완성차 고객사(OEM) 규격 문서 목록 데이터
 │   └── users.json              # 가상 오디터 프로필 및 3대 RBAC 권한 메타데이터
 │
 ├── context/                    # 바이브코딩 인공지능 지휘 통제용 개발 명세 및 규칙 마크다운 폴더

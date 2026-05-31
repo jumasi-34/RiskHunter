@@ -14,7 +14,7 @@
 | :---: | :--- | :--- | :--- |
 | **①** | `users.json` | `users` | 로그인 사용자 정보, 역할 권한(Role) 및 소속/담당 공정 마스터 |
 | **②** | `common_codes.json` | `common_codes` | 8대 생산 공장, 15대 표준 공정, 4M 분류 및 소스 구분용 공통 코드셋 |
-| **③** | `document_library.json` | `document_library` | 최신 OEM 기술 규격서 메타데이터 및 타이어 도메인 역해석 매스터 데이터 |
+| **③** | `oe_req_to_doc_summary.json` | `document_library` | 최신 OEM 기술 규격서 메타데이터 및 타이어 도메인 역해석 매스터 데이터 |
 | **④** | `quality_issues_qi.json` | `quality_issues_qi` | 공장별 과거 발생 품질 실패(QI), 현상(D2), 원인(D4) 및 8D 영구조치 대책(D5) |
 | **⑤** | `cqms_4m_db.json` | `cqms_4m_db` | 생산 현장의 설비, 공정, 재료, 작업 표준(4M) 변경 이력 신청/승인 건 |
 | **⑥** | `cqms_customer_audit_db.json` | `audit_findings` | 과거 외부 완성차 고객사 및 제3자 Audit 지적사항(Point out) 및 시정 계획 |
@@ -31,7 +31,7 @@
 flowchart TD
     subgraph Raw_Resources ["1단계: 5대 원천 데이터 파일"]
         direction LR
-        SRC_DOC["📄 document_library.json<br>(규격 메타)"]
+        SRC_DOC["📄 oe_req_to_doc_summary.json<br>(규격 메타)"]
         SRC_QI["🚨 quality_issues_qi.json<br>(품질실패 이력)"]
         SRC_4M["⚙️ cqms_4m_db.json<br>(4M 변경이력)"]
         SRC_AUD["🕵️ cqms_customer_audit_db.json<br>(과거 지적사항)"]
@@ -89,7 +89,7 @@ flowchart TD
 
 ---
 
-### ③ `document_library` (`data/document_library.json`)
+### ③ `document_library` (`data/oe_req_to_doc_summary.json`)
 *   **설명**: 완성차 브랜드별 최신 기술 규격 요구사항 정보 및 해당 문서를 타이어 7대 물리 공정으로 정밀 역해석한 도메인 매퍼를 보존합니다.
 *   **스키마 구성**:
 

@@ -4,7 +4,7 @@ from datetime import datetime
 
 # Define physical directory and target file
 oe_dir = "/home/jumasi/RiskHunter/documents/oe_requirements"
-target_json_path = "/home/jumasi/RiskHunter/data/document_library.json"
+target_json_path = "/home/jumasi/RiskHunter/data/oe_req_to_doc_summary.json"
 
 # Premium hand-curated entries (the 10 files)
 premium_presets = {
@@ -475,7 +475,7 @@ for filename in all_files:
     final_library.append(entry)
     doc_id += 1
 
-# Write to document_library.json
+# Write to oe_req_to_doc_summary.json
 with open(target_json_path, "w", encoding="utf-8") as f:
     json.dump(final_library, f, indent=2, ensure_ascii=False)
 

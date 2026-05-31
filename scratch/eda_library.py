@@ -2,7 +2,7 @@ import json
 from collections import Counter, defaultdict
 
 # Load database
-json_path = "/home/jumasi/RiskHunter/data/document_library.json"
+json_path = "/home/jumasi/RiskHunter/data/oe_req_to_doc_summary.json"
 with open(json_path, "r", encoding="utf-8") as f:
     data = json.load(f)
 
