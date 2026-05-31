@@ -2292,7 +2292,18 @@ body {
   white-space: nowrap !important;
 }
 
+/* ==========================================================================
+   🗂️ 260-item Quality Matrix Table Custom Styles
+   ========================================================================== */
+.matrix-row {
+  transition: background-color 0.15s ease !important;
+}
 
+.matrix-row:hover {
+  background-color: #f1f5f9 !important; /* 슬레이트 라이트 그레이 호버 */
+}
 
-
-
+/* 활성 공장 컬럼도 호버 시 적절한 음영 유지 */
+.matrix-row:hover .active-cell {
+  background-color: #e2e8f0 !important; /* 호버 시 약간 더 짙어져서 입체감 극대화 */
+}

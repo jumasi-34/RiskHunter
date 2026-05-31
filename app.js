@@ -3768,6 +3768,295 @@ const app = {
         }
       });
     }
+
+    // 3. 260-item Quality Matrix Table & Integrated Filter Bar 렌더링 및 바인딩
+    if (!this.state.systemFilters) {
+      this.state.systemFilters = {
+        process: 'ALL',
+        category: 'ALL',
+        keyword: ''
+      };
+    }
+
+    // 공정 필터 이벤트 바인딩
+    const processFilterSelect = document.getElementById('system-process-filter');
+    if (processFilterSelect) {
+      processFilterSelect.value = this.state.systemFilters.process;
+      if (!processFilterSelect.dataset.listenerBound) {
+        processFilterSelect.addEventListener('change', (e) => {
+          this.state.systemFilters.process = e.target.value;
+          this.renderSystemMatrixTable(activePlantCode);
+        });
+        processFilterSelect.dataset.listenerBound = 'true';
+      }
+    }
+
+    // 구분 필터 (버튼 그룹) 이벤트 바인딩
+    const catButtons = document.querySelectorAll('.system-cat-btn');
+    catButtons.forEach(btn => {
+      const cat = btn.getAttribute('data-category');
+      
+      // 현재 상태에 맞게 active 클래스 동기화
+      if (cat === this.state.systemFilters.category) {
+        btn.classList.add('active');
+        btn.style.background = 'var(--brand-blue)';
+        btn.style.color = '#ffffff';
+      } else {
+        btn.classList.remove('active');
+        btn.style.background = 'transparent';
+        btn.style.color = 'var(--text-secondary)';
+      }
+
+      if (!btn.dataset.listenerBound) {
+        btn.addEventListener('click', () => {
+          this.state.systemFilters.category = cat;
+          
+          catButtons.forEach(b => {
+            if (b === btn) {
+              b.classList.add('active');
+              b.style.background = 'var(--brand-blue)';
+              b.style.color = '#ffffff';
+            } else {
+              b.classList.remove('active');
+              b.style.background = 'transparent';
+              b.style.color = 'var(--text-secondary)';
+            }
+          });
+
+          this.renderSystemMatrixTable(activePlantCode);
+        });
+        btn.dataset.listenerBound = 'true';
+      }
+    });
+
+    // 키워드 검색 이벤트 바인딩
+    const kwInput = document.getElementById('system-keyword-search');
+    if (kwInput) {
+      kwInput.value = this.state.systemFilters.keyword;
+      if (!kwInput.dataset.listenerBound) {
+        let debounceTimer;
+        kwInput.addEventListener('input', (e) => {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => {
+            this.state.systemFilters.keyword = e.target.value.trim();
+            this.renderSystemMatrixTable(activePlantCode);
+          }, 200);
+        });
+        kwInput.dataset.listenerBound = 'true';
+      }
+    }
+
+    // 첫 테이블 드로잉
+    this.renderSystemMatrixTable(activePlantCode);
+  },
+
+  // ================= 260-item Quality Matrix Table 렌더링 엔진 =================
+  renderSystemMatrixTable(activePlantCode) {
+    console.log(`🗂️ Rendering System Matrix Table for active plant: ${activePlantCode}`);
+    const tableBox = document.getElementById('system-matrix-table-box');
+    if (!tableBox) {
+      console.warn('⚠️ system-matrix-table-box element not found in DOM.');
+      return;
+    }
+
+    const allAssessmentItems = this.state.oeQualityAssessmentDetails || [];
+    const plants = ['KP', 'DP', 'JP', 'CP', 'HP', 'IP', 'MP', 'TP'];
+
+    // 1. 고유 항목 맵 생성 (Union)
+    const uniqueItemsMap = {};
+    allAssessmentItems.forEach(item => {
+      const key = `${item.process}_${item.category}_${item.item_no}`;
+      if (!uniqueItemsMap[key]) {
+        uniqueItemsMap[key] = {
+          process: item.process,
+          category: item.category,
+          item_no: parseInt(item.item_no) || item.item_no,
+          area: item.area || '',
+          check_item: item.check_item || '',
+          scores: {}
+        };
+      }
+      if (item.plant) {
+        uniqueItemsMap[key].scores[item.plant] = item.score;
+      }
+    });
+
+    const uniqueItems = Object.values(uniqueItemsMap);
+
+    // 2. 동적 정렬 (Sorted Matrix Grid Flow)
+    // 10대 표준 공정 순서 배치 -> 각 공정 내에서 Infra 요건 상단, Process 이행 요건 하단 -> 항목 번호 오름차순
+    const processOrder = [
+      'Incoming', 'Mixing', 'Extruding', 'Calendering', 'Cutting', 
+      'Bead', 'Building', 'Curing', 'Inspection', 'Shipping'
+    ];
+
+    uniqueItems.sort((a, b) => {
+      const idxA = processOrder.indexOf(a.process);
+      const idxB = processOrder.indexOf(b.process);
+      if (idxA !== idxB) return idxA - idxB;
+      
+      const isInfraA = a.category !== 'Process' ? 1 : 0;
+      const isInfraB = b.category !== 'Process' ? 1 : 0;
+      if (isInfraA !== isInfraB) {
+        return isInfraB - isInfraA; // Infra 요건이 먼저 오도록 내림차순
+      }
+      
+      return a.item_no - b.item_no;
+    });
+
+    // 3. 필터 복합 연동
+    if (!this.state.systemFilters) {
+      this.state.systemFilters = {
+        process: 'ALL',
+        category: 'ALL',
+        keyword: ''
+      };
+    }
+
+    const filteredItems = uniqueItems.filter(item => {
+      // 공정 필터링
+      if (this.state.systemFilters.process !== 'ALL') {
+        if (item.process !== this.state.systemFilters.process) return false;
+      }
+      
+      // 구분 필터링
+      if (this.state.systemFilters.category === 'Infra') {
+        if (item.category === 'Process') return false;
+      } else if (this.state.systemFilters.category === 'Process') {
+        if (item.category !== 'Process') return false;
+      }
+      
+      // 키워드 필터링 (대소문자 무관)
+      if (this.state.systemFilters.keyword) {
+        const kw = this.state.systemFilters.keyword.toLowerCase();
+        const matchCheckItem = (item.check_item || '').toLowerCase().includes(kw);
+        const matchProcess = (item.process || '').toLowerCase().includes(kw);
+        const matchArea = (item.area || '').toLowerCase().includes(kw);
+        if (!matchCheckItem && !matchProcess && !matchArea) return false;
+      }
+      
+      return true;
+    });
+
+    // 4. 점수 변환 뱃지 헬퍼
+    const getScoreBadge = (scoreVal) => {
+      if (scoreVal === undefined || scoreVal === null) {
+        return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 20px; border-radius: 10px; background: #cbd5e1; color: #475569; font-size: 10px; font-weight: bold;">N/A</span>`;
+      }
+      const strScore = scoreVal.toString().trim().toUpperCase();
+      if (strScore === 'N/A' || strScore === '') {
+        return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 20px; border-radius: 10px; background: #cbd5e1; color: #475569; font-size: 10px; font-weight: bold;">N/A</span>`;
+      }
+      
+      const score = parseFloat(strScore);
+      if (isNaN(score)) {
+        return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 20px; border-radius: 10px; background: #cbd5e1; color: #475569; font-size: 10px; font-weight: bold;">N/A</span>`;
+      }
+      
+      if (score >= 9.0) {
+        return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #10b981; color: #ffffff; font-size: 11px; font-weight: bold;" title="우수 (9점 이상)">3</span>`;
+      } else if (score >= 7.0) {
+        return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #3b82f6; color: #ffffff; font-size: 11px; font-weight: bold;" title="양호 (7점~9점 미만)">2</span>`;
+      } else if (score >= 5.0) {
+        return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #f59e0b; color: #ffffff; font-size: 11px; font-weight: bold;" title="보완 (5점~7점 미만)">1</span>`;
+      } else {
+        return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #ec4899; color: #ffffff; font-size: 11px; font-weight: bold;" title="취약 (5점 미만)">0</span>`;
+      }
+    };
+
+    // 5. 테이블 드로잉
+    if (filteredItems.length === 0) {
+      tableBox.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; text-align: center; background: #ffffff; border-radius: 8px;">
+          <i data-lucide="info" style="width: 32px; height: 32px; color: var(--text-muted-light); margin-bottom: 12px;"></i>
+          <span style="font-size: 13.5px; font-weight: bold; color: var(--text-secondary); margin-bottom: 4px;">일치하는 점검 요건 없음</span>
+          <span style="font-size: 12px; color: var(--text-muted-light);">조건에 부합하는 품질 인프라 평가 데이터가 존재하지 않습니다. 필터링 조건을 변경해보십시오.</span>
+        </div>
+      `;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      return;
+    }
+
+    // 헤더 렌더링
+    const plantHeaders = plants.map(p => {
+      const isActive = (p === activePlantCode);
+      const cellStyle = isActive 
+        ? `background: #eef2ff; color: var(--brand-blue); border-left: 2px solid var(--brand-blue); border-right: 2px solid var(--brand-blue); border-top: 2px solid var(--brand-blue); border-bottom: 2px solid var(--brand-blue); position: sticky; top: 0; z-index: 11; font-weight: 800;` 
+        : `background: #f8fafc; color: var(--text-secondary); position: sticky; top: 0; z-index: 10;`;
+      return `<th class="plant-col ${isActive ? 'active-col' : ''}" style="${cellStyle} text-align: center; font-size: 11.5px; padding: 10px 6px; min-width: 48px; border-bottom: 1px solid var(--border-card);">${p}</th>`;
+    }).join('');
+
+    let tableHtml = `
+      <table style="width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; font-family: 'Inter', sans-serif; table-layout: fixed;">
+        <thead>
+          <tr style="background: #f8fafc;">
+            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 12px; border-bottom: 1px solid var(--border-card); width: 85px;">공정</th>
+            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 4px; border-bottom: 1px solid var(--border-card); width: 45px; text-align: center;">구분</th>
+            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 4px; border-bottom: 1px solid var(--border-card); width: 45px; text-align: center;">번호</th>
+            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 12px; border-bottom: 1px solid var(--border-card); width: 120px;">평가 영역</th>
+            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 12px; border-bottom: 1px solid var(--border-card); width: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">점검 요건 (Check Item)</th>
+            ${plantHeaders}
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    // 행 렌더링
+    filteredItems.forEach((item, idx) => {
+      const processKo = {
+        'Incoming': '수입검사',
+        'Mixing': '정련',
+        'Extruding': '압출',
+        'Calendering': '압연',
+        'Cutting': '재단',
+        'Bead': '비드',
+        'Building': '성형',
+        'Curing': '가류',
+        'Inspection': '완성검사',
+        'Shipping': '물류출하'
+      }[item.process] || item.process;
+
+      const categoryBadge = item.category === 'Process' 
+        ? `<span style="display: inline-block; padding: 2px 6px; font-size: 10px; font-weight: bold; background: #eff6ff; color: #1d4ed8; border-radius: 4px; border: 1px solid #bfdbfe;">P</span>`
+        : `<span style="display: inline-block; padding: 2px 6px; font-size: 10px; font-weight: bold; background: #f0fdf4; color: #15803d; border-radius: 4px; border: 1px solid #86efac;">I</span>`;
+
+      const rowBg = idx % 2 === 1 ? '#fafafa' : '#ffffff';
+      
+      const plantCells = plants.map(p => {
+        const isActive = (p === activePlantCode);
+        const scoreVal = item.scores[p];
+        const badgeHtml = getScoreBadge(scoreVal);
+        
+        const isLastRow = (idx === filteredItems.length - 1);
+        const bottomBorder = isLastRow 
+          ? `border-bottom: 2px solid var(--brand-blue);` 
+          : `border-bottom: 1px solid #f1f5f9;`;
+
+        const cellStyle = isActive 
+          ? `background: #f5f8ff; border-left: 2px solid var(--brand-blue); border-right: 2px solid var(--brand-blue); ${bottomBorder} text-align: center; vertical-align: middle; padding: 8px 6px;` 
+          : `text-align: center; vertical-align: middle; padding: 8px 6px; border-bottom: 1px solid #f1f5f9;`;
+        return `<td class="plant-cell ${isActive ? 'active-cell' : ''}" style="${cellStyle}">${badgeHtml}</td>`;
+      }).join('');
+
+      tableHtml += `
+        <tr class="matrix-row" style="background: ${rowBg};">
+          <td style="font-size: 11px; font-weight: 600; color: var(--text-primary); padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${processKo}">${processKo}</td>
+          <td style="text-align: center; padding: 10px 4px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;">${categoryBadge}</td>
+          <td style="text-align: center; font-size: 11px; font-weight: bold; color: var(--text-muted-light); padding: 10px 4px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;">${item.item_no}</td>
+          <td style="font-size: 11px; font-weight: 500; color: var(--text-secondary); padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.area}">${item.area}</td>
+          <td style="font-size: 11.5px; color: var(--text-primary); padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.check_item.replace(/"/g, '&quot;')}">${item.check_item}</td>
+          ${plantCells}
+        </tr>
+      `;
+    });
+
+    tableHtml += `
+        </tbody>
+      </table>
+    `;
+
+    tableBox.innerHTML = tableHtml;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
   },
 
   // ================= Sub-Tab 3: AI Custom Audit 렌더링 =================
