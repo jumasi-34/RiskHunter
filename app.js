@@ -120,7 +120,8 @@ const app = {
       plantSelected: null, // Doughnut 차트 전환 시 선택된 공장 코드 보존용 (e.g. 'DP')
       radarRiskCompass: null, // Sub-Tab 1
       scatterSystemMap: null, // Sub-Tab 2
-      barCompliance: null // Sub-Tab 2
+      barCompliance: null, // Sub-Tab 2
+      dashboardCri: null // Dashboard CRI Bar Chart
     },
 
     // 글로벌 공통 필터 상태 값 (Plant, Customer, Process) -> Dashboard용 필터 상태 값으로 사용
@@ -8003,30 +8004,30 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
 
         return `
           <div class="card-solid" 
-               style="padding: 16px; background: rgba(30, 41, 59, 0.03); border: 1px solid var(--border-card); border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; cursor: pointer; transition: all 0.2s ease-in-out;" 
+               style="padding: 10px 12px; background: rgba(30, 41, 59, 0.03); border: 1px solid var(--border-card); border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; cursor: pointer; transition: all 0.2s ease-in-out; margin: 0; box-shadow: none;" 
                onclick="antigravity.navigateToPlantRisk('${item.code}')"
                onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='var(--brand-blue)'; this.style.boxShadow='0 8px 20px rgba(37, 99, 235, 0.08)';" 
                onmouseout="this.style.transform='none'; this.style.borderColor='var(--border-card)'; this.style.boxShadow='none';">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <div style="display: flex; flex-direction: column;">
-                <span style="font-weight: 800; color: var(--text-primary); font-size: 14px;">${item.name}</span>
-                <span style="font-size: 10px; color: var(--text-muted-light); font-weight: 700; text-transform: uppercase; margin-top: 1px;">${item.code}</span>
+                <span style="font-weight: 800; color: var(--text-primary); font-size: 13px; line-height: 1.2;">${item.name}</span>
+                <span style="font-size: 9px; color: var(--text-muted-light); font-weight: 700; text-transform: uppercase; margin-top: 1px;">${item.code}</span>
               </div>
-              <span class="badge ${riskBadgeClass}" style="font-size: 10px; font-weight: 800; padding: 2px 6px;">
+              <span class="badge ${riskBadgeClass}" style="font-size: 9px; font-weight: 800; padding: 1px 4px;">
                 ${riskBadgeText}
               </span>
             </div>
             
-            <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 5px;">
-              <span style="font-size: 11.5px; color: var(--text-secondary); font-weight: 500;">종합 리스크 지수</span>
-              <span style="font-family: 'Outfit', monospace; font-weight: 800; font-size: 22px; color: var(--text-primary);">${item.cri.toFixed(1)}</span>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 2px;">
+              <span style="font-size: 10px; color: var(--text-secondary); font-weight: 500;">CRI 지수</span>
+              <span style="font-family: 'Outfit', monospace; font-weight: 800; font-size: 18px; color: var(--text-primary); line-height: 1;">${item.cri.toFixed(1)}</span>
             </div>
 
-            <div style="width: 100%; height: 4px; background: rgba(15, 23, 42, 0.06); border-radius: 2px; overflow: hidden; border: 1px solid var(--border-card); margin-top: 2px;">
-              <div style="width: ${Math.min(100, item.cri)}%; height: 100%; background: ${progressBarColor}; border-radius: 2px; transition: width 0.3s ease;"></div>
+            <div style="width: 100%; height: 3px; background: rgba(15, 23, 42, 0.06); border-radius: 1.5px; overflow: hidden; border: 1px solid var(--border-card); margin-top: 1px;">
+              <div style="width: ${Math.min(100, item.cri)}%; height: 100%; background: ${progressBarColor}; border-radius: 1.5px; transition: width 0.3s ease;"></div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted-light); border-top: 1px solid rgba(15, 23, 42, 0.03); padding-top: 8px; margin-top: 4px;">
+            <div style="display: flex; justify-content: space-between; font-size: 9px; color: var(--text-muted-light); border-top: 1px solid rgba(15, 23, 42, 0.03); padding-top: 4px; margin-top: 2px;">
               <span>인프라: <strong style="color: var(--text-secondary); font-weight: 700;">${item.systemLevel.toFixed(0)}%</strong></span>
               <span>현장실사: <strong style="color: var(--text-secondary); font-weight: 700;">${item.assessmentScore.toFixed(0)}%</strong></span>
               <span>이슈: <strong style="color: var(--text-secondary); font-weight: 700;">${item.issuesCount}건</strong></span>
@@ -8034,7 +8035,117 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
           </div>
         `;
       }).join('');
-      
+
+      // ------------------------------------------------------------------------
+      // [1-4] 신설: 글로벌 공장별 CRI 수평 막대그래프 렌더링
+      // ------------------------------------------------------------------------
+      const ctxCri = document.getElementById('chart-dashboard-cri');
+      if (ctxCri && typeof Chart !== 'undefined') {
+        // 기존 차트 파괴 (메모리 릭 방지)
+        if (this.state.charts.dashboardCri) {
+          this.state.charts.dashboardCri.destroy();
+          this.state.charts.dashboardCri = null;
+        }
+
+        // 수평 막대그래프를 그리기 위한 데이터 준비 (위험도 정렬 순서대로)
+        const labels = rankings.map(r => r.name);
+        const dataValues = rankings.map(r => r.cri);
+        const backgroundColors = rankings.map(r => {
+          if (r.cri >= 20.0) return 'rgba(239, 68, 68, 0.75)'; // Red
+          if (r.cri >= 6.0) return 'rgba(245, 158, 11, 0.75)';  // Amber
+          return 'rgba(16, 185, 129, 0.75)';                    // Green
+        });
+        const borderColors = rankings.map(r => {
+          if (r.cri >= 20.0) return '#ef4444';
+          if (r.cri >= 6.0) return '#f59e0b';
+          return '#10b981';
+        });
+
+        this.state.charts.dashboardCri = new Chart(ctxCri, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'CRI 리스크 지수',
+              data: dataValues,
+              backgroundColor: backgroundColors,
+              borderColor: borderColors,
+              borderWidth: 1.5,
+              borderRadius: 4,
+              borderSkipped: false,
+              barPercentage: 0.65
+            }]
+          },
+          options: {
+            indexAxis: 'y', // 수평 막대그래프 설정
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false // 범례 숨김
+              },
+              tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.94)',
+                titleColor: '#ffffff',
+                bodyColor: '#f8fafc',
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderWidth: 1,
+                padding: 10,
+                callbacks: {
+                  label: function(context) {
+                    const idx = context.dataIndex;
+                    const r = rankings[idx];
+                    return [
+                      `종합 CRI: ${context.formattedValue}`,
+                      `- 인프라 구축도: ${r.systemLevel.toFixed(0)}%`,
+                      `- 현장실사 평점: ${r.assessmentScore.toFixed(0)}%`,
+                      `- 중대 품질이슈: ${r.issuesCount}건`
+                    ];
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: {
+                  color: 'rgba(15, 23, 42, 0.05)',
+                  drawBorder: false
+                },
+                ticks: {
+                  font: {
+                    family: 'monospace',
+                    size: 10
+                  },
+                  color: '#64748b'
+                },
+                suggestedMax: 40 // Max Limit
+              },
+              y: {
+                grid: {
+                  display: false
+                },
+                ticks: {
+                  font: {
+                    weight: 'bold',
+                    size: 11
+                  },
+                  color: '#0f172a'
+                }
+              }
+            },
+            onClick: (event, elements) => {
+              if (elements && elements.length > 0) {
+                const idx = elements[0].index;
+                const targetPlant = rankings[idx];
+                if (targetPlant) {
+                  this.navigateToPlantRisk(targetPlant.code);
+                }
+              }
+            }
+          }
+        });
+      }
+
       if (typeof lucide !== 'undefined') {
         lucide.createIcons();
       }

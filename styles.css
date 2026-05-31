@@ -2307,3 +2307,35 @@ body {
 .matrix-row:hover .active-cell {
   background-color: #e2e8f0 !important; /* 호버 시 약간 더 짙어져서 입체감 극대화 */
 }
+
+/* ==========================================================================
+   🏭 글로벌 공장별 CRI 2열 레이아웃 및 카드 스타일
+   ========================================================================== */
+#dashboard-cri-two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 20px;
+  width: 100%;
+  align-items: stretch;
+}
+
+#dashboard-plant-cri-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 12px !important;
+  width: 100%;
+  align-content: start;
+}
+
+@media (max-width: 1024px) {
+  #dashboard-cri-two-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  #dashboard-plant-cri-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
