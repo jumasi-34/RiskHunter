@@ -4087,7 +4087,7 @@ body {
 
 .premium-compass-grid-2 {
   display: grid;
-  grid-template-columns: 1.25fr 1fr;
+  grid-template-columns: 1.5fr 1fr;
   gap: 20px;
 }
 
