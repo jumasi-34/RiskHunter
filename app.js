@@ -575,14 +575,6 @@ const app = {
       });
     };
 
-    // 대시보드 필터 엘리먼트 바인딩 및 생성
-    const dbPlantSelect = document.getElementById('dashboard-filter-plant');
-    const dbCustomerSelect = document.getElementById('dashboard-filter-customer');
-    const dbProcessSelect = document.getElementById('dashboard-filter-process');
-    populatePlants(dbPlantSelect);
-    populateCustomers(dbCustomerSelect);
-    populateProcesses(dbProcessSelect);
-
     // 라이브러리 필터 엘리먼트 바인딩 및 생성
     const libPlantSelect = document.getElementById('library-filter-plant');
     const libCustomerSelect = document.getElementById('library-filter-customer');
@@ -590,9 +582,6 @@ const app = {
     populateCustomers(libCustomerSelect);
 
     // 초기 필터 선택값 반영 (상태값 연동)
-    if (dbPlantSelect) dbPlantSelect.value = this.state.selectedPlant;
-    if (dbCustomerSelect) dbCustomerSelect.value = this.state.selectedCustomer;
-    if (dbProcessSelect) dbProcessSelect.value = this.state.selectedProcess || 'ALL';
     if (libPlantSelect) libPlantSelect.value = this.state.librarySelectedPlant || 'ALL';
     if (libCustomerSelect) libCustomerSelect.value = this.state.librarySelectedCustomer || 'ALL';
   },
@@ -7660,24 +7649,24 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
    * 4대 요약 KPI, 진행도 게이지바, Chart.js 2개 차트, Live Risk Alert Board 갱신을 총지휘합니다.
    */
   renderDashboard() {
-    console.log("📊 Rendering Premium Risk Dashboard...");
+    console.log("📊 Rendering Premium HQ Risk Dashboard...");
     
     // ------------------------------------------------------------------------
-    // [1] 필터링 기반 KPI 연산 및 수려한 게이지 바 동적 렌더링
+    // [1] 전체 마스터 데이터 기반 KPI 연산 및 수려한 게이지 바 동적 렌더링 (HQ 종합 관점)
     // ------------------------------------------------------------------------
-    const qiFiltered = this.getFilteredEvents('qi');
+    const qiFiltered = this.state.qualityIssues || [];
     const qiUnresolved = qiFiltered.filter(item => item.STATUS === 'On-going').length;
     const qiResolved = qiFiltered.filter(item => item.STATUS === 'Closed').length;
     const qiTotal = qiFiltered.length;
     const qiRate = qiTotal > 0 ? (qiResolved / qiTotal) * 100 : 100;
 
-    const m4Filtered = this.getFilteredEvents('4m');
+    const m4Filtered = this.state.changeHistory4m || [];
     const m4Unresolved = m4Filtered.filter(item => item.PROGRESS === 'On-going').length;
     const m4Resolved = m4Filtered.filter(item => item.PROGRESS === 'Complete').length;
     const m4Total = m4Filtered.length;
     const m4Rate = m4Total > 0 ? (m4Resolved / m4Total) * 100 : 100;
 
-    const findingsFiltered = this.getFilteredEvents('findings');
+    const findingsFiltered = this.state.auditFindings || [];
     const findingsUnresolved = findingsFiltered.filter(item => item.STATUS === 'On-going').length;
     const findingsResolved = findingsFiltered.filter(item => item.STATUS === 'Closed').length;
     const findingsTotal = findingsFiltered.length;
@@ -7826,7 +7815,7 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
           }, 50);
         }
 
-        const scoreDetails = this.calculatePlantRiskScore(activePlantCode, this.state.selectedCustomer, this.state.selectedProcess);
+        const scoreDetails = this.calculatePlantRiskScore(activePlantCode, 'ALL', 'ALL');
         
         const qiWeight = Math.round(0.3 * scoreDetails.qiCount * 10) / 10;
         const m4Weight = Math.round(0.1 * scoreDetails.m4Count * 10) / 10;
@@ -7897,7 +7886,7 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
 
         const plants = ['DP', 'KP', 'JP', 'HP', 'CP', 'MP', 'IP', 'TP'];
         const plantNames = ['대전(DP)', '금산(KP)', '가흥(JP)', '강소(HP)', '중경(CP)', '헝가리(MP)', '인니(IP)', '테네시(TP)'];
-        const scores = plants.map(p => this.calculatePlantRiskScore(p, this.state.selectedCustomer, this.state.selectedProcess).score);
+        const scores = plants.map(p => this.calculatePlantRiskScore(p, 'ALL', 'ALL').score);
 
         // 점수가 3.5를 넘어가면 Warning/Danger 색상 부여
         const barColors = scores.map(s => s >= 3.5 ? 'rgba(239, 68, 68, 0.75)' : 'rgba(59, 130, 246, 0.75)');
@@ -7973,7 +7962,7 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
 
       // 전 공정별 위험점수를 연산 후 내림차순 정렬
       const computedProcessScores = allProcessEntities.map(proc => {
-        const res = this.calculatePlantRiskScore(this.state.selectedPlant, this.state.selectedCustomer, proc.code);
+        const res = this.calculatePlantRiskScore('ALL', 'ALL', proc.code);
         return {
           code: proc.code,
           name: proc.name,
@@ -8068,14 +8057,8 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
 
       // 전 공장 및 전 공정에 대해 3.5 이상 위험 조합 스캔 추출
       plants.forEach(pCode => {
-        // 만약 특정 공장 필터가 켜져 있으면 해당 공장만 스캔
-        if (this.state.selectedPlant !== 'ALL' && pCode !== this.state.selectedPlant) return;
-
         allProcessEntities.forEach(proc => {
-          // 만약 특정 공정 필터가 켜져 있으면 해당 공정만 스캔
-          if (this.state.selectedProcess !== 'ALL' && proc.code !== this.state.selectedProcess) return;
-
-          const res = this.calculatePlantRiskScore(pCode, this.state.selectedCustomer, proc.code);
+          const res = this.calculatePlantRiskScore(pCode, 'ALL', proc.code);
           if (res.score >= 3.5) {
             highRisks.push({
               plantCode: pCode,
@@ -8398,54 +8381,7 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
     }
 
     // 7. 대시보드 및 라이브러리 로컬 필터 조작 이벤트 바인딩
-    // [A] 대시보드 로컬 필터
-    const dbFilterPlant = document.getElementById('dashboard-filter-plant');
-    const dbFilterCustomer = document.getElementById('dashboard-filter-customer');
-    const dbFilterProcess = document.getElementById('dashboard-filter-process');
-    const btnResetDbFilters = document.getElementById('btn-reset-dashboard-filters');
-
-    if (dbFilterPlant) {
-      dbFilterPlant.addEventListener('change', (e) => {
-        this.state.selectedPlant = e.target.value;
-        console.log(`[Dashboard Filter] Plant Changed: ${this.state.selectedPlant}`);
-        this.showToast(`[대시보드] 대상 공장이 ${e.target.options[e.target.selectedIndex].text}(으)로 필터링되었습니다.`);
-        this.renderDashboard();
-      });
-    }
-
-    if (dbFilterCustomer) {
-      dbFilterCustomer.addEventListener('change', (e) => {
-        this.state.selectedCustomer = e.target.value;
-        console.log(`[Dashboard Filter] Customer Changed: ${this.state.selectedCustomer}`);
-        this.showToast(`[대시보드] 고객사가 ${e.target.value === 'ALL' ? '전체 고객사' : e.target.value}(으)로 필터링되었습니다.`);
-        this.renderDashboard();
-      });
-    }
-
-    if (dbFilterProcess) {
-      dbFilterProcess.addEventListener('change', (e) => {
-        this.state.selectedProcess = e.target.value;
-        console.log(`[Dashboard Filter] Process Changed: ${this.state.selectedProcess}`);
-        this.showToast(`[대시보드] 대상 제조 공정이 ${e.target.options[e.target.selectedIndex].text}(으)로 필터링되었습니다.`);
-        this.renderDashboard();
-      });
-    }
-
-    if (btnResetDbFilters) {
-      btnResetDbFilters.addEventListener('click', () => {
-        this.state.selectedPlant = 'ALL';
-        this.state.selectedCustomer = 'ALL';
-        this.state.selectedProcess = 'ALL';
-        
-        if (dbFilterPlant) dbFilterPlant.value = 'ALL';
-        if (dbFilterCustomer) dbFilterCustomer.value = 'ALL';
-        if (dbFilterProcess) dbFilterProcess.value = 'ALL';
-        
-        console.log(`[Dashboard Filter] Filters Reset to ALL`);
-        this.showToast('[대시보드] 필터가 전체(ALL)로 초기화되었습니다.', 'success');
-        this.renderDashboard();
-      });
-    }
+    // [A] 대시보드 로컬 필터 제거 (HQ 종합 관점 고정)
 
     // [B] 라이브러리 로컬 필터
     const libFilterPlant = document.getElementById('library-filter-plant');

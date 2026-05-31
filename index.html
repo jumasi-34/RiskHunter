@@ -187,33 +187,7 @@
       
       <!-- [메뉴 01] Dashboard -->
       <section id="tab-dashboard" class="tab-pane active">
-        <!-- 🛠️ 대시보드 로컬 필터 바 (Dashboard Local Filter Panel) -->
-        <div class="card-solid filter-bar-card" id="dashboard-filter-bar" style="margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; padding: 12px 20px;">
-          <div class="filter-item">
-            <label for="dashboard-filter-plant"><i data-lucide="factory"></i> 대상 공장</label>
-            <select id="dashboard-filter-plant" class="filter-select">
-              <!-- 동적 로딩 -->
-            </select>
-          </div>
-          <div class="filter-item">
-            <label for="dashboard-filter-customer"><i data-lucide="car"></i> 완성차 고객사 (OEM)</label>
-            <select id="dashboard-filter-customer" class="filter-select">
-              <!-- 동적 로딩 -->
-            </select>
-          </div>
-          <div class="filter-item">
-            <label for="dashboard-filter-process"><i data-lucide="settings"></i> 대상 제조 공정</label>
-            <select id="dashboard-filter-process" class="filter-select">
-              <!-- 동적 로딩 -->
-            </select>
-          </div>
-          <div class="filter-item filter-btn-item">
-            <button class="btn btn-outline" id="btn-reset-dashboard-filters" style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; cursor: pointer;">
-              <i data-lucide="rotate-ccw"></i>
-              <span>초기화</span>
-            </button>
-          </div>
-        </div>
+        <!-- 대시보드 최상단 로컬 필터바 제거 (HQ 종합 관점 고정) -->
 
         <!-- 4대 통계 KPI -->
         <div class="kpi-grid">
