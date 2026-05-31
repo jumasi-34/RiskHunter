@@ -143,19 +143,6 @@
     "score": "10"
   },
   {
-    "id": 12,
-    "plant": "CP",
-    "process": "Incoming",
-    "section_no": 5,
-    "category": "Quality Issue",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 13,
     "plant": "CP",
     "process": "Mixing",
@@ -1079,19 +1066,6 @@
     "score": "8"
   },
   {
-    "id": 84,
-    "plant": "CP",
-    "process": "Cutting",
-    "section_no": 2,
-    "category": "System",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 85,
     "plant": "CP",
     "process": "Cutting",
@@ -1300,19 +1274,6 @@
     "score": "10"
   },
   {
-    "id": 101,
-    "plant": "CP",
-    "process": "Bead",
-    "section_no": 2,
-    "category": "System",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 102,
     "plant": "CP",
     "process": "Bead",
@@ -1454,19 +1415,6 @@
     "guidance": "",
     "findings": "- 나비드 상태에서 BIC측정, 측정결과는 디스플레이되며, 결과는 MES에 업로드됨\n- Calibration양호",
     "score": "10"
-  },
-  {
-    "id": 113,
-    "plant": "CP",
-    "process": "Bead",
-    "section_no": 5,
-    "category": "Quality Issue",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
   },
   {
     "id": 114,
@@ -2418,19 +2366,6 @@
     "score": "10"
   },
   {
-    "id": 187,
-    "plant": "CP",
-    "process": "Shipping",
-    "section_no": 4,
-    "category": "Measurement",
-    "item_no": 1,
-    "area": "-",
-    "check_item": "-",
-    "guidance": "-",
-    "findings": "-",
-    "score": "N/A"
-  },
-  {
     "id": 188,
     "plant": "CP",
     "process": "Shipping",
@@ -2598,19 +2533,6 @@
     "guidance": "",
     "findings": "",
     "score": "10"
-  },
-  {
-    "id": 201,
-    "plant": "DP",
-    "process": "Incoming",
-    "section_no": 5,
-    "category": "Quality Issue",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
   },
   {
     "id": 202,
@@ -3536,19 +3458,6 @@
     "score": "8"
   },
   {
-    "id": 273,
-    "plant": "DP",
-    "process": "Cutting",
-    "section_no": 2,
-    "category": "System",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 274,
     "plant": "DP",
     "process": "Cutting",
@@ -3757,19 +3666,6 @@
     "score": "N/A"
   },
   {
-    "id": 290,
-    "plant": "DP",
-    "process": "Bead",
-    "section_no": 2,
-    "category": "System",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 291,
     "plant": "DP",
     "process": "Bead",
@@ -3908,19 +3804,6 @@
     "item_no": 7,
     "area": "BIC",
     "check_item": "BIC",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
-    "id": 302,
-    "plant": "DP",
-    "process": "Bead",
-    "section_no": 5,
-    "category": "Quality Issue",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
     "guidance": "",
     "findings": "",
     "score": "N/A"
@@ -4875,19 +4758,6 @@
     "score": "10"
   },
   {
-    "id": 376,
-    "plant": "DP",
-    "process": "Shipping",
-    "section_no": 4,
-    "category": "Measurement",
-    "item_no": 1,
-    "area": "-",
-    "check_item": "-",
-    "guidance": "-",
-    "findings": "-",
-    "score": "N/A"
-  },
-  {
     "id": 377,
     "plant": "DP",
     "process": "Shipping",
@@ -5055,19 +4925,6 @@
     "guidance": "",
     "findings": "",
     "score": "10"
-  },
-  {
-    "id": 390,
-    "plant": "HP",
-    "process": "Incoming",
-    "section_no": 5,
-    "category": "Quality Issue",
-    "item_no": 12,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
   },
   {
     "id": 391,
@@ -5993,19 +5850,6 @@
     "score": "8"
   },
   {
-    "id": 462,
-    "plant": "HP",
-    "process": "Cutting",
-    "section_no": 2,
-    "category": "System",
-    "item_no": 7,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 463,
     "plant": "HP",
     "process": "Cutting",
@@ -6214,19 +6058,6 @@
     "score": "10"
   },
   {
-    "id": 479,
-    "plant": "HP",
-    "process": "Bead",
-    "section_no": 2,
-    "category": "System",
-    "item_no": 9,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 480,
     "plant": "HP",
     "process": "Bead",
@@ -6368,19 +6199,6 @@
     "guidance": "",
     "findings": "BIC 내경은 Naked Bead에서 측정하여 별도 측정 X",
     "score": "10"
-  },
-  {
-    "id": 491,
-    "plant": "HP",
-    "process": "Bead",
-    "section_no": 5,
-    "category": "Quality Issue",
-    "item_no": 21,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
   },
   {
     "id": 492,
@@ -7332,19 +7150,6 @@
     "score": "10"
   },
   {
-    "id": 565,
-    "plant": "HP",
-    "process": "Shipping",
-    "section_no": 4,
-    "category": "Measurement",
-    "item_no": 7,
-    "area": "-",
-    "check_item": "-",
-    "guidance": "-",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 566,
     "plant": "HP",
     "process": "Shipping",
@@ -7512,19 +7317,6 @@
     "guidance": "",
     "findings": "- 수동 & 자동창고 습도 모니터링 중\n- 일단위 온도 확인, 기록 관리 중\n- Calibaration 양호 ('25.7)",
     "score": "10"
-  },
-  {
-    "id": 579,
-    "plant": "IP",
-    "process": "Incoming",
-    "section_no": 5,
-    "category": "Quality Issue",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
   },
   {
     "id": 580,
@@ -8450,19 +8242,6 @@
     "score": "6"
   },
   {
-    "id": 651,
-    "plant": "IP",
-    "process": "Cutting",
-    "section_no": 2,
-    "category": "System",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 652,
     "plant": "IP",
     "process": "Cutting",
@@ -8671,19 +8450,6 @@
     "score": "10"
   },
   {
-    "id": 668,
-    "plant": "IP",
-    "process": "Bead",
-    "section_no": 2,
-    "category": "System",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 669,
     "plant": "IP",
     "process": "Bead",
@@ -8825,19 +8591,6 @@
     "guidance": "",
     "findings": "- BIC 측정설비를 통해 측정\n- 마스터 비드 보유, 일단위 정도점검 진행 및 기록관리 중",
     "score": "10"
-  },
-  {
-    "id": 680,
-    "plant": "IP",
-    "process": "Bead",
-    "section_no": 5,
-    "category": "Quality Issue",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
   },
   {
     "id": 681,
@@ -9789,19 +9542,6 @@
     "score": "10"
   },
   {
-    "id": 754,
-    "plant": "IP",
-    "process": "Shipping",
-    "section_no": 4,
-    "category": "Measurement",
-    "item_no": 1,
-    "area": "-",
-    "check_item": "-",
-    "guidance": "-",
-    "findings": "-",
-    "score": "N/A"
-  },
-  {
     "id": 755,
     "plant": "IP",
     "process": "Shipping",
@@ -9969,19 +9709,6 @@
     "guidance": "",
     "findings": "",
     "score": "10"
-  },
-  {
-    "id": 768,
-    "plant": "JP",
-    "process": "Incoming",
-    "section_no": 5,
-    "category": "Quality Issue",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
   },
   {
     "id": 769,
@@ -10907,19 +10634,6 @@
     "score": "8"
   },
   {
-    "id": 840,
-    "plant": "JP",
-    "process": "Cutting",
-    "section_no": 2,
-    "category": "System",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 841,
     "plant": "JP",
     "process": "Cutting",
@@ -11128,19 +10842,6 @@
     "score": "10"
   },
   {
-    "id": 857,
-    "plant": "JP",
-    "process": "Bead",
-    "section_no": 2,
-    "category": "System",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 858,
     "plant": "JP",
     "process": "Bead",
@@ -11282,19 +10983,6 @@
     "guidance": "",
     "findings": "- 나비드 상태에서 BIC측정, 측정결과는 디스플레이되며, 결과는 MES에 업로드됨\n- Calibration양호",
     "score": "10"
-  },
-  {
-    "id": 869,
-    "plant": "JP",
-    "process": "Bead",
-    "section_no": 5,
-    "category": "Quality Issue",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
   },
   {
     "id": 870,
@@ -12246,19 +11934,6 @@
     "score": "10"
   },
   {
-    "id": 943,
-    "plant": "JP",
-    "process": "Shipping",
-    "section_no": 4,
-    "category": "Measurement",
-    "item_no": 1,
-    "area": "-",
-    "check_item": "-",
-    "guidance": "-",
-    "findings": "-",
-    "score": "N/A"
-  },
-  {
     "id": 944,
     "plant": "JP",
     "process": "Shipping",
@@ -12426,19 +12101,6 @@
     "guidance": "",
     "findings": "",
     "score": "10"
-  },
-  {
-    "id": 957,
-    "plant": "KP",
-    "process": "Incoming",
-    "section_no": 5,
-    "category": "Quality Issue",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
   },
   {
     "id": 958,
@@ -13364,19 +13026,6 @@
     "score": "6"
   },
   {
-    "id": 1029,
-    "plant": "KP",
-    "process": "Cutting",
-    "section_no": 2,
-    "category": "System",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 1030,
     "plant": "KP",
     "process": "Cutting",
@@ -13585,19 +13234,6 @@
     "score": "10"
   },
   {
-    "id": 1046,
-    "plant": "KP",
-    "process": "Bead",
-    "section_no": 2,
-    "category": "System",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 1047,
     "plant": "KP",
     "process": "Bead",
@@ -13739,19 +13375,6 @@
     "guidance": "",
     "findings": "- 나비드 상태에서 BIC측정, 측정결과는 디스플레이되며, 결과는 MES에 업로드됨\n- Calibration양호",
     "score": "10"
-  },
-  {
-    "id": 1058,
-    "plant": "KP",
-    "process": "Bead",
-    "section_no": 5,
-    "category": "Quality Issue",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
   },
   {
     "id": 1059,
@@ -14703,19 +14326,6 @@
     "score": "10"
   },
   {
-    "id": 1132,
-    "plant": "KP",
-    "process": "Shipping",
-    "section_no": 4,
-    "category": "Measurement",
-    "item_no": 1,
-    "area": "-",
-    "check_item": "-",
-    "guidance": "-",
-    "findings": "-",
-    "score": "N/A"
-  },
-  {
     "id": 1133,
     "plant": "KP",
     "process": "Shipping",
@@ -14883,19 +14493,6 @@
     "guidance": "",
     "findings": "",
     "score": "10"
-  },
-  {
-    "id": 1146,
-    "plant": "MP",
-    "process": "Incoming",
-    "section_no": 5,
-    "category": "Quality Issue",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "-",
-    "score": "N/A"
   },
   {
     "id": 1147,
@@ -15821,19 +15418,6 @@
     "score": "8"
   },
   {
-    "id": 1218,
-    "plant": "MP",
-    "process": "Cutting",
-    "section_no": 2,
-    "category": "System",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 1219,
     "plant": "MP",
     "process": "Cutting",
@@ -16042,19 +15626,6 @@
     "score": "10"
   },
   {
-    "id": 1235,
-    "plant": "MP",
-    "process": "Bead",
-    "section_no": 2,
-    "category": "System",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "10"
-  },
-  {
     "id": 1236,
     "plant": "MP",
     "process": "Bead",
@@ -16196,19 +15767,6 @@
     "guidance": "",
     "findings": "-생산 시 5개 샘플링하여 측정 및 체크시트 운영",
     "score": "10"
-  },
-  {
-    "id": 1247,
-    "plant": "MP",
-    "process": "Bead",
-    "section_no": 5,
-    "category": "Quality Issue",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
   },
   {
     "id": 1248,
@@ -17160,19 +16718,6 @@
     "score": "10"
   },
   {
-    "id": 1321,
-    "plant": "MP",
-    "process": "Shipping",
-    "section_no": 4,
-    "category": "Measurement",
-    "item_no": 1,
-    "area": "-",
-    "check_item": "-",
-    "guidance": "-",
-    "findings": "-",
-    "score": "N/A"
-  },
-  {
     "id": 1322,
     "plant": "MP",
     "process": "Shipping",
@@ -17340,19 +16885,6 @@
     "guidance": "",
     "findings": "- 저온, 부틸 창고에 대해 온습도 관리중이나 습도 높음 확인\n   → Spec Out은 아니나 관리 필요",
     "score": "10"
-  },
-  {
-    "id": 1335,
-    "plant": "TP",
-    "process": "Incoming",
-    "section_no": 5,
-    "category": "Quality Issue",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
   },
   {
     "id": 1336,
@@ -18278,19 +17810,6 @@
     "score": "6"
   },
   {
-    "id": 1407,
-    "plant": "TP",
-    "process": "Cutting",
-    "section_no": 2,
-    "category": "System",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 1408,
     "plant": "TP",
     "process": "Cutting",
@@ -18499,19 +18018,6 @@
     "score": "10"
   },
   {
-    "id": 1424,
-    "plant": "TP",
-    "process": "Bead",
-    "section_no": 2,
-    "category": "System",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
-  },
-  {
     "id": 1425,
     "plant": "TP",
     "process": "Bead",
@@ -18653,19 +18159,6 @@
     "guidance": "",
     "findings": "- BIC 측정기 주변 표준 비치 필요",
     "score": "8"
-  },
-  {
-    "id": 1436,
-    "plant": "TP",
-    "process": "Bead",
-    "section_no": 5,
-    "category": "Quality Issue",
-    "item_no": 1,
-    "area": "N/A",
-    "check_item": "",
-    "guidance": "",
-    "findings": "",
-    "score": "N/A"
   },
   {
     "id": 1437,
@@ -19615,19 +19108,6 @@
     "guidance": "- Operating\n- Verification frequency / method / results\n- Actions for abnormal event\n- Recording",
     "findings": "",
     "score": "10"
-  },
-  {
-    "id": 1510,
-    "plant": "TP",
-    "process": "Shipping",
-    "section_no": 4,
-    "category": "Measurement",
-    "item_no": 1,
-    "area": "-",
-    "check_item": "-",
-    "guidance": "-",
-    "findings": "",
-    "score": "N/A"
   },
   {
     "id": 1511,
