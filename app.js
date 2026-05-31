@@ -867,7 +867,8 @@ const app = {
           project: item.PROJECT || "전사 신규 품질 실사",
           type: item.TYPE || "Project",
           typeName: item.TYPE === "Project" ? "VDA 6.3 Process Audit" : "IATF 16949 Standard Audit",
-          desc: `${item.SUBJECT} 수검 및 사전 대응 체크리스트 준비`
+          desc: `${item.SUBJECT} 수검 및 사전 대응 체크리스트 준비`,
+          STATUS: item.STATUS || "Open" // 대시보드 및 타 기능 연동을 위해 STATUS 명시 주입
         });
         index++;
       });
@@ -911,6 +912,7 @@ const app = {
         
         // 캐시 데이터의 하위 호환성 및 정규화 보정 적용
         parsedStored.forEach(sa => {
+          if (!sa.STATUS) sa.STATUS = "Open"; // 과거 캐시 데이터 정합성 보정 (STATUS 주입)
           if (sa.type === "VDA 6.3 Process Audit") {
             sa.type = "Project";
             if (!sa.typeName) sa.typeName = "VDA 6.3 Process Audit";
@@ -7778,9 +7780,12 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
     // ------------------------------------------------------------------------
     const upcomingAuditsGrid = document.getElementById('dashboard-upcoming-audits-grid');
     if (upcomingAuditsGrid) {
-      // 1. 미래 예정 감사 (STATUS가 'Open') 필터링 후 날짜 순 정렬
+      // 1. 미래 예정 감사 (STATUS가 'Open'이거나 과거 캐시 등의 이유로 누락되어 완료가 아닌 것) 필터링 후 날짜 순 정렬
       const openAudits = (this.state.audits || [])
-        .filter(audit => audit.STATUS === 'Open')
+        .filter(audit => {
+          const status = audit.STATUS || "Open";
+          return status === 'Open' || status === 'On-going';
+        })
         .sort((a, b) => {
           const dateA = a.date || a.START_DT || '';
           const dateB = b.date || b.START_DT || '';
