@@ -221,8 +221,8 @@ const app = {
           if (!r.ok) throw new Error("4M change history file (cqms_4m_db.json) not found");
           return r.json();
         }),
-        fetch('data/quality_issues_qi.json').then(r => {
-          if (!r.ok) throw new Error("Quality issues file (quality_issues_qi.json) not found");
+        fetch('data/cqms_qualityissue_db.json').then(r => {
+          if (!r.ok) throw new Error("Quality issues file (cqms_qualityissue_db.json) not found");
           return r.json();
         }),
         fetch('data/users.json').then(r => {
@@ -8559,7 +8559,7 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
       },
       'T5': {
         title: '품질 실패 QI 미결(On-going) 이슈 조회',
-        sql: 'SELECT DOC_NO, PLANT, OEM, VEH, OCC_DATE, STATUS, TYPE_NAME\nFROM quality_issues_qi\nWHERE STATUS = \'On-going\'\nLIMIT 50;'
+        sql: 'SELECT DOC_NO, PLANT, OEM, VEH, OCC_DATE, STATUS, TYPE_NAME\nFROM cqms_qualityissue_db\nWHERE STATUS = \'On-going\'\nLIMIT 50;'
       },
       'T6': {
         title: '사내 오디터 계정 권한 리스트 감사',
@@ -8672,7 +8672,7 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
       sourceData = this.state.changeHistory4m || [];
     } else if (tableName === 'document_library' || tableName === 'documentlibrary') {
       sourceData = this.state.documentLibrary || [];
-    } else if (tableName === 'quality_issues_qi' || tableName === 'qualityissues') {
+    } else if (tableName === 'cqms_qualityissue_db' || tableName === 'cqms_qualityissue' || tableName === 'quality_issues_qi' || tableName === 'qualityissues') {
       sourceData = this.state.qualityIssues || [];
     } else if (tableName === 'users') {
       try {

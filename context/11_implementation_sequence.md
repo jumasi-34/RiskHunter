@@ -69,7 +69,7 @@ Phase 1은 흩어져 있는 원천 CSV 파일들을 정밀 JSON 정적 데이터
 ### 🧠 ② [Step 1-B] 비동기 데이터 Fetch 엔진 및 가상 DB 전역화 (`app.js`)
 1.  **동작 흐름**:
     - `index.html` 로드 완료와 동시에 `app.js`에서 `initDatabase()` 함수를 즉각 호출합니다.
-    - `Promise.all()` 구조를 채택하여 6대 핵심 리소스 파일(`oe_req_to_doc_summary.json`, `oe_req_to_audit_checklist.json`, `quality_issues_qi.json`, `change_history_4m.json`, `cqms_customer_audit_db.json`, `users.json`)을 동시 비동기 호출(`fetch`) 처리합니다.
+    - `Promise.all()` 구조를 채택하여 6대 핵심 리소스 파일(`oe_req_to_doc_summary.json`, `oe_req_to_audit_checklist.json`, `cqms_qualityissue_db.json`, `cqms_4m_db.json`, `cqms_customer_audit_db.json`, `users.json`)을 동시 비동기 호출(`fetch`) 처리합니다.
 2.  **메모리 상주**:
     - 정상적으로 받아와 파싱된 JSON 배열들을 전역 데이터베이스 세션 객체인 `window.db_store` 내부에 안전하게 격리 상주시켜 실시간 가상 쿼리가 가능한 환경을 구축합니다:
       ```javascript
@@ -100,7 +100,7 @@ Phase 1은 흩어져 있는 원천 CSV 파일들을 정밀 JSON 정적 데이터
 
 ### 📊 Phase 2: 종합 대시보드 리스크 동적 산출 및 차트 바인딩 (Dashboard)
 1.  **데이터 바인딩**:
-    - 사이드바 필터(`plant_code` 등)가 변경되면, `quality_issues_qi.json` 내의 해당 공정별 품질 실패 건수(Count)와 `cqms_4m_db.json` 내의 공정 변경 빈도를 실시간 탐색합니다.
+    - 사이드바 필터(`plant_code` 등)가 변경되면, `cqms_qualityissue_db.json` 내의 해당 공정별 품질 실패 건수(Count)와 `cqms_4m_db.json` 내의 공정 변경 빈도를 실시간 탐색합니다.
 2.  **공정 가중치 주입**:
     - [Context 3]에 기재된 **공장별 공정 리스크 점수 계산 공식**을 바닐라 자바스크립트로 전격 탑재하여 차트 데이터셋을 0ms 레이턴시로 갱신 적용합니다.
 3.  **Exit Criteria**: 필터 전환 시 차트가 부드러운 트랜지션으로 갱신되고, 계산된 점수가 UI 뱃지 색상(빨강, 황색 등)과 계기판 게이지 바에 완벽 조화되어 반영될 것.
@@ -114,12 +114,12 @@ Phase 1은 흩어져 있는 원천 CSV 파일들을 정밀 JSON 정적 데이터
 
 ### 📋 Phase 4: 공장별 리스크 타임라인 및 지적사항 수검 제어 (Plant Risk & Action)
 1.  **과거 이력 타임라인 통합**:
-    - 공장 상세 보기 클릭 시, `quality_issues_qi` + `cqms_4m_db` + `audit_findings` 이력을 시간 순서(Date)로 병합(Sort)하여 "종합 4M-품질 실패 연대기 타임라인" 카드를 생성 렌더링합니다.
+    - 공장 상세 보기 클릭 시, `cqms_qualityissue_db` + `cqms_4m_db` + `audit_findings` 이력을 시간 순서(Date)로 병합(Sort)하여 "종합 4M-품질 실패 연대기 타임라인" 카드를 생성 렌더링합니다.
 2.  **Exit Criteria**: 특정 이력 행에 대해 오디터가 현장 수검 후 지적사항 조치 완료 토글 시, 상태 뱃지가 실시간 미학적 이징 효과와 함께 'Open'에서 'Closed'로 즉각 변환될 것.
 
 ### 🔍 Phase 5: AI Action Advisor 가상 영구 시정 대책 피드 추론 (AI Features)
 1.  **AI 추론 가상화**:
-    - 질문 입력창에 텍스트 제기 시, `quality_issues_qi` 내의 발생원인(`D4_ROOT_CAUSE`) 및 영구 대책(`D5_COUNTERMEASURE`)을 형태소 유사도로 매칭 추출하여 정교하게 가상 추론 응답을 우아한 타이핑 모션과 로딩 스피너로 연출합니다.
+    - 질문 입력창에 텍스트 제기 시, `cqms_qualityissue_db` 내의 발생원인(`D4_ROOT_CAUSE`) 및 영구 대책(`D5_COUNTERMEASURE`)을 형태소 유사도로 매칭 추출하여 정교하게 가상 추론 응답을 우아한 타이핑 모션과 로딩 스피너로 연출합니다.
 2.  **SOP 가이드 분할 렌더링**:
     - 출력을 단순 텍스트 나열에서 탈피하여 `Risk Summary`, `Root Cause`, `Corrective Action`, `SOP Revision Guide`로 확연히 나누어 디자인 폼으로 가시화합니다.
 

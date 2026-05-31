@@ -38,7 +38,7 @@ flowchart TD
         A2 & A3 & A4 --> B2
         
         B1 --> C1[("oe_req_to_doc_summary.json")]
-        B2 --> C2[("quality_issues_qi.json")]
+        B2 --> C2[("cqms_qualityissue_db.json")]
         B2 --> C3[("cqms_4m_db.json")]
         B2 --> C4[("cqms_customer_audit_db.json")]
         
@@ -148,7 +148,7 @@ flowchart TD
 
 ---
 
-### ③ 품질 실패 이력 스키마 (`data/quality_issues_qi.json`)
+### ③ 품질 실패 이력 스키마 (`data/cqms_qualityissue_db.json`)
 
 *   **설명**: 공장에서 발생한 대고객 품질 부적합(QI) 및 반품 클레임(Claim) 데이터를 정밀 정리한 데이터셋입니다.
 
@@ -434,13 +434,13 @@ flowchart TD
 - `app.js`에서 각 정적 데이터 파일들의 비동기 fetch 연결 통로를 개설하고 전역 상태 변수(`window.db_store`)로 인메모리 바인딩 처리를 마무리합니다.
 
 ### [Phase 2: 종합 대시보드 리스크 동적 계량 바인딩]
-- 대시보드 진입 시 `quality_issues_qi.json`과 `cqms_4m_db.json`을 분석하여 공장별, 공정별 이벤트 건수를 자동 집계하고, [Context 3]에 설계된 리스크 계량 산출 공식에 따라 종합 리스크 가중치를 산정해 지도 및 카운터 패널에 실시간 렌더링합니다.
+- 대시보드 진입 시 `cqms_qualityissue_db.json`과 `cqms_4m_db.json`을 분석하여 공장별, 공정별 이벤트 건수를 자동 집계하고, [Context 3]에 설계된 리스크 계량 산출 공식에 따라 종합 리스크 가중치를 산정해 지도 및 카운터 패널에 실시간 렌더링합니다.
 
 ### [Phase 3: 감사 일정 등록 및 준비 가이드 연동]
 - `oe_req_to_audit_checklist.json`에서 공장별 고위험 항목들을 필터링하여 오디터 맞춤형 예방 감사 조항 가이드를 주간 플래닝 시점에 자동 출력합니다.
 
 ### [Phase 4 ~ 5: 수검 조치 및 AI 개선 액션 플랜 수립]
-- 수검 오딧 중 발견된 지적사항 등록 시, `quality_issues_qi.json` 내의 8D 영구 개선안 히스토리를 대조하여 정밀 템플릿 기반의 개선 대책 및 SOP 개정 가이드를 실시간 추론해 응답 화면을 데모 구현합니다.
+- 수검 오딧 중 발견된 지적사항 등록 시, `cqms_qualityissue_db.json` 내의 8D 영구 개선안 히스토리를 대조하여 정밀 템플릿 기반의 개선 대책 및 SOP 개정 가이드를 실시간 추론해 응답 화면을 데모 구현합니다.
 
 ### [Phase 6: 완제품 표준 라이브러리 및 파일 인터랙션 렌더링]
 - `#sub-tab-content-customer-reqs` 서브 탭 본문 영역에 글로벌 OEM 목록 카드를 렌더링하고, 특정 카드 클릭 시 우측의 `lib-summary-panel`에 역해석 정보(`focus_process`, `process_param_check`, `quality_defect_risk`, `action_sop_guide`)를 부드러운 글래스모피즘 효과로 전개합니다.
