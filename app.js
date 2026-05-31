@@ -3983,7 +3983,7 @@ const app = {
       const cellStyle = isActive 
         ? `background: #eef2ff; color: var(--brand-blue); border-left: 2px solid var(--brand-blue); border-right: 2px solid var(--brand-blue); border-top: 2px solid var(--brand-blue); border-bottom: 2px solid var(--brand-blue); position: sticky; top: 0; z-index: 11; font-weight: 800;` 
         : `background: #f8fafc; color: var(--text-secondary); position: sticky; top: 0; z-index: 10;`;
-      return `<th class="plant-col ${isActive ? 'active-col' : ''}" style="${cellStyle} text-align: center; font-size: 11.5px; padding: 10px 6px; min-width: 48px; border-bottom: 1px solid var(--border-card);">${p}</th>`;
+      return `<th class="plant-col ${isActive ? 'active-col' : ''}" style="${cellStyle} text-align: center; font-size: 11px; padding: 10px 2px; width: 34px; border-bottom: 1px solid var(--border-card);">${p}</th>`;
     }).join('');
 
     let tableHtml = `
@@ -3993,8 +3993,7 @@ const app = {
             <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 12px; border-bottom: 1px solid var(--border-card); width: 85px;">공정</th>
             <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 4px; border-bottom: 1px solid var(--border-card); width: 45px; text-align: center;">구분</th>
             <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 4px; border-bottom: 1px solid var(--border-card); width: 45px; text-align: center;">번호</th>
-            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 12px; border-bottom: 1px solid var(--border-card); width: 120px;">평가 영역</th>
-            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 12px; border-bottom: 1px solid var(--border-card); width: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">점검 요건 (Check Item)</th>
+            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 12px; border-bottom: 1px solid var(--border-card); width: auto;">점검 요건 (Check Item)</th>
             ${plantHeaders}
           </tr>
         </thead>
@@ -4033,8 +4032,8 @@ const app = {
           : `border-bottom: 1px solid #f1f5f9;`;
 
         const cellStyle = isActive 
-          ? `background: #f5f8ff; border-left: 2px solid var(--brand-blue); border-right: 2px solid var(--brand-blue); ${bottomBorder} text-align: center; vertical-align: middle; padding: 8px 6px;` 
-          : `text-align: center; vertical-align: middle; padding: 8px 6px; border-bottom: 1px solid #f1f5f9;`;
+          ? `background: #f5f8ff; border-left: 2px solid var(--brand-blue); border-right: 2px solid var(--brand-blue); ${bottomBorder} text-align: center; vertical-align: middle; padding: 8px 2px; width: 34px;` 
+          : `text-align: center; vertical-align: middle; padding: 8px 2px; border-bottom: 1px solid #f1f5f9; width: 34px;`;
         return `<td class="plant-cell ${isActive ? 'active-cell' : ''}" style="${cellStyle}">${badgeHtml}</td>`;
       }).join('');
 
@@ -4043,8 +4042,7 @@ const app = {
           <td style="font-size: 11px; font-weight: 600; color: var(--text-primary); padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${processKo}">${processKo}</td>
           <td style="text-align: center; padding: 10px 4px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;">${categoryBadge}</td>
           <td style="text-align: center; font-size: 11px; font-weight: bold; color: var(--text-muted-light); padding: 10px 4px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;">${item.item_no}</td>
-          <td style="font-size: 11px; font-weight: 500; color: var(--text-secondary); padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.area}">${item.area}</td>
-          <td style="font-size: 11.5px; color: var(--text-primary); padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.check_item.replace(/"/g, '&quot;')}">${item.check_item}</td>
+          <td style="font-size: 11.5px; color: var(--text-primary); padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; white-space: normal; word-break: break-word; line-height: 1.4;" title="${item.check_item.replace(/"/g, '&quot;')}">${item.check_item}</td>
           ${plantCells}
         </tr>
       `;

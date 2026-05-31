@@ -143,7 +143,7 @@ $$\text{CRI} = 0.4 \times (100 - \text{System Level}) + 0.3 \times (100 - \text{
     *   **공정 필터 (`#system-process-filter`)**: 전체 공정(ALL) 및 10대 공정(Incoming, Mixing, Extruding, Calendering, Cutting, Bead, Building, Curing, Inspection, Shipping) 개별 필터링 지원.
     *   **구분 (`#system-category-filter` 버튼 그룹)**: 전체(ALL), 인프라(Infra, category !== 'Process'), 프로세스(Process, category === 'Process')로 분류 필터링.
     *   **검색 키워드 입력 (`#system-keyword-search`)**: 입력어의 대소문자 구분 없는 부분 일치(case-insensitive match)를 통해 `check_item`, `process`, `area` 내부 검색 매핑 지원.
-*   **260개 점검 요건 매트릭스 그리드 테이블 (`#system-matrix-table-box`)**: 10대 제조 공정 전 영역의 품질 인프라 구축도를 글로벌 8대 공장(`KP`, `DP`, `JP`, `CP`, `HP`, `IP`, `MP`, `TP`) 컬럼에 매핑하여 일체형으로 비교하는 고가독성 표입니다.
+*   **260개 점검 요건 매트릭스 그리드 테이블 (`#system-matrix-table-box`)**: 10대 제조 공정 전 영역의 품질 인프라 구축도를 글로벌 8대 공장(`KP`, `DP`, `JP`, `CP`, `HP`, `IP`, `MP`, `TP`) 컬럼에 매핑하여 일체형으로 비교하는 고가독성 표입니다. **'평가 영역' 컬럼은 레이아웃 공간 확보를 위해 완전 생략되었으며, 공장별 컬럼은 34px 고정폭과 슬림 패딩으로 압축하여 '점검 요건(Check Item)' 컬럼이 최대한 넓게 활성화되도록 극대화시켰습니다. 점검 요건 셀은 긴 문장이 잘리지 않도록 멀티라인 래핑(`white-space: normal`) 처리되었습니다.**
     *   **공장별 스코어 원형 뱃지 변환**: 원본 데이터베이스의 0~10점 척도를 직관적인 0~3점의 평점 체계로 자동 정밀 수렴 및 변환하여 도출합니다.
         *   **3점 (우수: 솔리드 그린 서클 `#10b981`)**: 원본 점수 `9점 이상`
         *   **2점 (양호: 솔리드 블루 서클 `#3b82f6`)**: 원본 점수 `7점 이상 ~ 9점 미만`
