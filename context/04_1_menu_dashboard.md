@@ -43,10 +43,10 @@
 
 | KPI 카드명 | 주요 연산 공식 및 뱃지 매핑 규칙 | 수치 데이터 연동 원천 |
 | :--- | :--- | :--- |
-| **총 누적 리스크 건수** | $\text{총 미결 건수} = \text{QI 미결} + \text{4M 미결} + \text{지적사항 미결}$<br>· 종합 진행률: $(\text{해결 완료 합산} / \text{누적 전체 합산}) \times 100$<br>· UI 구성: 90deg Linear Blue-Cyan 그라데이션 진행률 게이지 바 | · `qualityIssues` (On-going)<br>· `changeHistory4m` (On-going)<br>· `auditFindings` (On-going) |
-| **미해결 품질 이슈 (QI)** | · 수량: `STATUS === 'On-going'` 인 품질 실패 건수 총합<br>· 처리율: $(\text{Closed} / \text{전체 QI}) \times 100$<br>· UI 구성: High-Risk Red 아이콘 배지 및 Red-Coral 그라데이션 처리 게이지 바 | · `cqms_qualityissue_db.json`<br>(STATUS: On-going / Closed) |
+| **총 누적 리스크 건수** | $\text{총 미결 건수} = \text{QI 미결} + \text{4M 미결} + \text{지적사항 미결}$<br>· 종합 진행률: $(\text{해결 완료 합산} / \text{누적 전체 합산}) \times 100$<br>· UI 구성: 90deg Linear Blue-Cyan 그라데이션 진행률 게이지 바 | · `qualityIssues` (On-going)<br>· `changeHistory4m` (On-going)<br>· `auditFindings` (On-going, Open) |
+| **미해결 품질 이슈 (QI)** | · 수량: `STATUS === 'On-going'` 인 품질 실패 건수 총합<br>· 처리율: $(\text{Complete 또는 Closed} / \text{전체 QI}) \times 100$<br>· UI 구성: High-Risk Red 아이콘 배지 및 Red-Coral 그라데이션 처리 게이지 바 | · `cqms_qualityissue_db.json`<br>(STATUS: On-going / Complete) |
 | **미점검 4M 변경점** | · 수량: `PROGRESS === 'On-going'` 인 공정 4M 변경 신청 건수 총합<br>· 점검률: $(\text{Complete} / \text{전체 4M}) \times 100$<br>· UI 구성: Medium-Risk Amber 아이콘 및 Amber-Yellow 게이지 바 | · `cqms_4m_db.json`<br>(PROGRESS: On-going / Complete) |
-| **과거 감사 미해결 지적** | · 수량: `STATUS === 'On-going'` 인 과거 감사 지적사항 건수 총합<br>· 조치율: $(\text{Closed} / \text{전체 Findings}) \times 100$<br>· UI 구성: High-Risk Purple 아이콘 및 Purple-Violet 게이지 바 | · `cqms_customer_audit_db.json`<br>(STATUS: On-going / Closed) |
+| **과거 감사 미해결 지적** | · 수량: `STATUS === 'On-going' 또는 'Open'` 인 과거 감사 지적사항 건수 총합<br>· 조치율: $(\text{Complete 또는 Closed} / \text{전체 Findings}) \times 100$<br>· UI 구성: High-Risk Purple 아이콘 및 Purple-Violet 게이지 바 | · `cqms_customer_audit_db.json`<br>(STATUS: On-going, Open / Complete, Closed) |
 
 ---
 

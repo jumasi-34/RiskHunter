@@ -7625,12 +7625,12 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
       return item.PROGRESS === 'On-going';
     }).length;
 
-    // Findings 미결: STATUS === 'On-going'
+    // Findings 미결: STATUS === 'On-going' 또는 'Open'
     const findingsUnresolved = (this.state.auditFindings || []).filter(item => {
       if (plantCode !== 'ALL' && item.PLANT !== plantCode) return false;
       if (customer !== 'ALL' && (item.CAR_MAKER || '').toLowerCase() !== customer.toLowerCase()) return false;
       if (process !== 'ALL' && item._mappedProcess !== process) return false;
-      return item.STATUS === 'On-going';
+      return item.STATUS === 'On-going' || item.STATUS === 'Open';
     }).length;
 
     const rawScore = 0.3 * qiUnresolved + 0.1 * m4Unresolved + 0.2 * findingsUnresolved;
@@ -7656,20 +7656,20 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
     // ------------------------------------------------------------------------
     const qiFiltered = this.state.qualityIssues || [];
     const qiUnresolved = qiFiltered.filter(item => item.STATUS === 'On-going').length;
-    const qiResolved = qiFiltered.filter(item => item.STATUS === 'Closed').length;
-    const qiTotal = qiFiltered.length;
+    const qiResolved = qiFiltered.filter(item => item.STATUS === 'Complete' || item.STATUS === 'Closed').length;
+    const qiTotal = qiUnresolved + qiResolved;
     const qiRate = qiTotal > 0 ? (qiResolved / qiTotal) * 100 : 100;
 
     const m4Filtered = this.state.changeHistory4m || [];
     const m4Unresolved = m4Filtered.filter(item => item.PROGRESS === 'On-going').length;
     const m4Resolved = m4Filtered.filter(item => item.PROGRESS === 'Complete').length;
-    const m4Total = m4Filtered.length;
+    const m4Total = m4Unresolved + m4Resolved;
     const m4Rate = m4Total > 0 ? (m4Resolved / m4Total) * 100 : 100;
 
     const findingsFiltered = this.state.auditFindings || [];
-    const findingsUnresolved = findingsFiltered.filter(item => item.STATUS === 'On-going').length;
-    const findingsResolved = findingsFiltered.filter(item => item.STATUS === 'Closed').length;
-    const findingsTotal = findingsFiltered.length;
+    const findingsUnresolved = findingsFiltered.filter(item => item.STATUS === 'On-going' || item.STATUS === 'Open').length;
+    const findingsResolved = findingsFiltered.filter(item => item.STATUS === 'Complete' || item.STATUS === 'Closed').length;
+    const findingsTotal = findingsUnresolved + findingsResolved;
     const findingsRate = findingsTotal > 0 ? (findingsResolved / findingsTotal) * 100 : 100;
 
     const totalUnresolved = qiUnresolved + m4Unresolved + findingsUnresolved;
