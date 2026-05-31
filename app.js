@@ -1202,8 +1202,8 @@ const app = {
       btnSaveModal.onclick = () => this.saveSchedule();
     }
 
-    // 3개 서브탭 버튼 (.sub-tab-btn) 바인딩
-    const subTabButtons = document.querySelectorAll('#tab-audit-planning .sub-tab-btn');
+    // 3개 서브탭 버튼 (.planning-subtab-btn) 바인딩
+    const subTabButtons = document.querySelectorAll('#tab-audit-planning .planning-subtab-btn');
     subTabButtons.forEach(btn => {
       btn.onclick = (e) => {
         const targetTab = btn.getAttribute('data-subtab');
@@ -1518,6 +1518,16 @@ const app = {
     const tabChecklist = document.getElementById('subtab-planning-checklist');
 
     const activeTab = this.state.activePlanningSubtab || 'planning-timeline';
+
+    // 서브탭 버튼들 (.planning-subtab-btn) 활성화 상태 싱크
+    const planningButtons = document.querySelectorAll('#tab-audit-planning .planning-subtab-btn');
+    planningButtons.forEach(btn => {
+      if (btn.getAttribute('data-subtab') === activeTab) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
 
     if (activeTab === 'planning-calendar') {
       if (tabTimeline) tabTimeline.style.display = 'none';
@@ -1992,7 +2002,7 @@ const app = {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 
     // 달력 셀 클릭 이벤트 바인딩
-    gridBox.querySelectorAll('.calendar-cell').forEach(cell => {
+    gridBox.querySelectorAll('.calendar-cell-premium').forEach(cell => {
       cell.onclick = () => {
         const clickedDate = cell.getAttribute('data-date');
         if (clickedDate) {
