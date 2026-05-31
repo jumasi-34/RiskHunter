@@ -4087,7 +4087,7 @@ body {
 
 .premium-compass-grid-2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1.2fr;
   gap: 20px;
 }
 
@@ -5546,14 +5546,15 @@ body {
 }
 
 .premium-heatmap-table .premium-matrix-td-label {
-  width: 105px !important;
-  min-width: 105px !important;
-  max-width: 105px !important;
-  padding: 4px 4px !important;
+  width: 130px !important;
+  min-width: 130px !important;
+  max-width: 130px !important;
+  padding: 4px 6px !important;
   font-size: 9px !important;
   line-height: 1.25 !important;
-  white-space: normal !important; /* Allow wrapping within fixed width to avoid truncation */
-  word-break: keep-all !important;
+  white-space: nowrap !important; /* Prevent text wrapping or overlapping */
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 .premium-heatmap-table .premium-matrix-cell {
