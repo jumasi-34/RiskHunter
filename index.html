@@ -243,6 +243,24 @@
             </div>
           </div>
         </div>
+
+        <!-- 📅 향후 예정된 Audit 일정 및 준비현황 요약 위젯 (메뉴 2 연동) -->
+        <div class="card-solid flex-col" style="margin-bottom: 20px; padding: 18px 20px; gap: 15px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-card); padding-bottom: 12px; margin-bottom: 5px;">
+            <div>
+              <h2 class="card-title" style="display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 800; color: var(--text-primary);">
+                <i data-lucide="calendar" style="width: 18px; height: 18px; color: var(--brand-blue);"></i> 향후 예정된 Audit 일정 및 준비현황 요약
+              </h2>
+              <p class="card-subtitle" style="font-size: 12px; margin-top: 2px;">메뉴 2 (Audit Planning) 전역 데이터와 실시간 연동된 D-30 단계별 준비 실태</p>
+            </div>
+            <button class="badge" style="background: rgba(37, 99, 235, 0.08); color: var(--brand-blue); border: 1px solid rgba(37, 99, 235, 0.2); font-weight: 700; cursor: pointer; padding: 4px 10px; border-radius: 4px; font-size: 11px;" onclick="document.querySelector('[data-tab=\'audit-planning\']').click();">
+              전체 일정 관리 이동 ↩
+            </button>
+          </div>
+          <div id="dashboard-upcoming-audits-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px; width: 100%;">
+            <!-- JS 동적 로드 -->
+          </div>
+        </div>
         
         <!-- 차트 및 리스크 보드 -->
         <div class="grid-2col">

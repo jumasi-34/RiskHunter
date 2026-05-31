@@ -7774,6 +7774,117 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
     }
 
     // ------------------------------------------------------------------------
+    // [1-2] 향후 예정된 Audit 일정 및 준비현황 요약 동적 렌더링 (메뉴 2 연동)
+    // ------------------------------------------------------------------------
+    const upcomingAuditsGrid = document.getElementById('dashboard-upcoming-audits-grid');
+    if (upcomingAuditsGrid) {
+      // 1. 미래 예정 감사 (STATUS가 'Open') 필터링 후 날짜 순 정렬
+      const openAudits = (this.state.audits || [])
+        .filter(audit => audit.STATUS === 'Open')
+        .sort((a, b) => {
+          const dateA = a.date || a.START_DT || '';
+          const dateB = b.date || b.START_DT || '';
+          return dateA.localeCompare(dateB);
+        });
+
+      // 최대 3개만 추출
+      const targetAudits = openAudits.slice(0, 3);
+
+      if (targetAudits.length === 0) {
+        upcomingAuditsGrid.innerHTML = `
+          <div style="grid-column: 1 / -1; padding: 30px; text-align: center; color: var(--text-muted-light); background: rgba(15, 23, 42, 0.03); border: 1px dashed var(--border-card); border-radius: 6px;">
+            <i data-lucide="info" style="width: 20px; height: 20px; margin-bottom: 8px; vertical-align: middle; color: var(--text-muted-light);"></i>
+            <span style="font-size: 13px; font-weight: 500;">현재 예정된 Audit 일정이 없습니다.</span>
+          </div>
+        `;
+      } else {
+        const currentDate = new Date('2026-05-29'); // 기준일 상수
+        
+        upcomingAuditsGrid.innerHTML = targetAudits.map(audit => {
+          // D-Day 계산
+          const targetDate = new Date(audit.date || audit.START_DT);
+          const diffTime = targetDate - currentDate;
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          
+          let dDayText = '';
+          let dDayClass = '';
+          if (diffDays > 0) {
+            dDayText = `D-${diffDays}`;
+            dDayClass = diffDays <= 7 ? 'badge-danger blink' : 'badge-info';
+          } else if (diffDays === 0) {
+            dDayText = 'D-DAY';
+            dDayClass = 'badge-danger blink';
+          } else {
+            dDayText = `D+${Math.abs(diffDays)}`;
+            dDayClass = 'badge-success';
+          }
+
+          // 태스크 완료율 계산
+          const taskStates = this.state.planningChecklistStates[audit.id] || {};
+          const totalTasks = (this.state.planningTasks || []).length;
+          
+          let completedCount = 0;
+          (this.state.planningTasks || []).forEach(task => {
+            if (taskStates[task.id] === 'completed') {
+              completedCount++;
+            }
+          });
+          const completionRate = totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
+
+          // 공장 이름 찾기
+          const plantObj = (this.state.commonCodes.plants || []).find(p => p.code === audit.PLANT);
+          const plantName = plantObj ? plantObj.name : audit.PLANT;
+
+          return `
+            <div class="card-solid" style="padding: 16px; background: rgba(30, 41, 59, 0.03); border: 1px solid var(--border-card); border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; transition: all 0.2s ease-in-out;" onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='rgba(37, 99, 235, 0.35)'; this.style.boxShadow='0 8px 20px rgba(37, 99, 235, 0.08)';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border-card)'; this.style.boxShadow='none';">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span class="badge" style="background: rgba(37, 99, 235, 0.08); color: var(--brand-blue); border: 1px solid rgba(37, 99, 235, 0.15); font-weight: 700; font-size: 11px;">
+                    ${plantName} (${audit.PLANT})
+                  </span>
+                  <span class="badge" style="background: rgba(15, 23, 42, 0.04); color: var(--text-primary); border: 1px solid var(--border-card); font-weight: 700; font-size: 11px;">
+                    ${audit.OEM || audit.CAR_MAKER || 'OEM'}
+                  </span>
+                </div>
+                <span class="badge ${dDayClass}" style="font-weight: 800; font-family: monospace; font-size: 11px;">
+                  ${dDayText}
+                </span>
+              </div>
+              
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <h4 style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;" title="${audit.subject || audit.SUBJECT || ''}">
+                  ${audit.subject || audit.SUBJECT || ''}
+                </h4>
+                <div style="font-size: 11.5px; color: var(--text-muted-light); display: flex; align-items: center; gap: 4px;">
+                  <i data-lucide="calendar-days" style="width: 12px; height: 12px;"></i>
+                  <span>예정 기간: ${audit.date || audit.START_DT}</span>
+                </div>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 5px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+                  <span style="color: var(--text-muted-light); font-weight: 500;">D-30 준비 완료도</span>
+                  <span style="color: var(--brand-blue); font-weight: 800; font-family: monospace;">${completionRate.toFixed(0)}%</span>
+                </div>
+                <div style="width: 100%; height: 5px; background: rgba(15, 23, 42, 0.06); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-card);">
+                  <div style="width: ${completionRate}%; height: 100%; background: linear-gradient(90deg, #2563eb, #00c8ff); border-radius: 3px; transition: width 0.3s ease;"></div>
+                </div>
+                <span style="font-size: 10.5px; color: var(--text-muted-light); margin-top: 2px;">
+                  완료 <strong style="color: var(--text-primary);">${completedCount}건</strong> / 대기 <strong style="color: var(--text-primary);">${totalTasks - completedCount}건</strong>
+                </span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+      
+      // lucide 아이콘 동적 갱신
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    }
+
+    // ------------------------------------------------------------------------
     // [2] Chart 1: 공장별 실시간 위험 점수 (Plant Risk Score - Bar / Doughnut)
     // ------------------------------------------------------------------------
     const ctxPlant = document.getElementById('chart-plant-risk');
