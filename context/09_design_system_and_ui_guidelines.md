@@ -323,6 +323,14 @@ graph TD
 ### ① Risk Assessment (실시간 리스크 대시보드)
 *   **핵심 비주얼**: 대형 KPI 카드 4장 + `Chart.js` 기반의 플랫하고 시인성 높은 리스크 도넛 차트 및 공정별 위험도 비교 가로 바 차트.
 *   **레이아웃 구성**: 백그라운드는 맑은 라이트 그레이 바탕이며, 차트 컨테이너는 pure white 카드 안에 정갈하게 단추 형태로 수납합니다. 차트가 리렌더링될 때 화면이 튕기는 레이아웃 흔들림(Layout Shift) 현상을 미연에 방지하기 위해 정적 높이와 패딩을 준수하여 가둡니다.
+*   **💎 프리미엄 대시보드 전용 컴포넌트 클래스 명세 (Premium Dashboard Components)**:
+    1.  **`.premium-section-card`**: 대시보드의 대형 섹션을 감싸는 고품격 순백색 솔리드 카드입니다. 은은한 외곽 테두리(`border: 1px solid rgba(15, 23, 42, 0.06)`), 둥근 모서리(`border-radius: var(--radius-panel)`), 그리고 극도의 투명도를 갖춘 내추럴 섀도우를 조합하여 프리미엄 테크니컬 디자인의 절제된 깊이감을 선사합니다.
+    2.  **`.premium-section-card-header`**: 섹션 카드의 상단 헤더 영역으로, 타이틀과 숏컷/CTA 버튼의 정밀 수평 배치 및 모바일 뷰포트에서 최적의 수직 정렬로 전환되는 반응형 레이아웃 가드를 가집니다.
+    3.  **`.premium-card-title` / `.premium-card-subtitle`**: 기하학적 프리미엄 폰트인 `Outfit` 서체를 헤더 및 메트릭에 일관되게 활용하고, 밝은 배경(WCAG 2.1 AA 4.5:1 이상 명도 만족)에 완벽히 정합되는 타이포그래피 스케일을 부여하여 정보 가독성을 극대화합니다.
+    4.  **`.premium-shortcut-btn` / `.premium-shortcut-btn:hover`**: 타 탭 메뉴로의 빠른 이동을 지능적으로 지휘하는 고대비 CTA 숏컷 버튼으로, lucide `arrow-right` 또는 `arrow` 아이콘과의 우아한 수평 이동 마이크로 트랜지션 및 배경색 호버 트랜지션을 내포합니다.
+    5.  **`.premium-upcoming-card` / `.premium-cri-card`**: 향후 예정된 Audit 위젯 및 글로벌 공장별 종합 리스크 지수(CRI) 리더보드 카드에 일관되게 지정되는 프리미엄 카드입니다. 조잡하고 화려한 네온 글로우를 배제하고 자연스러운 미학적 섀도우와 절제된 4px 호버 트랜스레이트 기법을 결합하여 완결합니다.
+    6.  **`.premium-progress-track` / `.premium-progress-bar`**: 준비 진척도를 표현하기 위해 디자인된 수평 막대 그래프의 트랙과 멀티-컬러 파스텔 진행 궤적입니다.
+
 
 ### ② OE Requirement Library (기술 규격서 보관소)
 *   **핵심 비주얼**: 완성차 고객사 필터 바 + 고가독성 데이터 테이블 그리드 + 하단 AI 요약 카드.

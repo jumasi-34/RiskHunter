@@ -1,0 +1,9 @@
+{
+  "name": "riskhunter-screenshot-scratch",
+  "version": "1.0.0",
+  "description": "Temporary screenshot tool using Playwright",
+  "main": "take_screenshot.js",
+  "dependencies": {
+    "playwright-chromium": "^1.40.0"
+  }
+}

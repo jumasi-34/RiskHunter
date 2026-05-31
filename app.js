@@ -7891,46 +7891,46 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
           const auditTitle = audit.title || audit.SUBJECT || audit.subject || '품질 감사 일정';
 
           return `
-            <div class="card-solid" style="padding: 16px; background: rgba(30, 41, 59, 0.03); border: 1px solid var(--border-card); border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; transition: all 0.2s ease-in-out;" onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='rgba(37, 99, 235, 0.35)'; this.style.boxShadow='0 8px 20px rgba(37, 99, 235, 0.08)';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border-card)'; this.style.boxShadow='none';">
+            <div class="premium-upcoming-card">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <span class="badge" style="background: rgba(37, 99, 235, 0.08); color: var(--brand-blue); border: 1px solid rgba(37, 99, 235, 0.15); font-weight: 700; font-size: 11px;">
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                  <span class="badge" style="background: rgba(37, 99, 235, 0.06); color: var(--brand-blue); border: 1px solid rgba(37, 99, 235, 0.12); font-weight: 700; font-size: 11px;">
                     ${plantName} (${plantCode})
                   </span>
-                  <span class="badge" style="background: rgba(15, 23, 42, 0.04); color: var(--text-primary); border: 1px solid var(--border-card); font-weight: 700; font-size: 11px;">
+                  <span class="badge" style="background: rgba(15, 23, 42, 0.03); color: var(--text-primary); border: 1px solid rgba(15, 23, 42, 0.06); font-weight: 700; font-size: 11px;">
                     ${oemName}
                   </span>
                 </div>
-                <span class="badge ${dDayClass}" style="font-weight: 800; font-family: monospace; font-size: 11px;">
+                <span class="badge ${dDayClass}" style="font-weight: 800; font-family: monospace; font-size: 11px; padding: 2px 6px; border-radius: 4px;">
                   ${dDayText}
                 </span>
               </div>
               
-              <div style="display: flex; flex-direction: column; gap: 4px;">
-                <h4 style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;" title="${auditTitle}">
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;" title="${auditTitle}">
                   ${auditTitle}
                 </h4>
-                <div style="font-size: 11.5px; color: var(--text-muted-light); display: flex; align-items: center; gap: 4px;">
-                  <i data-lucide="calendar-days" style="width: 12px; height: 12px;"></i>
+                <div style="font-size: 11.5px; color: var(--text-muted-light); display: flex; align-items: center; gap: 4px; font-weight: 500;">
+                  <i data-lucide="calendar-days" style="width: 12px; height: 12px; color: var(--text-muted-light);"></i>
                   <span>예정 기간: ${audit.date || audit.START_DT}</span>
                 </div>
               </div>
 
-              <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 5px;">
+              <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
                   <span style="color: var(--text-muted-light); font-weight: 500;">D-30 준비 진척도</span>
                   <span style="color: var(--brand-blue); font-weight: 800; font-family: monospace;">${completedRate.toFixed(0)}%</span>
                 </div>
-                <div style="width: 100%; height: 6px; background: rgba(15, 23, 42, 0.06); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-card); display: flex;">
-                  <div style="width: ${completedRate}%; height: 100%; background: linear-gradient(90deg, #2563eb, #00c8ff); transition: width 0.3s ease;" title="완료: ${completedRate.toFixed(1)}%"></div>
-                  <div style="width: ${inProgressRate}%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); transition: width 0.3s ease;" title="진행: ${inProgressRate.toFixed(1)}%"></div>
-                  <div style="width: ${pendingRate}%; height: 100%; background: rgba(203, 213, 225, 0.4); transition: width 0.3s ease;" title="대기: ${pendingRate.toFixed(1)}%"></div>
+                <div class="premium-progress-track">
+                  <div class="premium-progress-bar" style="width: ${completedRate}%; background: var(--brand-blue);" title="완료: ${completedRate.toFixed(1)}%"></div>
+                  <div class="premium-progress-bar" style="width: ${inProgressRate}%; background: var(--text-status-medium);" title="진행: ${inProgressRate.toFixed(1)}%"></div>
+                  <div class="premium-progress-bar" style="width: ${pendingRate}%; background: rgba(148, 163, 184, 0.2);" title="대기: ${pendingRate.toFixed(1)}%"></div>
                 </div>
-                <span style="font-size: 10.5px; color: var(--text-muted-light); margin-top: 2px; display: flex; gap: 8px; align-items: center;">
+                <span style="font-size: 10.5px; color: var(--text-muted-light); margin-top: 2px; display: flex; gap: 8px; align-items: center; font-weight: 500;">
                   <span>완료: <strong style="color: var(--brand-blue); font-weight: 700;">${completedCount}건</strong></span>
-                  <span style="color: rgba(15, 23, 42, 0.15);">|</span>
+                  <span style="color: rgba(15, 23, 42, 0.08);">|</span>
                   <span>진행: <strong style="color: var(--text-status-medium); font-weight: 700;">${inProgressCount}건</strong></span>
-                  <span style="color: rgba(15, 23, 42, 0.15);">|</span>
+                  <span style="color: rgba(15, 23, 42, 0.08);">|</span>
                   <span>대기: <strong style="color: var(--text-muted-light); font-weight: 700;">${pendingCount}건</strong></span>
                 </span>
               </div>
@@ -8027,34 +8027,30 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
         }
 
         return `
-          <div class="card-solid" 
-               style="height: 156px; box-sizing: border-box; padding: 14px 12px; background: rgba(30, 41, 59, 0.03); border: 1px solid var(--border-card); border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; cursor: pointer; transition: all 0.2s ease-in-out; margin: 0; box-shadow: none;" 
-               onclick="antigravity.navigateToPlantRisk('${item.code}')"
-               onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='var(--brand-blue)'; this.style.boxShadow='0 8px 20px rgba(37, 99, 235, 0.08)';" 
-               onmouseout="this.style.transform='none'; this.style.borderColor='var(--border-card)'; this.style.boxShadow='none';">
+          <div class="premium-cri-card" onclick="antigravity.navigateToPlantRisk('${item.code}')">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <div style="display: flex; flex-direction: column;">
-                <span style="font-weight: 800; color: var(--text-primary); font-size: 13px; line-height: 1.2;">${item.name}</span>
-                <span style="font-size: 9px; color: var(--text-muted-light); font-weight: 700; text-transform: uppercase; margin-top: 1px;">${item.code}</span>
+                <span style="font-weight: 700; color: var(--text-primary); font-size: 14px; line-height: 1.2;">${item.name}</span>
+                <span style="font-size: 9.5px; color: var(--text-muted-light); font-weight: 700; text-transform: uppercase; margin-top: 2px; letter-spacing: 0.05em;">${item.code}</span>
               </div>
-              <span class="badge ${riskBadgeClass}" style="font-size: 9px; font-weight: 800; padding: 1px 4px;">
+              <span class="badge ${riskBadgeClass}" style="font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">
                 ${riskBadgeText}
               </span>
             </div>
             
             <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 2px;">
-              <span style="font-size: 10px; color: var(--text-secondary); font-weight: 500;">CRI 지수</span>
-              <span style="font-family: 'Outfit', monospace; font-weight: 800; font-size: 18px; color: var(--text-primary); line-height: 1;">${item.cri.toFixed(1)}</span>
+              <span style="font-size: 11px; color: var(--text-muted-light); font-weight: 500;">CRI 지수</span>
+              <span style="font-family: var(--font-family-header); font-weight: 800; font-size: 19px; color: var(--text-primary); line-height: 1;">${item.cri.toFixed(1)}</span>
             </div>
 
-            <div style="width: 100%; height: 3px; background: rgba(15, 23, 42, 0.06); border-radius: 1.5px; overflow: hidden; border: 1px solid var(--border-card); margin-top: 1px;">
-              <div style="width: ${Math.min(100, item.cri)}%; height: 100%; background: ${progressBarColor}; border-radius: 1.5px; transition: width 0.3s ease;"></div>
+            <div style="width: 100%; height: 4px; background: rgba(15, 23, 42, 0.04); border-radius: 2px; overflow: hidden; border: none; margin-top: 1px;">
+              <div style="width: ${Math.min(100, item.cri)}%; height: 100%; background: ${progressBarColor}; border-radius: 2px; transition: width 0.3s ease;"></div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; font-size: 9px; color: var(--text-muted-light); border-top: 1px solid rgba(15, 23, 42, 0.03); padding-top: 4px; margin-top: 2px;">
-              <span>인프라: <strong style="color: var(--text-secondary); font-weight: 700;">${item.systemLevel.toFixed(0)}%</strong></span>
-              <span>현장실사: <strong style="color: var(--text-secondary); font-weight: 700;">${item.assessmentScore.toFixed(0)}%</strong></span>
-              <span>이슈: <strong style="color: var(--text-secondary); font-weight: 700;">${item.issuesCount}건</strong></span>
+            <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted-light); border-top: 1px solid rgba(15, 23, 42, 0.04); padding-top: 6px; margin-top: 2px; font-weight: 500;">
+              <span>인프라: <strong style="color: var(--text-secondary); font-weight: 600;">${item.systemLevel.toFixed(0)}%</strong></span>
+              <span>실사: <strong style="color: var(--text-secondary); font-weight: 600;">${item.assessmentScore.toFixed(0)}%</strong></span>
+              <span>이슈: <strong style="color: var(--text-secondary); font-weight: 600;">${item.issuesCount}건</strong></span>
             </div>
           </div>
         `;
