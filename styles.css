@@ -2612,13 +2612,13 @@ body {
    📅 [Menu 02] Audit Planning Specialized Styles & Premium Aesthetics
    ========================================================================== */
 
-/* 1. 상단 필터 및 활성 일정 셀렉터 */
-.planning-filter-bar {
+/* 1. 상단 통합 필터 및 활성 일정 셀렉터 (1행 고밀도 배치) */
+.planning-unified-header-bar {
   margin-bottom: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 16px;
   flex-wrap: wrap;
   padding: 8px 16px;
   background: var(--bg-card, #ffffff);
@@ -2628,61 +2628,107 @@ body {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.planning-filter-group {
+.planning-header-left,
+.planning-header-center,
+.planning-header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+}
+
+.planning-header-left {
+  flex-shrink: 0;
+}
+
+.planning-header-center {
   flex: 1;
-  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.planning-filter-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 160px;
-  flex: 1;
+.planning-header-right {
+  flex-shrink: 0;
 }
 
-.planning-filter-label {
-  font-size: 10.5px;
-  color: var(--text-secondary);
-  font-weight: 700;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.planning-selector-bar {
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  padding: 6px 16px;
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-card, #e2e8f0);
-  border-radius: 10px;
-  box-shadow: var(--shadow-sm);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.planning-active-select-group {
+.planning-filter-item-inline {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
 }
 
-.planning-active-select-label {
+.planning-filter-label-inline {
   font-size: 12.5px;
   color: var(--text-primary);
   font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.planning-active-select-group-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+}
+
+.planning-active-select-label-inline {
+  font-size: 12.5px;
+  color: var(--text-primary);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* 태블릿 및 모바일용 미디어 쿼리 - 찌그러짐 원천 방지 및 자연스러운 줄바꿈 */
+@media (max-width: 1100px) {
+  .planning-unified-header-bar {
+    gap: 12px;
+  }
+  #planning-audit-select {
+    min-width: 280px !important;
+  }
+}
+
+@media (max-width: 850px) {
+  .planning-unified-header-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px;
+  }
+  .planning-header-left,
+  .planning-header-center,
+  .planning-header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .planning-filter-item-inline,
+  .planning-active-select-group-inline {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .planning-active-select-group-inline {
+    justify-content: space-between;
+  }
+  #planning-filter-plant {
+    flex: 1;
+    max-width: 200px;
+  }
+  #planning-audit-select {
+    flex: 1;
+    min-width: unset !important;
+    max-width: 320px;
+  }
+  .planning-header-right {
+    margin-top: 4px;
+  }
+  #btn-open-audit-modal {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* 2. 서브 탭 스타일 */

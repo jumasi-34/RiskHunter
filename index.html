@@ -422,55 +422,37 @@
       <section id="tab-audit-planning" class="tab-pane">
         <!-- 📌 상단 위 고정 영역 컨테이너 시작 (위 고정 설계 구현) -->
         <div class="sticky-planning-header">
-          <!-- ⚙️ 상단 공장/OEM/유형 정밀 필터 바 -->
-          <div class="planning-filter-bar">
-            <div class="planning-filter-group">
-              <!-- 대상 공장 -->
-              <div class="planning-filter-item">
-                <span class="planning-filter-label">
-                  <i data-lucide="factory" style="width: 11px; height: 11px; color: var(--brand-blue);"></i> 대상 공장
+          <!-- 📅 2번 메뉴 통합 컨트롤 헤더 바 (1행 고밀도 배치) -->
+          <div class="planning-unified-header-bar">
+            <div class="planning-header-left">
+              <div class="planning-filter-item-inline">
+                <span class="planning-filter-label-inline">
+                  <i data-lucide="factory" style="width: 13px; height: 13px; color: var(--brand-blue);"></i> 대상 공장
                 </span>
-                <select id="planning-filter-plant" class="filter-select" style="width: 100%; font-size: 12.5px; font-weight: 700; height: 34px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; outline: none; padding: 0 8px;">
+                <select id="planning-filter-plant" class="filter-select" style="min-width: 150px; font-size: 12.5px; font-weight: 700; height: 34px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; outline: none; padding: 0 8px; cursor: pointer;">
                   <!-- JS에서 동적으로 plants 목록 로딩 -->
                 </select>
               </div>
-              <!-- 완성차 고객사 -->
-              <div class="planning-filter-item">
-                <span class="planning-filter-label">
-                  <i data-lucide="car" style="width: 11px; height: 11px; color: var(--brand-blue);"></i> 완성차 고객사 (OEM)
-                </span>
-                <select id="planning-filter-customer" class="filter-select" style="width: 100%; font-size: 12.5px; font-weight: 700; height: 34px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; outline: none; padding: 0 8px;">
-                  <!-- JS에서 동적으로 OEM 목록 로딩 -->
-                </select>
-              </div>
-              <!-- AUDIT TYPE -->
-              <div class="planning-filter-item">
-                <span class="planning-filter-label">
-                  <i data-lucide="settings" style="width: 11px; height: 11px; color: var(--brand-blue);"></i> AUDIT TYPE
-                </span>
-                <select id="planning-filter-audit-type" class="filter-select" style="width: 100%; font-size: 12.5px; font-weight: 700; height: 34px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; outline: none; padding: 0 8px;">
-                  <option value="Project">Project</option>
-                  <option value="System">System</option>
-                </select>
-              </div>
             </div>
-          </div>
 
-          <!-- 📅 활성 수검 일정 선택 바 -->
-          <div class="planning-selector-bar">
-            <div class="planning-active-select-group">
-              <span class="planning-active-select-label">
-                <i data-lucide="calendar-days" style="color: var(--brand-blue); width: 14px; height: 14px;"></i>
-                활성 수검 일정 선택:
-              </span>
-              <select id="planning-audit-select" class="filter-select" style="min-width: 320px; font-size: 12.5px; font-weight: 700; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; height: 34px; padding: 0 8px; outline: none; cursor: pointer;">
-                <!-- 동적으로 등록된 감사 일정들이 들어옴 -->
-              </select>
+            <div class="planning-header-center">
+              <div class="planning-active-select-group-inline">
+                <span class="planning-active-select-label-inline">
+                  <i data-lucide="calendar-days" style="color: var(--brand-blue); width: 14px; height: 14px;"></i>
+                  활성 수검 일정 선택:
+                </span>
+                <select id="planning-audit-select" class="filter-select" style="min-width: 380px; font-size: 12.5px; font-weight: 700; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 6px; height: 34px; padding: 0 8px; outline: none; cursor: pointer;">
+                  <!-- 동적으로 등록된 감사 일정들이 들어옴 -->
+                </select>
+              </div>
             </div>
-            <button class="btn btn-primary" id="btn-open-audit-modal" style="display: flex; align-items: center; gap: 4px; font-weight: 700; border: none; padding: 6px 12px; border-radius: 6px; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15); transition: all 0.2s; cursor: pointer; font-size: 12.5px; height: 34px;">
-              <i data-lucide="calendar-plus" style="width: 14px; height: 14px;"></i>
-              신규 감사 일정 등록
-            </button>
+
+            <div class="planning-header-right">
+              <button class="btn btn-primary" id="btn-open-audit-modal" style="display: flex; align-items: center; gap: 4px; font-weight: 700; border: none; padding: 6px 14px; border-radius: 6px; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15); transition: all 0.2s; cursor: pointer; font-size: 12.5px; height: 34px; white-space: nowrap;">
+                <i data-lucide="calendar-plus" style="width: 14px; height: 14px;"></i>
+                신규 감사 일정 등록
+              </button>
+            </div>
           </div>
 
           <!-- ⬜ 실시간 감사 준비 현황 모니터링 계기판 (Premium Light Solid Theme) -->

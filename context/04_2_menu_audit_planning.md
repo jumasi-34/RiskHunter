@@ -52,11 +52,15 @@
     *   대기(Pending): 배경 `#f8fafc`, 테두리 `#e2e8f0`, 글자 `#475569` (회색)
     *   지연/위험(Delayed/High Risk): 글자 및 배경 테두리 `#ef4444` (적색 점멸 `blink` 효과 가미)
 
-### ② 상단 위 고정 및 프리미엄 라이트 솔리드 대시보드 규격 (Reverse-Sync - Compact Spacing)
-사용자의 스크롤 시 편의성을 극대화하기 위해 상단 필터 바, 활성 일정 선택기 및 실시간 대시보드를 통째로 위 고정(Sticky Header)으로 묶고, 불필요한 공백을 완전히 소거한 고밀도 콕핏(Cockpit) 스타일로 설계합니다.
+### ② 상단 위 고정 및 프리미엄 라이트 솔리드 대시보드 규격 (Reverse-Sync - Compact Spacing - Single Row Header)
+사용자의 스크롤 시 편의성을 극대화하고 상단 점유 공간을 대폭 소거하기 위해, 기존에 분리되어 있던 필터 바와 셀렉터 바를 통합하여 단일 행 컨트롤 바(`.planning-unified-header-bar`)로 콤팩트하게 재구성하고, 실시간 대시보드를 통째로 위 고정(Sticky Header)으로 묶어 고밀도 콕핏(Cockpit) 스타일로 설계합니다.
 *   **Sticky Wrapper (.sticky-planning-header)**:
     - position: sticky, z-index: 100을 통해 서브탭 내용 스크롤 시 상단에 밀착 고정.
     - `padding-bottom: 2px; margin-bottom: 8px;`를 적용하여 수직 여백 최소화.
+*   **단일 행 통합 컨트롤 헤더 바 (.planning-unified-header-bar)**:
+    - 완성차 고객사(OEM) 및 AUDIT TYPE 필터를 상단에서 제거하여 스크린 점유 면적을 대폭 축소.
+    - **대상 공장 (PLANT) 필터**, **활성 수검 일정 선택 셀렉터**, **신규 감사 일정 등록 버튼**을 단 1행으로 가로 배치하여 극단적인 상단 여백 세이빙 확보.
+    - 플렉스 기반 가로 정렬(`justify-content: space-between; gap: 16px;`) 및 1100px / 850px 기준 미디어 쿼리 최적화를 적용하여 화면이 찌그러지거나 잘리는 현상을 완벽히 방지함.
 *   **프리미엄 라이트 솔리드 대시보드 (.monitoring-dashboard-card)**:
     - 백그라운드 `var(--bg-card, #ffffff)` (순백색 솔리드 표면), 테두리 `var(--border-card, #e2e8f0)` (표준 연그레이 테두리), 텍스트 `var(--text-primary, #0f172a)` (WCAG 2.1 AA 충족 및 최적 가독성).
     - `padding: 16px 20px; margin-bottom: 8px; width: 100%; display: flex; flex-direction: column; gap: 16px;`를 적용하여 수직 고집적화 및 견고성 확보.
@@ -69,7 +73,6 @@
       - 오른쪽 디테일 칩 영역(`.monitoring-detail-grid`)은 노트북(1200px 이하) 환경에서 하단에 깔끔하게 가로 한 줄(`grid-template-columns: repeat(4, 1fr)`)로 정렬되며, 850px 이하에서는 `repeat(2, 1fr)` (2열 2행)로 칩들이 자연스럽게 재배치되어 텍스트 깨짐을 원천 방지함.
     - 4대 디테일 인포 블록은 가로 한 줄 분할 칩 그리드(gap 10px)로 배치되며, `background: var(--bg-app, #f8fafc)` (차분한 라이트 그레이), `border: 1px solid var(--border-card, #e2e8f0)` (가벼운 테두리), `padding: 5px 10px;` 사양 및 말줄임표(`text-overflow: ellipsis`)를 적용하여 어떤 문자열도 정합성 있게 보존.
     - 5대 KPI 가로 카드들(`.kpi-sub-card`)은 `background: var(--bg-app, #f8fafc)`, `border: 1px solid var(--border-card, #e2e8f0)` 조합에 `padding: 8px 6px !important;`, `height: 100% !important;` 및 수치 폰트를 현대적인 테크 서체 `'Outfit', sans-serif`로 지정하여 가로 100%를 웅장하고 컴팩트하게 채우도록 정렬.
-    - 상단 필터 셀렉터들의 높이를 `34px`로 통합 소형화하고 간격을 `8px`로 좁혀 전체 화면 대비 과한 면적 점유 방지.
 
 ### ③ 신규 감사 일정 등록 팝업 (White Modal) 규칙
 모달창 내부 텍스트가 묻히는 것을 방지하기 위해 **완전한 솔리드 화이트 백그라운드**와 고대비 테두리, 그리고 차콜 네이비 폰트를 강제 매핑합니다.
@@ -264,7 +267,7 @@ toggleTaskState(taskId) {
 1. **동적 드롭다운 렌더링 메커니즘**:
    - `this.state.audits` 리스트를 감사일자(`date`) 기준 오름차순(가까운 시일이 위로 가도록) 정렬한 뒤 동적 루프 처리하여, 각 감사 일정의 고유 식별자(`audit.id`)를 `value`로, 완성차 OEM/공장 주제 및 감사 시작일자를 조합한 문자열(`${audit.title} (${audit.date})`)을 `textContent`로 삼아 `<option>` 노드를 무지연 재생성 및 인서트합니다.
    - `this.state.selectedAuditId`와 정확하게 매치되는 옵션에 `selected = true` 속성을 강제 바인딩하여 새로고침 시에도 활성 컨텍스트 상태를 완벽히 유지시킵니다.
-   - **조회 필터 바인딩 일치화(Type vs TypeName)**: HTML 내 Audit Type 검색 필터(`#planning-filter-audit-type`)의 값인 `"Project"`/`"System"`과 감사 데이터의 물리적 속성 `"type"`을 100% 매칭하여 조회 시 누락되지 않도록 설계하고, 화면에는 세련되게 변형된 `"typeName"` 필드(`"VDA 6.3 Process Audit"` 또는 `"IATF 16949 Standard Audit"`)를 활용하여 고품질 한글 분류(예: `VDA 6.3 Process Audit (제조공정)`)를 출력합니다.
+   - **조회 필터 바인딩 일치화 및 예외 처리**: 사용성의 극대화를 위해 상단에서 완성차 고객사(OEM)와 AUDIT TYPE 필터 엘리먼트는 제거되었으나, 내부 Javascript 상태 매핑 엔진(`app.js`)은 유연한 정합성 보존을 위해 `?.value || 'ALL'` 기반의 옵셔널 체이닝 가드를 가집니다. 따라서 실제 엘리먼트가 존재하지 않는 상황에서도 런타임 오류가 일절 발생하지 않고 디폴트값 `'ALL'`로 정밀 바인딩되어 동작합니다. 화면에는 세련되게 변형된 `"typeName"` 필드(`"VDA 6.3 Process Audit"` 또는 `"IATF 16949 Standard Audit"`)를 활용하여 고품질 한글 분류(예: `VDA 6.3 Process Audit (제조공정)`)를 출력합니다.
 2. **리액티브 연쇄적 연동 흐름 (Chained Reaction Logic)**:
    - 사용자가 드롭다운 셀렉터를 조작하여 다른 감사 예정 일정으로 전환(onchange 이벤트 트리거)하면 다음 연쇄 프로세스가 비동기·실시간 실행됩니다:
      - **영속 캐시 즉각 보존**: 선택한 새로운 감사 ID를 `this.state.selectedAuditId` 상태에 매핑하고 로컬 캐시인 `riskhunter_selected_audit_id`에 즉시 쓰기 처리합니다.
@@ -277,7 +280,7 @@ toggleTaskState(taskId) {
 
 본 명세에 따라 신규 시스템을 빌드했을 때, 기능의 작동 무결성을 기하학적으로 완벽히 검증하기 위한 자가 체크리스트입니다:
 
-1. **[ ] 4-Way 드롭다운 필터 점검**: `Audit type` 변경 시 "Project" 및 "System" 두 종류만 제공되는지 확인하고, 공장/고객사/타입을 변경하는 즉시 하단 테이블 데이터 분류 목록이 기획된 맵핑 키워드에 따라 실시간으로 필터링되어 노출되는가?
+1. **[ ] 1행 통합 컨트롤 필터 점검**: 완성차 고객사(OEM) 및 AUDIT TYPE 필터가 상단에서 말끔히 보이지 않으며, 대상 공장 필터를 변경하는 즉시 하단 일정이 실시간으로 필터링되어 '활성 수검 일정 선택' 드롭다운에 완벽하게 갱신 노출되는가?
 2. **[ ] 팝업 테두리 및 명도 확인**: "신규 감사 일정 등록" 모달창 기동 시, 기존의 뿌연 반투명 다크 글래스 뒤에 텍스트가 묻히지 않고 불투명 솔리드 화이트 카드로 또렷하게 렌더링되며 인풋 보더선이 명확한가?
 3. **[ ] 캘린더 진척률 배너 실시간 연동 확인**:
     *   **Timeline** 탭에서 임의의 태스크를 "완료"로 저장 처리한다.
