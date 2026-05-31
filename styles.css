@@ -5044,7 +5044,203 @@ body {
   background-color: currentColor;
 }
 
+/* ==========================================================================
+   📋 고성능 데이터 테이블 스타일 (Standard Data Table)
+   ========================================================================== */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+  background-color: var(--bg-card);
+}
 
+.data-table th {
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted-light);
+  border-bottom: 1px solid var(--border-card);
+  background-color: rgba(15, 23, 42, 0.02);
+  white-space: nowrap;
+}
 
+.data-table td {
+  padding: 11px 14px;
+  font-size: 12.5px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-card);
+  vertical-align: middle;
+  line-height: 1.5;
+}
 
+.data-table tbody tr:hover {
+  background-color: rgba(37, 99, 235, 0.015);
+}
 
+.data-table tbody tr.row-completed {
+  background-color: rgba(16, 185, 129, 0.01);
+}
+
+.data-table tbody tr.row-in-progress {
+  background-color: rgba(59, 130, 246, 0.01);
+}
+
+/* ==========================================================================
+   💻 노트북 및 표준 디스플레이 최적화 (Notebook & Desktop Screen Optimization)
+   ========================================================================== */
+@media (min-width: 769px) and (max-width: 1536px) {
+  :root {
+    --radius-panel: 12px;
+    --radius-card: 10px;
+  }
+
+  .app-layout {
+    grid-template-columns: 230px 1fr; /* 사이드바 가로폭 축소 */
+  }
+
+  .sidebar {
+    padding: 16px 12px;
+  }
+
+  .sidebar-logo {
+    font-size: 18px;
+  }
+
+  .logo-sub {
+    font-size: 10px;
+  }
+
+  .sidebar-nav {
+    gap: 4px;
+  }
+
+  .sidebar-nav-item {
+    padding: 8px 12px;
+    font-size: 12.5px;
+  }
+
+  .main-content {
+    padding: 16px 20px; /* 여백 32px -> 16px/20px 축소 */
+    gap: 14px;          /* 간격 24px -> 14px 축소 */
+  }
+
+  .page-header {
+    padding-bottom: 12px;
+    margin-bottom: 4px;
+  }
+
+  .header-title {
+    font-size: 21px; /* 제목 28px -> 21px 축소 */
+  }
+
+  .header-subtitle {
+    font-size: 11.5px; /* 부제목 14px -> 11.5px 축소 */
+  }
+
+  /* 카드 및 섹션 구조 압축 */
+  .card-solid {
+    padding: 16px 18px; /* 카드 여백 축소 */
+  }
+
+  .premium-section-card {
+    padding: 16px 18px;
+    gap: 14px;
+  }
+
+  .premium-section-card-header {
+    padding-bottom: 10px;
+    margin-bottom: 2px;
+  }
+
+  .premium-card-title {
+    font-size: 14px;
+  }
+
+  .premium-card-subtitle {
+    font-size: 11px;
+  }
+
+  /* 테이블 및 데이터 압축 */
+  .data-table th {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .data-table td {
+    padding: 8px 10px;
+    font-size: 11.5px;
+  }
+
+  /* 📅예정 감사 및 공장별 리스크 CRI 카드 축소 */
+  .premium-cri-card {
+    height: 132px; /* 카드 세로높이 압축 */
+    padding: 12px 14px;
+    gap: 8px;
+  }
+
+  .premium-upcoming-card {
+    padding: 14px 16px;
+    gap: 10px;
+  }
+
+  .premium-upcoming-card h4 {
+    font-size: 13px !important;
+  }
+
+  .premium-upcoming-card p {
+    font-size: 11.5px !important;
+  }
+
+  /* 📊 대시보드 차트 영역 및 그리드 간격 축소 */
+  #dashboard-cri-two-columns {
+    gap: 14px;
+  }
+
+  .planning-timeline-grid {
+    gap: 14px;
+  }
+
+  .planning-timeline-track-card {
+    min-height: 420px; /* 원래 480px에서 세로높이 압축 */
+  }
+
+  .milestone-timeline-container {
+    gap: 16px;
+    padding-left: 24px;
+  }
+
+  .milestone-timeline-node {
+    left: -24px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .milestone-timeline-node i, .milestone-timeline-node svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .milestone-timeline-item h4 {
+    font-size: 12.5px !important;
+  }
+
+  .milestone-timeline-item p {
+    font-size: 11px !important;
+  }
+
+  /* 공장별 이력 / 현황 리스크 화면 압축 */
+  #tab-plant-risk-action .premium-section-card {
+    gap: 12px;
+  }
+
+  /* AI Action Advisor 레이아웃 */
+  .ai-editor-card {
+    padding: 16px 18px !important;
+  }
+
+  /* 라이브러리 및 공통 체크리스트 컨테이너 높이 */
+  .checklist-container {
+    height: calc(100vh - 380px) !important; /* 수직 스크롤 오버플로우 방지 */
+  }
+}
