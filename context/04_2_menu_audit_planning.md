@@ -38,10 +38,13 @@
     - `padding-bottom: 2px; margin-bottom: 8px;`를 적용하여 수직 여백 최소화.
 *   **프리미엄 라이트 솔리드 대시보드 (.monitoring-dashboard-card)**:
     - 백그라운드 `var(--bg-card, #ffffff)` (순백색 솔리드 표면), 테두리 `var(--border-card, #e2e8f0)` (표준 연그레이 테두리), 텍스트 `var(--text-primary, #0f172a)` (WCAG 2.1 AA 충족 및 최적 가독성).
-    - `padding: 12px 18px; margin-bottom: 8px;` 및 `min-height: 130px;`로 카드 자체의 불필요한 빈 여백을 정밀 차단.
-    - 가로 100%를 꽉 채우고(width: 100%), 내부 그리드 비율을 `1.2fr 1.8fr`로 세련되게 양분하고, gap을 `20px`로 확대하여 전체 카드가 화면 너비에 걸쳐 우아하고 균등하게 분포하도록 최적 정렬.
-    - 2x2 디테일 정보 블록은 `background: var(--bg-app, #f8fafc)` (차분한 라이트 그레이), `border: 1px solid var(--border-card, #e2e8f0)` (가벼운 테두리), `padding: 4px 8px;` 및 gap 6px의 고농축 그리드 뷰 구현.
-    - 5대 가로 KPI 카드들(.kpi-sub-card)은 `background: var(--bg-app, #f8fafc)`, `border: 1px solid var(--border-card, #e2e8f0)` 조합에 `padding: 6px 4px !important;`, `height: 100% !important` 지정을 통해 그리드 수직 변화에 맞추어 빈틈없이 꽉 찬 구조를 가지며, 수치 폰트를 현대적인 테크 서체 `'Outfit', sans-serif`로 지정하여 세련되고 균등하게 분할된 B2B 가로 계기판 컴팩트 마감.
+    - `padding: 16px 20px; margin-bottom: 8px; width: 100%; display: flex; flex-direction: column; gap: 16px;`를 적용하여 수직 고집적화 및 견고성 확보.
+    - **[상단-중단-하단 3단 복합 레이아웃]**:
+      1. **상단**: 계기판 제목 및 모니터링 상태 배지가 가로 100% 한 줄 배치.
+      2. **중단**: 5대 KPI 카드들(`.kpi-sub-card`)이 `repeat(5, 1fr)`로 계기판 가로 폭 100% 전체를 완전히 가득 채우며 완벽하게 균등 5분할 분포(D-DAY, 전체 항목 수, 완료, 진행중/대기, 지연).
+      3. **하단**: 실시간 준비율 원형 게이지(반지름 26px 둘레 163.36px 규격 정밀 유지)와 4대 디테일 인포 블록(완성차 OEM, 대상 공장, 감사 일정, Audit 감사 종류)이 가로 한 줄로 자연스럽게 정렬되며 가로를 가득 채움.
+    - 4대 디테일 인포 블록은 가로 한 줄 분할 칩 그리드(`repeat(4, 1fr)`, gap 10px)로 배치되며, `background: var(--bg-app, #f8fafc)` (차분한 라이트 그레이), `border: 1px solid var(--border-card, #e2e8f0)` (가벼운 테두리), `padding: 4px 10px;` 사양 적용.
+    - 5대 KPI 가로 카드들(`.kpi-sub-card`)은 `background: var(--bg-app, #f8fafc)`, `border: 1px solid var(--border-card, #e2e8f0)` 조합에 `padding: 10px 8px !important;`, `height: 100% !important;` 및 수치 폰트를 현대적인 테크 서체 `'Outfit', sans-serif`로 지정하여 가로 100%를 웅장하고 컴팩트하게 채우도록 정렬.
     - 상단 필터 셀렉터들의 높이를 `34px`로 통합 소형화하고 간격을 `8px`로 좁혀 전체 화면 대비 과한 면적 점유 방지.
 
 ### ③ 신규 감사 일정 등록 팝업 (White Modal) 규칙
