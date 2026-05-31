@@ -7069,9 +7069,9 @@ const app = {
         tr.innerHTML = `
           <td style="padding: 10px 14px; font-weight: 600; color: ${isSelected ? 'var(--brand-blue)' : 'var(--text-secondary)'};">${doc.id}</td>
           <td style="padding: 10px 14px; font-weight: 700; color: var(--text-primary);">${doc.customer}</td>
-          <td style="padding: 10px 14px; font-family: monospace; color: #22d3ee; font-weight: 700;">${doc.doc_code}</td>
+          <td style="padding: 10px 14px; font-family: monospace; color: var(--brand-blue); font-weight: 700;">${doc.doc_code}</td>
           <td style="padding: 10px 14px; color: var(--text-primary); font-weight: 600;">${doc.doc_name}</td>
-          <td style="padding: 10px 14px;"><span class="badge" style="background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.2); color: #c084fc; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px;">${doc.doc_type || 'N/A'}</span></td>
+          <td style="padding: 10px 14px;"><span class="badge" style="background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.2); color: #7c3aed; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px;">${doc.doc_type || 'N/A'}</span></td>
         `;
         
         tr.addEventListener('click', () => {
@@ -7132,7 +7132,7 @@ const app = {
         itemDiv.style.gap = '6px';
         itemDiv.innerHTML = `
           <span style="width: 50px; font-family: monospace; font-weight: 700; color: var(--text-primary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${oem}</span>
-          <div style="flex: 1; height: 5px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+          <div style="flex: 1; height: 5px; background: var(--border-card); border-radius: 10px; overflow: hidden;">
             <div style="width: ${pct}%; height: 100%; background: #3b82f6; border-radius: 10px;"></div>
           </div>
           <span style="width: 15px; text-align: right; color: var(--text-secondary);">${count}</span>
@@ -7178,7 +7178,7 @@ const app = {
 
     // 적용 공정 배지 칩스 구성
     const processes = sum.applicable_processes || [];
-    const procChips = processes.map(p => `<span class="badge" style="background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); font-size: 10px; font-weight: 600; padding: 2px 6px; color: #60a5fa;">${p}</span>`).join(' ');
+    const procChips = processes.map(p => `<span class="badge" style="background: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.2); font-size: 10px; font-weight: 600; padding: 2px 6px; color: var(--brand-blue);">${p}</span>`).join(' ');
 
     // 중요 조항 목록 카드 구성
     const clauses = sum.key_clauses || [];
@@ -7186,7 +7186,7 @@ const app = {
     if (clauses.length > 0) {
       clauses.forEach(c => {
         clausesHTML += `
-          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-card); border-radius: 6px; padding: 10px 12px;">
+          <div style="background: var(--bg-app); border: 1px solid var(--border-card); border-radius: 6px; padding: 10px 12px;">
             <div style="font-size: 11px; font-family: monospace; font-weight: 700; color: var(--brand-blue);">${c.clause}</div>
             <div style="font-weight: 700; font-size: 12px; color: var(--text-primary); margin: 3px 0 2px;">${c.title}</div>
             <div style="font-size: 11px; line-height: 1.5; color: var(--text-secondary);">${c.summary}</div>
@@ -7208,11 +7208,11 @@ const app = {
           <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 4px;">규격 문서 원 메타데이터</div>
           <h3 style="font-size: 16px; font-weight: 800; color: var(--text-primary); margin-bottom: 8px;">${doc.doc_name}</h3>
           <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 11px; color: var(--text-secondary);">
-            <span>고객사: <strong style="color: var(--text-light);">${doc.customer}</strong></span>
+            <span>고객사: <strong style="color: var(--text-primary);">${doc.customer}</strong></span>
             <span>|</span>
-            <span>코드: <strong style="color: var(--text-light);">${doc.doc_code}</strong></span>
+            <span>코드: <strong style="color: var(--text-primary);">${doc.doc_code}</strong></span>
             <span>|</span>
-            <span>최종 개정일: <strong style="color: var(--text-light);">${doc.revision_date}</strong></span>
+            <span>최종 개정일: <strong style="color: var(--text-primary);">${doc.revision_date}</strong></span>
           </div>
         </div>
 
@@ -7227,7 +7227,7 @@ const app = {
         <!-- 2분할 윈도우 (조항 및 타이어 공정 해석) -->
         <div style="display: grid; grid-template-columns: 1fr; gap: 16px;">
           <!-- 적용 공정 및 필수 실물 증적 -->
-          <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-card); border-radius: 8px; padding: 14px;">
+          <div style="background: var(--bg-app); border: 1px solid var(--border-card); border-radius: 8px; padding: 14px;">
             <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">규격 적용 생산공정 및 실증가이드</div>
             <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px;">${procChips}</div>
             
@@ -7258,11 +7258,11 @@ const app = {
               </div>
               <div style="border-top: 1px dashed var(--border-card); padding-top: 8px;">
                 <strong style="color: var(--text-primary); display: block; margin-bottom: 3px;">미준수 시 품질 위협 시나리오 (Quality Defect Risk):</strong>
-                <p style="margin: 0; line-height: 1.5; color: #ef4444; font-weight: 500;">${trans.quality_defect_risk || '원재료 가황 미달 시 타이어 기포 및 고속 주행 시 외관 버스트(Burst) 유발 위험성 급증.'}</p>
+                <p style="margin: 0; line-height: 1.5; color: var(--text-status-high); font-weight: 500;">${trans.quality_defect_risk || '원재료 가황 미달 시 타이어 기포 및 고속 주행 시 외관 버스트(Burst) 유발 위험성 급증.'}</p>
               </div>
               <div style="border-top: 1px dashed var(--border-card); padding-top: 8px;">
                 <strong style="color: var(--text-primary); display: block; margin-bottom: 3px;">작업표준 개정 가이드라인 (SOP Action Guide):</strong>
-                <p style="margin: 0; line-height: 1.5; color: var(--text-light);">${trans.action_sop_guide || '공장 가황 공정 표준서(SOP-CUR-04) 상의 가열 압력 한계 조건 범위 개정 반영.'}</p>
+                <p style="margin: 0; line-height: 1.5; color: var(--text-secondary);">${trans.action_sop_guide || '공장 가황 공정 표준서(SOP-CUR-04) 상의 가열 압력 한계 조건 범위 개정 반영.'}</p>
               </div>
             </div>
           </div>
