@@ -248,7 +248,7 @@ $$\text{CRI} = 0.4 \times (100 - \text{System Level}) + 0.3 \times (100 - \text{
 대형 데이터베이스 연동과 대용량 데이터 전송에 의한 네트워크 지연 요인을 제거하고 모바일 태블릿, 폐쇄망 공장 PC 등 어떠한 특수 보안 환경에서도 0.1초 이내에 로딩 및 즉각 연산이 보장되도록 오프라인 단일 파일 아키텍처(Standalone Local Embedded Architecture)를 취합니다.
 
 ### ① 고성능 임베디드 데이터 구조
-`oe_system_map`의 260개 마스터 기준, `oe_quality_assessment_details`의 1,512개 전수 점수 정보, `customer_audits`의 완성차 지적 내역, 그리고 `documents` 표준 매뉴얼 등 수천 행의 엔터프라이즈급 원본 레코드 테이블들을 브라우저 가동 시 비동기 fetch API 엔진을 통해 로딩 및 파싱하여 클라이언트 인메모리에 상주시키는 방식을 취합니다.
+`oe_system_map`의 260개 마스터 기준, `internal_assessment_result`의 1,512개 전수 점수 정보, `customer_audits`의 완성차 지적 내역, 그리고 `documents` 표준 매뉴얼 등 수천 행의 엔터프라이즈급 원본 레코드 테이블들을 브라우저 가동 시 비동기 fetch API 엔진을 통해 로딩 및 파싱하여 클라이언트 인메모리에 상주시키는 방식을 취합니다.
 
 ### ② 브라우저 기반 가상 데이터 엔진 (Virtual Client-Side Database Spec)
 로컬 파일 샌드박스 보안 규격에 부합하도록 물리 데이터베이스 라이브러리 및 PowerShell 컴파일러 의존성을 완전히 배제하고, 순수 바닐라 자바스크립트 내장 배열 제어와 비동기 Fetch 파이프라인으로 구성된 가상 클라이언트 데이터 엔진을 채택합니다.
@@ -261,7 +261,7 @@ $$\text{CRI} = 0.4 \times (100 - \text{System Level}) + 0.3 \times (100 - \text{
     *   `quality_issue` (품질 불만 및 클레임 위기 원천)
     *   `oe_system_map` (인프라 구축도 원천 데이터)
     *   `oe_quality_assessment_summary` (실사 결과 오행 평가 요약 데이터)
-    *   `oe_quality_assessment_details` (실사 상세 득점 및 지적 사항 데이터)
+    *   `internal_assessment_result` (실사 상세 득점 및 지적 사항 데이터)
 3.  **데이터 영속성 및 동적 업데이트**: 브라우저 로컬 저장소(`localStorage`)를 가상 트랜잭션 레이어로 활용하여, 사용자가 화면상에서 지적사항을 등록하거나 조치 여부를 토글할 때 원본 데이터를 보호하면서 오프라인 영속성을 증명합니다.
 
 ---
@@ -273,7 +273,7 @@ $$\text{CRI} = 0.4 \times (100 - \text{System Level}) + 0.3 \times (100 - \text{
 ### ① 데이터베이스 구조 가이드 (Database Schema Map)
 업데이트 시 참고해야 하는 정적 JSON 리소스 내 핵심 3대 데이터셋 구조는 다음과 같습니다:
 1.  **`oe_system_map`**: 공장별 10대 공정의 260개 인프라 구축 점수 (0~3점 및 N/A)를 기입합니다.
-2.  **`oe_quality_assessment_details`**: 사내 현장 실사 진단의 상세 지적 문항, 득점(0~10점), 권고 가이드 등을 저장합니다.
+2.  **`internal_assessment_result`**: 사내 현장 실사 진단의 상세 지적 문항, 득점(0~10점), 권고 가이드 등을 저장합니다.
 3.  **`customer_audit`**: 실제 완성차 OEM 오딧의 지적 내용(`point_out`), 분석 원인(`root_cause_analysis`), 조치 대책(`counter_measure`), 진행 상태(`status`)를 기록합니다.
 
 ### ② 무설정 구동 가이드 (Zero-Configuration Guide)

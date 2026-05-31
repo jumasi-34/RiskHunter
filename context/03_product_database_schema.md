@@ -18,7 +18,7 @@
 | **④** | `quality_issues_qi.json` | `quality_issues_qi` | 공장별 과거 발생 품질 실패(QI), 현상(D2), 원인(D4) 및 8D 영구조치 대책(D5) |
 | **⑤** | `cqms_4m_db.json` | `cqms_4m_db` | 생산 현장의 설비, 공정, 재료, 작업 표준(4M) 변경 이력 신청/승인 건 |
 | **⑥** | `cqms_customer_audit_db.json` | `audit_findings` | 과거 외부 완성차 고객사 및 제3자 Audit 지적사항(Point out) 및 시정 계획 |
-| **⑦** | `oe_quality_assessment_details.json` | `internal_audit_sheets` | **[내부 Audit 시트]** 공장 자체 진단 점검 항목, 부적합 세부 결과 및 예방조치안 |
+| **⑦** | `internal_assessment_result.json` | `internal_audit_sheets` | **[내부 Audit 시트]** 공장 자체 진단 점검 항목, 부적합 세부 결과 및 예방조치안 |
 | **⑧** | `oe_req_to_audit_checklist.json` | `unified_audit_checklists` | **[통합 Checklist]** 규격서(DOCUMENT) 및 현장 이력(DATABASE) 기반 AI 추출 질문 통합 저장소 |
 
 ---
@@ -35,7 +35,7 @@ flowchart TD
         SRC_QI["🚨 quality_issues_qi.json<br>(품질실패 이력)"]
         SRC_4M["⚙️ cqms_4m_db.json<br>(4M 변경이력)"]
         SRC_AUD["🕵️ cqms_customer_audit_db.json<br>(과거 지적사항)"]
-        SRC_INT["📋 oe_quality_assessment_details.json<br>(내부 Audit 시트)"]
+        SRC_INT["📋 internal_assessment_result.json<br>(내부 Audit 시트)"]
     end
 
     subgraph AI_Parser_Engine ["2단계: AI 변환 및 도메인 번역기"]
@@ -209,7 +209,7 @@ flowchart TD
 
 ---
 
-### ⑦ `internal_audit_sheets` (`data/oe_quality_assessment_details.json`)
+### ⑦ `internal_audit_sheets` (`data/internal_assessment_result.json`)
 *   **설명**: **[★사용자 핵심 추가 데이터]** 공장별 자체 공정 감사(Self-Audit) 및 주기적인 내부 상시 진단을 통해 식별된 점검 상세 리스트 및 현장 개선 조치 기록입니다.
 *   **스키마 구성**:
 

@@ -229,8 +229,8 @@ const app = {
           if (!r.ok) throw new Error("Users file (users.json) not found");
           return r.json();
         }),
-        fetch('data/oe_quality_assessment_details.json').then(r => {
-          if (!r.ok) throw new Error("OE Quality assessment file (oe_quality_assessment_details.json) not found");
+        fetch('data/internal_assessment_result.json').then(r => {
+          if (!r.ok) throw new Error("Internal assessment result file (internal_assessment_result.json) not found");
           return r.json();
         })
       ]);
