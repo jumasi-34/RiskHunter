@@ -432,6 +432,92 @@ body {
   border-color: var(--text-status-high) !important;
 }
 
+/* Premium themed button classes */
+.btn-brand {
+  background: linear-gradient(135deg, var(--brand-blue), #1d4ed8);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  color: var(--text-light);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
+}
+
+.btn-brand:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  border-color: rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-brand:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
+}
+
+.btn-outline-brand {
+  background-color: transparent;
+  border: 1px solid rgba(37, 99, 235, 0.4);
+  color: var(--brand-blue);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-outline-brand:hover {
+  background-color: rgba(37, 99, 235, 0.04);
+  border-color: var(--brand-blue);
+  color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1);
+}
+
+.btn-outline-brand:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--color-status-low), #059669);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: var(--text-light);
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15);
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-success:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.15);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, var(--color-status-high), #dc2626);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--text-light);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  border-color: rgba(239, 68, 68, 0.3);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-danger:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.15);
+}
+
+.btn-filter-reset {
+  align-self: flex-end;
+  height: 34px !important;
+  padding: 0 16px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+
 /* 파스텔톤 플랫 상태 배지 (Semantic Flat Badges) */
 .badge {
   display: inline-flex;
@@ -2812,6 +2898,7 @@ body {
   overflow-y: auto;
   border-radius: 8px;
   border: 1px solid rgba(15, 23, 42, 0.06);
+  position: relative; /* Supports sticky table headers */
 }
 
 .premium-matrix-table {
@@ -2822,6 +2909,9 @@ body {
 }
 
 .premium-matrix-table th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   background-color: #f8fafc;
   color: var(--text-secondary);
   font-size: 11.5px;
@@ -2829,6 +2919,7 @@ body {
   padding: 12px 14px;
   border-bottom: 1px solid var(--border-card);
   white-space: nowrap;
+  box-shadow: inset 0 -1px 0 var(--border-card); /* Compensate border spacing under sticky header */
 }
 
 .premium-matrix-table td {
@@ -3253,7 +3344,7 @@ body {
 .premium-system-category-filter {
   display: inline-flex;
   gap: 4px;
-  background: #f8fafc;
+  background: #f1f5f9;
   padding: 3px;
   border-radius: 6px;
   border: 1px solid var(--border-card);
@@ -3262,7 +3353,7 @@ body {
   box-sizing: border-box;
 }
 
-.premium-system-category-btn {
+.system-cat-btn {
   padding: 4px 14px;
   font-size: 11.5px;
   font-weight: 700;
@@ -3271,13 +3362,19 @@ body {
   cursor: pointer;
   background: transparent;
   color: var(--text-secondary);
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   height: 26px;
 }
 
-.premium-system-category-btn.active {
-  background: var(--brand-blue);
+.system-cat-btn:hover:not(.active) {
+  background: rgba(37, 99, 235, 0.06);
+  color: var(--brand-blue);
+}
+
+.system-cat-btn.active {
+  background: linear-gradient(135deg, var(--brand-blue), #1d4ed8);
   color: #ffffff;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
 }
 
 /* 260-item 원형 점수 배지 */
@@ -3870,6 +3967,10 @@ body {
 
 .premium-table-box-max-height-300 {
   max-height: 300px;
+}
+
+.premium-table-box-max-height-550 {
+  max-height: 550px;
 }
 
 .premium-insight-widget-card {

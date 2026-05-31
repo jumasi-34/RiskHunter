@@ -498,4 +498,19 @@ graph TD
 *   **디자인 계약**:
     *   **메인 캔버스**: 전체 콘텐츠 영역(`.main-content`)과 활성화된 탭 패널(`.tab-pane.active`)에 반드시 `min-width: 0; width: 100%; overflow-x: hidden;` 사양을 부과하여, 내부 가로 팽창으로 인한 브라우저 전역 가로스크롤 생성을 원천 방어합니다.
     *   **공정 요약 및 필터 카드**: 동적으로 수많은 공정이 가로로 나열되는 요약 카드 컨테이너(예: `#checklist-process-summary-container`)는 반드시 `min-width: 0; overflow: hidden;`을 보장하고, 실제 스크롤 트랙(`#checklist-horizontal-scroll-board`)에만 `overflow-x: auto; flex-shrink: 0;`를 적용해 우아한 컴포넌트 내부 수평 스크롤바가 작동하도록 가둡니다.
-    *   **테이블 반응형 샌드박스**: 모든 대형 그리드 및 데이터 테이블은 반드시 `class="table-responsive"` 래퍼 안에 감싸고, 해당 래퍼에 `overflow-x: auto; overflow-y: auto; min-width: 0; width: 100%;` 규칙을 기입해 카드를 뚫고 나가지 않고 내부 스크롤로 매끄럽게 흡수되게 완결합니다. 또한, Library 메뉴의 Checklist와 같이 상단 요약 배너 및 필터 바가 공존하여 하단부가 생략될 위험이 있는 체크리스트 컨테이너(`.checklist-container`)의 경우, 높이 계산을 `height: calc(100vh - 460px); min-height: 350px;`로 고도화하고 `overflow-y: auto; overflow-x: hidden;`을 보장하여 브라우저 가상 뷰포트 압축 환경에서도 하단부 페이지네이션 및 풋터 조작 영역이 절대 은폐되지 않고 내부 수직 스크롤을 통해 완벽히 노출되도록 제어해야 합니다.
+    *   **테이블 반응형 샌드박스**: 모든 대형 그리드 및 데이터 테이블은 반드시 `class="table-responsive"` 래퍼 안에 감싸고, 해당 래퍼에 `overflow-x: auto; overflow-y: auto; min-width: 0; width: 100%;` 규칙을 기입해 카드를 뚫고 나가지 않고 내부 스크롤로 매끄럽게 흡수되게 완결합니다. 또한, Library 메뉴 of Checklist와 같이 상단 요약 배너 및 필터 바가 공존하여 하단부가 생략될 위험이 있는 체크리스트 컨테이너(`.checklist-container`)의 경우, 높이 계산을 `height: calc(100vh - 460px); min-height: 350px;`로 고도화하고 `overflow-y: auto; overflow-x: hidden;`을 보장하여 브라우저 가상 뷰포트 압축 환경에서도 하단부 페이지네이션 및 풋터 조작 영역이 절대 은폐되지 않고 내부 수직 스크롤을 통해 완벽히 노출되도록 제어해야 합니다.
+
+### ③ 프리미엄 컴포넌트 세부 디자인 가이드라인 (버튼, 구분 필터, 테이블 전용 스크롤)
+*   **프리미엄 컬러 버튼 클래스 정의**:
+    *   **`.btn-brand`**: 브랜드 로열 블루 그라디언트 배경(`linear-gradient(135deg, var(--brand-blue), #1d4ed8)`)과 미세한 그림자 효과를 부여하여 클릭 충동을 높이고, 마우스 오버 시 한 단계 어두운 블루 톤으로 부드럽게 트랜지션되며 아주 약간 떠오르는(`translateY(-1px)`) 입체감을 제공합니다.
+    *   **`.btn-outline-brand`**: 배경이 투명하며 은은한 블루 테두리(`border: 1px solid rgba(37, 99, 235, 0.4)`)를 적용하고, 호버 시 옅은 블루 배경(`rgba(37, 99, 235, 0.04)`)과 선명한 블루 텍스트로 보정되어 깔끔한 외관을 유지합니다.
+    *   **`.btn-success`**: 안전 상태를 나타내는 그린 그라디언트 배경(`linear-gradient(135deg, var(--color-status-low), #059669)`)과 그림자를 부여하고, 호버 시 어두운 그린 계열로 변경 및 부유 인터랙션을 지닙니다.
+    *   **`.btn-danger`**: 취약 상태를 타겟하는 레드 그라디언트 배경(`linear-gradient(135deg, var(--color-status-high), #dc2626)`)과 섀도우를 설정하고, 호버 시 짙은 레드 계열로 변경되어 시각적 경각심을 고취합니다.
+    *   **`.btn-filter-reset`**: 다른 검색 필터 요소들(Select 높이 34px)과의 상하 가로세로 정합성을 맞추기 위해 정밀하게 `height: 34px !important` 높이 보정 가이드라인을 부여하고 우측 하단에 정갈하게 정렬합니다.
+*   **구분 (Infra / Process) 필터 버튼 디자인**:
+    *   **`.premium-system-category-filter`**: 부모 컨테이너는 연한 회색(`#f1f5f9`) 배경으로 둘러싸여 버튼의 음양각 대비를 강조합니다.
+    *   **`.system-cat-btn`**: 마우스 오버 시 비활성 버튼 영역에 미세한 블루 레이어(`rgba(37, 99, 235, 0.06)`)를 점등시켜 반응성을 극대화합니다.
+    *   **`.system-cat-btn.active`**: 활성화 시 단순 단색 배경이 아닌, 프리미엄 블루 그라디언트와 미세 그림자(`box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2)`)를 적용하여 깊이 있고 하이엔드 테크적인 계기판의 질감을 완성합니다.
+*   **데이터 테이블 스티키 헤더 고정 (Sticky Table Header)**:
+    *   **테이블 내부 스크롤 보호**: 260개 이상의 대용량 품질 매트릭스 목록(Tab 2) 탐색 시, 테이블 카드의 외곽 래퍼(`.premium-table-box-max-height-550`)에 `max-height: 550px` 고정 제약 폭과 내부 전용 스크롤(`overflow-y: auto`)을 탑재합니다.
+    *   **`.premium-matrix-table th`**: 스크롤 시 테이블의 헤더가 상단에 유려하게 점착되도록 `position: sticky; top: 0; z-index: 10;`을 선언하고, 브라우저가 보더 붕괴 현상을 일으켜 그리드가 깨지는 것을 보완하기 위해 안쪽 인셋 섀도우 보더(`box-shadow: inset 0 -1px 0 var(--border-card)`)를 보충하여 명료한 구획선 가독성을 100% 영구 보장합니다.

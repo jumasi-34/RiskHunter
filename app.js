@@ -3964,12 +3964,8 @@ const app = {
       // 현재 상태에 맞게 active 클래스 동기화
       if (cat === this.state.systemFilters.category) {
         btn.classList.add('active');
-        btn.style.background = 'var(--brand-blue)';
-        btn.style.color = '#ffffff';
       } else {
         btn.classList.remove('active');
-        btn.style.background = 'transparent';
-        btn.style.color = 'var(--text-secondary)';
       }
 
       if (!btn.dataset.listenerBound) {
@@ -3979,12 +3975,8 @@ const app = {
           catButtons.forEach(b => {
             if (b === btn) {
               b.classList.add('active');
-              b.style.background = 'var(--brand-blue)';
-              b.style.color = '#ffffff';
             } else {
               b.classList.remove('active');
-              b.style.background = 'transparent';
-              b.style.color = 'var(--text-secondary)';
             }
           });
 
