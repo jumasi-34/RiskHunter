@@ -2896,7 +2896,7 @@ const app = {
     }
 
     const allDetails = this.state.oeQualityAssessmentDetails || [];
-    const allIssues = this.state.qualityIssues || [];
+    const allIssues = (this.state.qualityIssues || []).filter(item => item.REG_DATE && item.REG_DATE.startsWith('2026') && item.HK_FAULT_YN === 'Y');
 
     let criticalCount = 0;
     let moderateCount = 0;
@@ -2990,7 +2990,7 @@ const app = {
     }
 
     // ③ 품질 불만 이슈 패널티 (Issues Penalty Score) 계산
-    const plantIssuesCount = (this.state.qualityIssues || []).filter(item => item.PLANT === activePlantCode).length;
+    const plantIssuesCount = (this.state.qualityIssues || []).filter(item => item.PLANT === activePlantCode && item.REG_DATE && item.REG_DATE.startsWith('2026') && item.HK_FAULT_YN === 'Y').length;
     const issuesPenalty = Math.min(100, plantIssuesCount * 10);
 
     // ④ 종합 품질 리스크 지수 (CRI) 계산
@@ -3283,7 +3283,7 @@ const app = {
       }
 
       const allDetails = this.state.oeQualityAssessmentDetails || [];
-      const allIssues = this.state.qualityIssues || [];
+      const allIssues = (this.state.qualityIssues || []).filter(item => item.REG_DATE && item.REG_DATE.startsWith('2026') && item.HK_FAULT_YN === 'Y');
 
       const rankings = plants.map(plant => {
         const plantItems = allDetails.filter(item => item.plant === plant.code);
