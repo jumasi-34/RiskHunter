@@ -3384,16 +3384,17 @@ const app = {
     const heatmapBox = document.getElementById('heatmap-matrix-box');
     if (heatmapBox) {
       let html = `
-        <table class="data-table" style="width: 100%; border-collapse: separate; border-spacing: 4px; font-size: 11.5px; text-align: center;">
-          <thead>
-            <tr>
-              <th style="padding: 8px; text-align: left; color: var(--text-secondary); background: #f8fafc; border-radius: 4px; border: 1px solid var(--border-card);">제조 공정</th>
+        <div class="premium-matrix-table-container">
+          <table class="premium-matrix-table" style="border-spacing: 4px; border-collapse: separate;">
+            <thead>
+              <tr>
+                <th class="premium-matrix-th-normal" style="text-align: left;">제조 공정</th>
       `;
       
       plantCodes.forEach(plt => {
         const isSelected = plt === activePlantCode;
-        const highlightStyle = isSelected ? 'border: 1px solid var(--brand-blue); color: var(--brand-blue); background: var(--bg-status-info); font-weight: 800;' : 'color: var(--text-secondary); border: 1px solid var(--border-card);';
-        html += `<th style="padding: 8px; ${highlightStyle} border-radius: 4px;">${plt}</th>`;
+        const thClass = isSelected ? 'premium-matrix-th-highlight' : 'premium-matrix-th-normal';
+        html += `<th class="${thClass}" style="text-align: center;">${plt}</th>`;
       });
       html += `</tr></thead><tbody>`;
       
@@ -3413,8 +3414,8 @@ const app = {
         
         html += `
           <tr>
-            <td style="padding: 8px; text-align: left; font-weight: 700; color: var(--text-primary); background: #f8fafc; border: 1px solid var(--border-card); border-radius: 4px; width: 120px;">
-              ${koName} <span style="font-size: 9px; color: var(--text-muted-light); font-weight: 400; display: block;">${proc}</span>
+            <td class="premium-matrix-td-label">
+              ${koName} <span>${proc}</span>
             </td>
         `;
         
@@ -3422,35 +3423,35 @@ const app = {
           const isSelected = plt === activePlantCode;
           const val = matrix[proc][plt];
           
-          let cellStyle = '';
+          let cellClass = 'premium-matrix-cell';
           let cellText = '';
           
           if (val === 'N/A') {
-            cellStyle = 'background: #f1f5f9; color: var(--text-muted); border: 1px solid var(--border-card);';
+            cellClass += ' na';
             cellText = 'N/A';
           } else {
             cellText = val.toFixed(0) + '%';
             if (val >= 95) {
-              cellStyle = 'background: var(--bg-status-low); color: var(--text-status-low); border: 1px solid var(--border-status-low);';
+              cellClass += ' score-high';
             } else if (val >= 90) {
-              cellStyle = 'background: var(--bg-status-info); color: var(--text-status-info); border: 1px solid var(--border-status-info);';
+              cellClass += ' score-medium-high';
             } else if (val >= 85) {
-              cellStyle = 'background: var(--bg-status-medium); color: var(--text-status-medium); border: 1px solid var(--border-status-medium);';
+              cellClass += ' score-medium';
             } else {
-              cellStyle = 'background: var(--bg-status-high); color: var(--text-status-high); border: 1px solid var(--border-status-high);';
+              cellClass += ' score-low';
             }
           }
           
           if (isSelected) {
-            cellStyle += ' outline: 2px solid var(--brand-blue); outline-offset: -2px; border-color: var(--brand-blue) !important; font-weight: 800;';
+            cellClass += ' selected-factory';
           }
           
-          html += `<td style="padding: 8px; ${cellStyle} border-radius: 4px;">${cellText}</td>`;
+          html += `<td class="${cellClass}">${cellText}</td>`;
         });
         html += `</tr>`;
       });
       
-      html += `</tbody></table>`;
+      html += `</tbody></table></div>`;
       heatmapBox.innerHTML = html;
     }
 
@@ -3531,60 +3532,58 @@ const app = {
         const rank = idx + 1;
         const isSelected = item.code === activePlantCode;
 
-        // Rank Badge Style
-        let rankBadgeStyle = 'width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 11px;';
+        // Rank Badge Class
+        let rankClass = 'premium-leaderboard-rank';
         if (rank === 1) {
-          rankBadgeStyle += ' background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); font-weight: 800;';
+          rankClass += ' rank-1';
         } else if (rank === 2) {
-          rankBadgeStyle += ' background: linear-gradient(135deg, #94a3b8, #475569); color: #ffffff; font-weight: 800;';
+          rankClass += ' rank-2';
         } else if (rank === 3) {
-          rankBadgeStyle += ' background: linear-gradient(135deg, #b45309, #78350f); color: #ffffff; font-weight: 800;';
+          rankClass += ' rank-3';
         } else {
-          rankBadgeStyle += ' background: #f1f5f9; color: var(--text-secondary); border: 1px solid var(--border-card); font-weight: 600;';
+          rankClass += ' rank-other';
         }
 
-        // HSL Risk Badge Style
+        // HSL Risk Badge Class & Bar Color
         let riskBadgeText = 'LOW';
-        let riskBadgeStyle = 'font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 700;';
-        let progressBarColor = '#10b981'; // LOW: Green
+        let riskClass = 'premium-leaderboard-cri-tag';
+        let progressBarColor = 'var(--color-status-low)';
         
         if (item.cri >= 20.0) {
           riskBadgeText = 'CRITICAL';
-          riskBadgeStyle += ' color: #dc2626; background: #fee2e2; border: 1px solid #fecaca;';
-          progressBarColor = '#ef4444'; // CRITICAL: Red
+          riskClass += ' cri-critical';
+          progressBarColor = 'var(--color-status-high)';
         } else if (item.cri >= 6.0) {
           riskBadgeText = 'MODERATE';
-          riskBadgeStyle += ' color: #b45309; background: #fef3c7; border: 1px solid #fde68a;';
-          progressBarColor = '#f59e0b'; // MODERATE: Amber
+          riskClass += ' cri-moderate';
+          progressBarColor = 'var(--color-status-medium)';
         } else {
-          riskBadgeStyle += ' color: #15803d; background: #d1fae5; border: 1px solid #a7f3d0;';
+          riskClass += ' cri-low';
+          progressBarColor = 'var(--color-status-low)';
         }
 
         // Active Card Style
-        let cardStyle = 'padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-card); background: #ffffff; display: flex; flex-direction: column; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s ease-in-out; flex: 1; min-height: 52px;';
-        if (isSelected) {
-          cardStyle = 'padding: 12px 14px; border-radius: 8px; border: 2px solid var(--brand-blue); background: rgba(37, 99, 235, 0.04); display: flex; flex-direction: column; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s ease-in-out; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1); flex: 1; min-height: 52px;';
-        }
+        const cardClass = isSelected ? 'premium-leaderboard-item selected leaderboard-row' : 'premium-leaderboard-item leaderboard-row';
 
         lbHtml += `
-          <div class="leaderboard-row" data-plant="${item.code}" style="${cardStyle}" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(15, 23, 42, 0.05)';" onmouseout="this.style.transform='none'; this.style.boxShadow='${isSelected ? '0 4px 12px rgba(37, 99, 235, 0.1)' : 'none'}';">
+          <div class="${cardClass}" data-plant="${item.code}">
             <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
               <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="${rankBadgeStyle}">${rank}</div>
+                <div class="${rankClass}">${rank}</div>
                 <div style="display: flex; flex-direction: column;">
                   <span style="font-weight: 700; color: var(--text-primary); font-size: 12.5px; line-height: 1.2;">${item.name}</span>
-                  <span style="font-size: 10px; color: var(--text-muted-light); font-weight: 600; text-transform: uppercase;">${item.code}</span>
+                  <span style="font-size: 10px; color: var(--text-muted-light); font-weight: 600; text-transform: uppercase; margin-top: 1px;">${item.code}</span>
                 </div>
               </div>
               <div style="display: flex; align-items: center; gap: 6px;">
                 <span style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 14px; color: var(--text-primary);">${item.cri.toFixed(1)}</span>
-                <span style="${riskBadgeStyle}">${riskBadgeText}</span>
+                <span class="${riskClass}">${riskBadgeText}</span>
               </div>
             </div>
             
             <!-- Micro Progress Bar -->
-            <div style="width: 100%; height: 4px; background: #f1f5f9; border-radius: 2px; overflow: hidden; margin-top: 2px;">
-              <div style="width: ${item.cri.toFixed(1)}%; height: 100%; background: ${progressBarColor}; border-radius: 2px; transition: width 0.4s ease-in-out;"></div>
+            <div class="premium-progress-track" style="margin-top: 4px; height: 4px;">
+              <div class="premium-progress-bar" style="width: ${Math.min(100, item.cri * 2)}%; background-color: ${progressBarColor}; height: 100%;"></div>
             </div>
           </div>
         `;
@@ -4106,38 +4105,37 @@ const app = {
 
     // 4. 점수 변환 뱃지 헬퍼
     const getScoreBadge = (scoreVal) => {
-      const naStyle = `display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #cbd5e1; color: #475569; font-size: 9px; font-weight: bold;`;
       if (scoreVal === undefined || scoreVal === null) {
-        return `<span style="${naStyle}" title="해당없음 (N/A)">-</span>`;
+        return `<span class="premium-matrix-score-badge na" title="해당없음 (N/A)">-</span>`;
       }
       const strScore = scoreVal.toString().trim().toUpperCase();
       if (strScore === 'N/A' || strScore === '') {
-        return `<span style="${naStyle}" title="해당없음 (N/A)">-</span>`;
+        return `<span class="premium-matrix-score-badge na" title="해당없음 (N/A)">-</span>`;
       }
       
       const score = parseFloat(strScore);
       if (isNaN(score)) {
-        return `<span style="${naStyle}" title="해당없음 (N/A)">-</span>`;
+        return `<span class="premium-matrix-score-badge na" title="해당없음 (N/A)">-</span>`;
       }
       
       if (score >= 9.0) {
-        return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #10b981; color: #ffffff; font-size: 11px; font-weight: bold;" title="우수 (9점 이상)">3</span>`;
+        return `<span class="premium-matrix-score-badge score-3" title="우수 (9점 이상)">3</span>`;
       } else if (score >= 7.0) {
-        return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #3b82f6; color: #ffffff; font-size: 11px; font-weight: bold;" title="양호 (7점~9점 미만)">2</span>`;
+        return `<span class="premium-matrix-score-badge score-2" title="양호 (7점~9점 미만)">2</span>`;
       } else if (score >= 5.0) {
-        return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #f59e0b; color: #ffffff; font-size: 11px; font-weight: bold;" title="보완 (5점~7점 미만)">1</span>`;
+        return `<span class="premium-matrix-score-badge score-1" title="보완 (5점~7점 미만)">1</span>`;
       } else {
-        return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #ec4899; color: #ffffff; font-size: 11px; font-weight: bold;" title="취약 (5점 미만)">0</span>`;
+        return `<span class="premium-matrix-score-badge score-0" title="취약 (5점 미만)">0</span>`;
       }
     };
 
     // 5. 테이블 드로잉
     if (filteredItems.length === 0) {
       tableBox.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; text-align: center; background: #ffffff; border-radius: 8px;">
-          <i data-lucide="info" style="width: 32px; height: 32px; color: var(--text-muted-light); margin-bottom: 12px;"></i>
-          <span style="font-size: 13.5px; font-weight: bold; color: var(--text-secondary); margin-bottom: 4px;">일치하는 점검 요건 없음</span>
-          <span style="font-size: 12px; color: var(--text-muted-light);">조건에 부합하는 품질 인프라 평가 데이터가 존재하지 않습니다. 필터링 조건을 변경해보십시오.</span>
+        <div class="premium-matrix-empty">
+          <i data-lucide="info"></i>
+          <span class="premium-matrix-empty-title">일치하는 점검 요건 없음</span>
+          <span class="premium-matrix-empty-desc">조건에 부합하는 품질 인프라 평가 데이터가 존재하지 않습니다. 필터링 조건을 변경해보십시오.</span>
         </div>
       `;
       if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -4147,24 +4145,22 @@ const app = {
     // 헤더 렌더링
     const plantHeaders = plants.map(p => {
       const isActive = (p === activePlantCode);
-      const cellStyle = isActive 
-        ? `background: #eef2ff; color: var(--brand-blue); border-left: 2px solid var(--brand-blue); border-right: 2px solid var(--brand-blue); border-top: 2px solid var(--brand-blue); border-bottom: 2px solid var(--brand-blue); position: sticky; top: 0; z-index: 11; font-weight: 800;` 
-        : `background: #f8fafc; color: var(--text-secondary); position: sticky; top: 0; z-index: 10;`;
-      return `<th class="plant-col ${isActive ? 'active-col' : ''}" style="${cellStyle} text-align: center; font-size: 11.5px; padding: 10px 6px; width: 56px; border-bottom: 1px solid var(--border-card);">${p}</th>`;
+      return `<th class="sticky-header plant-col ${isActive ? 'active-col' : ''}">${p}</th>`;
     }).join('');
 
     let tableHtml = `
-      <table style="width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; font-family: 'Inter', sans-serif; table-layout: fixed;">
-        <thead>
-          <tr style="background: #f8fafc;">
-            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 12px; border-bottom: 1px solid var(--border-card); width: 100px;">공정</th>
-            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 4px; border-bottom: 1px solid var(--border-card); width: 50px; text-align: center;">구분</th>
-            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 4px; border-bottom: 1px solid var(--border-card); width: 50px; text-align: center;">번호</th>
-            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 12px; border-bottom: 1px solid var(--border-card); width: auto; min-width: 250px;">점검 요건 (Check Item)</th>
-            ${plantHeaders}
-          </tr>
-        </thead>
-        <tbody>
+      <div class="premium-matrix-table-container">
+        <table class="premium-matrix-table fixed-layout">
+          <thead>
+            <tr>
+              <th class="sticky-header col-process">공정</th>
+              <th class="sticky-header col-category">구분</th>
+              <th class="sticky-header col-number">번호</th>
+              <th class="sticky-header col-requirement">점검 요건 (Check Item)</th>
+              ${plantHeaders}
+            </tr>
+          </thead>
+          <tbody>
     `;
 
     // 행 렌더링
@@ -4183,33 +4179,22 @@ const app = {
       }[item.process] || item.process;
 
       const categoryBadge = item.category === 'Process' 
-        ? `<span style="display: inline-block; padding: 2px 6px; font-size: 10px; font-weight: bold; background: #eff6ff; color: #1d4ed8; border-radius: 4px; border: 1px solid #bfdbfe;">P</span>`
-        : `<span style="display: inline-block; padding: 2px 6px; font-size: 10px; font-weight: bold; background: #f0fdf4; color: #15803d; border-radius: 4px; border: 1px solid #86efac;">I</span>`;
+        ? `<span class="premium-category-tag-p">P</span>`
+        : `<span class="premium-category-tag-i">I</span>`;
 
-      const rowBg = idx % 2 === 1 ? '#fafafa' : '#ffffff';
-      
       const plantCells = plants.map(p => {
         const isActive = (p === activePlantCode);
         const scoreVal = item.scores[p];
         const badgeHtml = getScoreBadge(scoreVal);
-        
-        const isLastRow = (idx === filteredItems.length - 1);
-        const bottomBorder = isLastRow 
-          ? `border-bottom: 2px solid var(--brand-blue);` 
-          : `border-bottom: 1px solid #f1f5f9;`;
-
-        const cellStyle = isActive 
-          ? `background: #f5f8ff; border-left: 2px solid var(--brand-blue); border-right: 2px solid var(--brand-blue); ${bottomBorder} text-align: center; vertical-align: middle; padding: 8px 6px; width: 56px;` 
-          : `text-align: center; vertical-align: middle; padding: 8px 6px; border-bottom: 1px solid #f1f5f9; width: 56px;`;
-        return `<td class="plant-cell ${isActive ? 'active-cell' : ''}" style="${cellStyle}">${badgeHtml}</td>`;
+        return `<td class="plant-cell ${isActive ? 'active-cell' : ''}">${badgeHtml}</td>`;
       }).join('');
 
       tableHtml += `
-        <tr class="matrix-row" style="background: ${rowBg};">
-          <td style="font-size: 11px; font-weight: 600; color: var(--text-primary); padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${processKo}">${processKo}</td>
-          <td style="text-align: center; padding: 10px 4px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;">${categoryBadge}</td>
-          <td style="text-align: center; font-size: 11px; font-weight: bold; color: var(--text-muted-light); padding: 10px 4px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;">${item.item_no}</td>
-          <td style="font-size: 11.5px; color: var(--text-primary); padding: 10px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; white-space: normal; word-break: break-word; line-height: 1.45;" title="${item.check_item.replace(/"/g, '&quot;')}">${item.check_item}</td>
+        <tr class="matrix-row">
+          <td class="cell-process" title="${processKo}">${processKo}</td>
+          <td class="cell-category">${categoryBadge}</td>
+          <td class="cell-number">${item.item_no}</td>
+          <td class="cell-requirement" title="${item.check_item.replace(/"/g, '&quot;')}">${item.check_item}</td>
           ${plantCells}
         </tr>
       `;
@@ -4218,6 +4203,7 @@ const app = {
     tableHtml += `
         </tbody>
       </table>
+    </div>
     `;
 
     tableBox.innerHTML = tableHtml;
@@ -4358,37 +4344,24 @@ const app = {
 
     // ⚠️ 교차 참조 폴백 지능형 노티스 배너 노출 상태 동적 제어
     if (noticeBanner) {
-      if (totalCount === 0) {
-        noticeBanner.style.display = 'none';
-      } else {
-        noticeBanner.style.display = 'flex';
-        noticeBanner.style.background = 'rgba(15, 23, 42, 0.94)';
-        noticeBanner.style.borderColor = 'rgba(15, 23, 42, 0.94)';
-        noticeBanner.style.borderLeft = '4px solid #0ea5e9';
-        noticeBanner.style.color = '#ffffff';
-        noticeBanner.style.borderRadius = '6px';
-        noticeBanner.style.padding = '12px 16px';
-        noticeBanner.style.fontSize = '11.5px';
-        noticeBanner.style.lineHeight = '1.5';
-        noticeBanner.style.marginBottom = '15px';
-        noticeBanner.style.alignItems = 'center';
-        noticeBanner.style.gap = '10px';
-        noticeBanner.style.boxShadow = 'var(--shadow-sm)';
+      noticeBanner.classList.toggle('hidden', totalCount === 0);
+      if (totalCount > 0) {
+        noticeBanner.className = `premium-notice-banner level-${fallbackLevel}`;
 
         let bannerHtml = '';
         if (fallbackLevel === 1) {
           bannerHtml = `
-            <span style="font-size: 13px; color: #0ea5e9; flex-shrink: 0;">⚫</span>
+            <i data-lucide="info" class="banner-icon"></i>
             <span><strong>[지적 이력 교차분석 완료]</strong> 선택하신 공장(<strong>${activePlantCode}</strong>) 및 고객사(<strong>${activeCustomer === 'ALL' ? '전체 고객사' : activeCustomer}</strong>) 조회 조건에 따라 총 <strong>${totalCount}</strong>건의 감사 지적 이력이 연계 분석되었습니다. (본 공장 실적: <strong>${localCount}</strong>건, 타 공장 벤치마킹: <strong>${otherCount}</strong>건)</span>
           `;
         } else if (fallbackLevel === 2) {
           bannerHtml = `
-            <span style="font-size: 13px; color: #0ea5e9; flex-shrink: 0;">⚫</span>
+            <i data-lucide="shuffle" class="banner-icon"></i>
             <span><strong>[교차 참조 폴백 모드 가동]</strong> <u>${activePlantCode}</u> 공장에는 <strong>${activeCustomer}</strong>의 과거 감사 이력이 부재하여, <strong>타 생산 공정 및 공장 전수 실제 감사 지적 이력 (${totalCount}건)</strong>을 동적으로 수평 맵핑하여 벤치마킹 대안으로 노출 중입니다. (타 공장 벤치마킹: <strong>${otherCount}</strong>건)</span>
           `;
         } else {
           bannerHtml = `
-            <span style="font-size: 13px; color: #f43f5e; flex-shrink: 0;">⚫</span>
+            <i data-lucide="globe" class="banner-icon"></i>
             <span><strong>[글로벌 표준 참조 모드 가동]</strong> 당사 공정 전반에 <strong>${activeCustomer}</strong> 관련 과거 오딧 지적 이력이 완전히 부재하여, <strong>글로벌 대표 3대 완성차(BMW, Ford, Hyundai)</strong>의 종합 부적합 이력(<strong>${totalCount}</strong>건)을 표준 체크시트로 안전 탑재하여 교차 표출 중입니다.</span>
           `;
         }
@@ -4398,31 +4371,34 @@ const app = {
 
     if (totalCount === 0) {
       customerTableBox.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; color: var(--text-secondary); font-size: 13px; border: 1px dashed var(--border-card); border-radius: 8px;">
-          <i data-lucide="shield-check" style="width: 32px; height: 32px; color: var(--color-status-low); margin-bottom: 8px;"></i>
-          <span style="font-weight: 700; color: var(--text-primary);">조회 조건에 해당하는 감사 지적사항이 전혀 없습니다.</span>
-          <span style="font-size: 11px; margin-top: 4px;">지정 공장 및 공정 품질 표준 준수율이 완벽히 안정적 상태입니다.</span>
+        <div class="premium-matrix-empty height-lg">
+          <i data-lucide="shield-check" class="icon-status-low"></i>
+          <span class="premium-matrix-empty-title">조회 조건에 해당하는 감사 지적사항이 전혀 없습니다.</span>
+          <span class="premium-matrix-empty-desc">지정 공장 및 공정 품질 표준 준수율이 완벽히 안정적 상태입니다.</span>
         </div>
       `;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
       return;
     }
 
+    const container = document.createElement('div');
+    container.className = 'premium-matrix-table-container';
+
     const table = document.createElement('table');
-    table.className = 'data-table';
-    table.style.cssText = 'width: 100%; border-collapse: collapse; font-size: 12px;';
+    table.className = 'premium-matrix-table';
     table.innerHTML = `
       <thead>
-        <tr style="border-bottom: 1px solid var(--border-card); background: #f8fafc; position: sticky; top: 0; z-index: 10;">
-          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 110px; text-align: center;">구분 (TYPE)</th>
-          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 80px; text-align: center;">공장 (PLANT)</th>
-          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 90px; text-align: center;">고객사 (OEM)</th>
-          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 90px; text-align: center;">차종 (VEHICLE)</th>
-          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 100px; text-align: center;">발생일 (OCC DATE)</th>
-          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 115px; text-align: center;">조치예정일 (TARGET DATE)</th>
-          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); text-align: left;">지적 사항 (POINT OUT)</th>
-          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); text-align: left;">원인 분석 및 대책 (ROOT CAUSE & COUNTERMEASURE)</th>
-          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 100px; text-align: center;">상태 (STATUS)</th>
-          <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 90px; text-align: center;">E-QMS LINK</th>
+        <tr>
+          <th class="col-audit-type">구분 (TYPE)</th>
+          <th class="col-audit-plant">공장 (PLANT)</th>
+          <th class="col-audit-oem">고객사 (OEM)</th>
+          <th class="col-audit-vehicle">차종 (VEHICLE)</th>
+          <th class="col-audit-occ-date">발생일 (OCC DATE)</th>
+          <th class="col-audit-target-date">조치예정일 (TARGET DATE)</th>
+          <th class="col-audit-point-out">지적 사항 (POINT OUT)</th>
+          <th class="col-audit-action">원인 분석 및 대책 (ROOT CAUSE & COUNTERMEASURE)</th>
+          <th class="col-audit-status">상태 (STATUS)</th>
+          <th class="col-audit-link">E-QMS LINK</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -4433,87 +4409,23 @@ const app = {
     targetFindings.forEach((item, index) => {
       const isOngoing = item.STATUS === 'On-going';
       const tr = document.createElement('tr');
-      tr.style.cssText = `
-        border-bottom: 1px solid var(--border-card);
-        transition: background 0.15s;
-        background: ${index % 2 === 1 ? '#f8fafc' : '#ffffff'};
-      `;
-      tr.onmouseenter = () => { tr.style.background = '#f1f5f9'; };
-      tr.onmouseleave = () => { tr.style.background = index % 2 === 1 ? '#f8fafc' : '#ffffff'; };
-
       const fNo = item.DOC_NO || `FINDING-${index + 1}`;
 
       // Col 1 Badge
       const isLocal = item.PLANT === activePlantCode;
-      const typeBadge = isLocal ? `
-        <span style="
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          padding: 3px 8px;
-          border-radius: 4px;
-          font-size: 11px;
-          font-weight: 700;
-          background: var(--bg-status-low);
-          color: var(--text-status-low);
-          border: 1px solid var(--border-status-low);
-          white-space: nowrap;
-        ">본공장 실적</span>
-      ` : `
-        <span style="
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          padding: 3px 8px;
-          border-radius: 4px;
-          font-size: 11px;
-          font-weight: 700;
-          background: var(--bg-status-medium);
-          color: var(--text-status-medium);
-          border: 1px solid var(--border-status-medium);
-          white-space: nowrap;
-        ">타공장 벤치마킹</span>
-      `;
+      const typeBadge = isLocal 
+        ? `<span class="premium-text-badge local">본공장 실적</span>` 
+        : `<span class="premium-text-badge benchmarking">타공장 벤치마킹</span>`;
 
-      // Col 9 Status Badge (Outlined style, with high contrast colors conforming to WCAG 2.1 AA)
+      // Col 9 Status Badge (Outlined style, leveraging new classes)
       const statusBadge = isOngoing ? `
-        <span class="status-toggle-badge text-center" style="
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 4px;
-          padding: 3px 8px;
-          border-radius: 4px;
-          font-weight: 700;
-          background: var(--bg-status-high);
-          color: var(--text-status-high);
-          border: 1px solid var(--border-status-high);
-          font-size: 11px;
-          cursor: pointer;
-          transition: all 0.15s ease-in-out;
-          user-select: none;
-        " onmouseover="this.style.background='rgba(239, 68, 68, 0.15)'" onmouseout="this.style.background='var(--bg-status-high)'">
-          <span style="width: 6px; height: 6px; background: var(--text-status-high); border-radius: 50%; display: inline-block;"></span>
+        <span class="status-toggle-badge premium-status-badge ongoing">
+          <span class="badge-dot"></span>
           On-going
         </span>
       ` : `
-        <span class="status-toggle-badge text-center" style="
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 4px;
-          padding: 3px 8px;
-          border-radius: 4px;
-          font-weight: 700;
-          background: var(--bg-status-low);
-          color: var(--text-status-low);
-          border: 1px solid var(--border-status-low);
-          font-size: 11px;
-          cursor: pointer;
-          transition: all 0.15s ease-in-out;
-          user-select: none;
-        " onmouseover="this.style.background='rgba(16, 185, 129, 0.15)'" onmouseout="this.style.background='var(--bg-status-low)'">
-          <span style="width: 6px; height: 6px; background: var(--text-status-low); border-radius: 50%; display: inline-block;"></span>
+        <span class="status-toggle-badge premium-status-badge closed">
+          <span class="badge-dot"></span>
           Closed
         </span>
       `;
@@ -4571,38 +4483,30 @@ const app = {
       }
 
       tr.innerHTML = `
-        <td style="padding: 10px; text-align: center;">${typeBadge}</td>
-        <td style="padding: 10px; text-align: center; font-weight: 700; color: var(--text-primary);">${item.PLANT || '-'}</td>
-        <td style="padding: 10px; text-align: center; font-weight: 700; color: var(--brand-blue);">${item.CAR_MAKER || '-'}</td>
-        <td style="padding: 10px; text-align: center; font-weight: 600; color: var(--text-primary); font-family: monospace;">${item.PROJECT || '-'}</td>
-        <td style="padding: 10px; text-align: center; color: var(--text-secondary); font-family: monospace;">${item.REG_DT || item.START_DT || '-'}</td>
-        <td style="padding: 10px; text-align: center; color: var(--text-secondary); font-family: monospace;">${item.COMP_DT || item.END_DT || '-'}</td>
-        <td style="padding: 10px; line-height: 1.4; text-align: left;">
-          <div style="font-weight: 700; color: var(--text-primary);">${item.SUBJECT || '-'}</div>
-          <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">${pointOutText}</div>
+        <td class="cell-audit-type">${typeBadge}</td>
+        <td class="cell-audit-plant">${item.PLANT || '-'}</td>
+        <td class="cell-audit-oem">${item.CAR_MAKER || '-'}</td>
+        <td class="cell-audit-vehicle">${item.PROJECT || '-'}</td>
+        <td class="cell-audit-occ-date">${item.REG_DT || item.START_DT || '-'}</td>
+        <td class="cell-audit-target-date">${item.COMP_DT || item.END_DT || '-'}</td>
+        <td class="cell-audit-point-out">
+          <div class="subject">${item.SUBJECT || '-'}</div>
+          <div class="desc">${pointOutText}</div>
         </td>
-        <td style="padding: 10px; line-height: 1.4; text-align: left;">
-          <div style="margin-bottom: 4px;">
-            <strong style="color: var(--text-status-high);">[원인]</strong> 
-            <span style="color: var(--text-primary); font-weight: 500;">${rootCauseText}</span>
+        <td class="cell-audit-action">
+          <div class="cause">
+            <span class="cause-label">[원인]</span> 
+            <span class="cause-text">${rootCauseText}</span>
           </div>
-          <div>
-            <strong style="color: var(--text-status-low);">[대책]</strong> 
-            <span style="color: var(--text-primary); font-weight: 500;">${counterMeasureText}</span>
+          <div class="remedy">
+            <span class="remedy-label">[대책]</span> 
+            <span class="remedy-text">${counterMeasureText}</span>
           </div>
         </td>
-        <td style="padding: 10px; text-align: center;">${statusBadge}</td>
-        <td style="padding: 10px; text-align: center;">
-          <a href="${item.URL || item.url || '#'}" target="_blank" style="
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            color: var(--brand-blue);
-            text-decoration: none;
-            font-weight: 700;
-            transition: color 0.15s;
-          " onmouseover="this.style.color='#1d4ed8'" onmouseout="this.style.color='var(--brand-blue)'">
-            <i data-lucide="external-link" style="width: 12px; height: 12px;"></i>
+        <td class="cell-audit-status">${statusBadge}</td>
+        <td class="cell-audit-link">
+          <a href="${item.URL || item.url || '#'}" target="_blank" class="premium-link-btn">
+            <i data-lucide="external-link" class="banner-icon"></i>
             열기
           </a>
         </td>
@@ -4620,7 +4524,11 @@ const app = {
       tbody.appendChild(tr);
     });
 
-    customerTableBox.appendChild(table);
+    container.appendChild(table);
+    customerTableBox.appendChild(container);
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
   },
 
   // ④ 지적사항 종결/재오픈 상태 토글 함수
@@ -4797,37 +4705,8 @@ const app = {
 
     processes.forEach(proc => {
       const btn = document.createElement('button');
-      btn.className = 'btn';
       const isActive = proc.code === activeProcess;
-      
-      btn.style.cssText = `
-        padding: 8px 16px;
-        font-size: 11.5px;
-        font-weight: 700;
-        border-radius: 6px;
-        white-space: nowrap;
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
-        border: 1px solid ${isActive ? 'var(--brand-blue)' : 'var(--border-input)'};
-        background: ${isActive ? 'var(--bg-status-info)' : 'var(--bg-card)'};
-        color: ${isActive ? 'var(--brand-blue)' : 'var(--text-secondary)'};
-        box-shadow: var(--shadow-sm);
-      `;
-
-      btn.onmouseover = () => {
-        if (!isActive) {
-          btn.style.background = '#f1f5f9';
-          btn.style.borderColor = 'var(--border-input)';
-          btn.style.color = 'var(--text-primary)';
-        }
-      };
-      btn.onmouseout = () => {
-        if (!isActive) {
-          btn.style.background = 'var(--bg-card)';
-          btn.style.borderColor = 'var(--border-input)';
-          btn.style.color = 'var(--text-secondary)';
-        }
-      };
+      btn.className = `premium-ribbon-btn ${isActive ? 'active' : ''}`;
 
       btn.onclick = () => {
         this.state.tab3Process = proc.code;
@@ -4886,24 +4765,26 @@ const app = {
     // A. 최우선 준비 아이템 테이블 채우기
     if (prepItems.length === 0) {
       prepTableBox.innerHTML = `
-        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px; color:var(--text-secondary); border:1px dashed rgba(255,255,255,0.05); border-radius:6px; font-size:12px;">
-          <i data-lucide="shield-check" style="width:24px; height:24px; color:#00ff66; margin-bottom:6px;"></i>
-          <span style="font-weight:700; color:var(--text-primary);">6점 이하 취약 항목이 없습니다.</span>
-          <span>현장 공정이 안정적인 안전 제어 영역에 도달했습니다.</span>
+        <div class="premium-matrix-empty height-md">
+          <i data-lucide="shield-check" class="icon-status-low"></i>
+          <span class="premium-matrix-empty-title">6점 이하 취약 항목이 없습니다.</span>
+          <span class="premium-matrix-empty-desc">현장 공정이 안정적인 안전 제어 영역에 도달했습니다.</span>
         </div>
       `;
     } else {
+      const container = document.createElement('div');
+      container.className = 'premium-matrix-table-container';
+
       const table = document.createElement('table');
-      table.className = 'data-table';
-      table.style.cssText = 'width: 100%; border-collapse: collapse; font-size: 12px;';
+      table.className = 'premium-matrix-table';
       table.innerHTML = `
         <thead>
-          <tr style="border-bottom: 1px solid var(--border-card); background: #f8fafc; position: sticky; top: 0; z-index: 10;">
-            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 100px;">공정</th>
-            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 150px;">체크 요건 (항목)</th>
-            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 60px; text-align: center;">점수</th>
-            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary);">현장 실사 지적</th>
-            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 220px;">💡 우수 공장 Peer 벤치마킹</th>
+          <tr>
+            <th class="col-details-process">공정</th>
+            <th class="col-details-check">체크 요건 (항목)</th>
+            <th class="col-details-score">점수</th>
+            <th class="col-details-feedback">현장 실사 지적</th>
+            <th class="col-details-peer">💡 우수 공장 Peer 벤치마킹</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -4923,71 +4804,75 @@ const app = {
           const plantList = peers.map(p => p.plant).join(', ');
           const bestPractice = peers[0].findings || peers[0].guidance || 'SOP 정량 준수 및 디지털 실시간 모니터링 적용';
           peerHtml = `
-            <div style="background: var(--bg-status-info); border: 1px solid var(--border-status-info); border-radius: 4px; padding: 6px 10px; font-size: 11px; color: var(--text-status-info); line-height: 1.4;">
-              <div style="font-weight:800; display:flex; align-items:center; gap:4px; margin-bottom:2px;">
-                <span style="display:inline-block; width:4px; height:4px; background:var(--color-status-info); border-radius:50%;"></span>
+            <div class="premium-peer-card">
+              <div class="premium-peer-card-header">
+                <span class="premium-peer-card-dot"></span>
                 모범: ${plantList}공장 (10점 만점)
               </div>
-              <div style="color:var(--text-primary); text-overflow:ellipsis; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">
+              <div class="premium-peer-card-body">
                 ${bestPractice}
               </div>
             </div>
           `;
         } else {
           peerHtml = `
-            <div style="background: var(--bg-app); border: 1px solid var(--border-card); border-radius: 4px; padding: 6px 10px; font-size: 11px; color: var(--text-muted-light); line-height: 1.4;">
-              <div style="font-weight:700; color:var(--text-secondary);">글로벌 대표 3대사 표준</div>
-              <div>Standard SOP 지침 준수 및 계측기 이상 한계 관리 적용</div>
+            <div class="premium-global-card">
+              <div class="premium-global-card-header">글로벌 대표 3대사 표준</div>
+              <div class="premium-global-card-body">Standard SOP 지침 준수 및 계측기 이상 한계 관리 적용</div>
             </div>
           `;
         }
 
-        const tr = document.createElement('tr');
-        tr.style.cssText = `
-          border-bottom: 1px solid var(--border-card);
-          transition: background 0.15s;
-          background: ${index % 2 === 1 ? '#f8fafc' : '#ffffff'};
-        `;
-        tr.onmouseenter = () => { tr.style.background = '#f1f5f9'; };
-        tr.onmouseleave = () => { tr.style.background = index % 2 === 1 ? '#f8fafc' : '#ffffff'; };
+        // Score badge class decision
+        const scoreVal = parseFloat(item.score);
+        let scoreClass = 'score-0';
+        if (scoreVal >= 9.0) scoreClass = 'score-3';
+        else if (scoreVal >= 7.0) scoreClass = 'score-2';
+        else if (scoreVal >= 5.0) scoreClass = 'score-1';
 
+        const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td style="padding: 10px;"><span style="font-size:11px; font-weight:700; background:var(--bg-status-high); border:1px solid var(--border-status-high); padding:2px 6px; border-radius:4px; color:var(--text-status-high);">${item.process}</span></td>
-          <td style="padding: 10px; font-weight:600; color:var(--text-primary); max-width:180px; word-break:break-all;">${item.check_item}</td>
-          <td style="padding: 10px; text-align:center;"><span style="font-size:11.5px; font-weight:800; color:var(--text-status-high); background:var(--bg-status-high); padding:3px 8px; border-radius:4px; border:1px solid var(--border-status-high);">${item.score}</span></td>
-          <td style="padding: 10px; line-height:1.4; color:var(--text-secondary); max-width:200px; word-break:break-all;">
-            <div style="font-weight:700; color:var(--text-primary); font-size:11.5px; margin-bottom:2px;">[현장 실사 피드백]</div>
+          <td class="cell-details-process"><span class="premium-text-badge benchmarking">${item.process}</span></td>
+          <td class="cell-details-check">${item.check_item}</td>
+          <td class="cell-details-score">
+            <span class="premium-matrix-score-badge ${scoreClass}">${item.score}</span>
+          </td>
+          <td class="cell-details-feedback">
+            <div class="title">[현장 실사 피드백]</div>
             ${item.findings || '-'}
-            <div style="font-size:11px; color:var(--text-status-medium); font-weight:700; margin-top:4px;">
+            <div class="recommendation">
               [SOP 개량권고] ${item.guidance || '정량적 점검 기준서 재정립'}
             </div>
           </td>
-          <td style="padding: 10px;">${peerHtml}</td>
+          <td class="cell-details-peer">${peerHtml}</td>
         `;
         tbody.appendChild(tr);
       });
-      prepTableBox.appendChild(table);
+      container.appendChild(table);
+      prepTableBox.appendChild(container);
     }
 
     // B. 표준 우수 관리 항목 테이블 채우기
     if (excellentItems.length === 0) {
       excellentTableBox.innerHTML = `
-        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px; color:var(--text-secondary); border:1px dashed var(--border-card); border-radius:6px; font-size:12px;">
-          <i data-lucide="shield-alert" style="width:24px; height:24px; color:var(--color-status-medium); margin-bottom:6px;"></i>
-          <span>8점 이상 우수 관리 항목이 없습니다.</span>
+        <div class="premium-matrix-empty height-md">
+          <i data-lucide="shield-alert" class="icon-status-medium"></i>
+          <span class="premium-matrix-empty-title">8점 이상 우수 관리 항목이 없습니다.</span>
         </div>
       `;
     } else {
+      const container = document.createElement('div');
+      container.className = 'premium-matrix-table-container';
+
       const table = document.createElement('table');
-      table.className = 'data-table';
-      table.style.cssText = 'width: 100%; border-collapse: collapse; font-size: 12px;';
+      table.className = 'premium-matrix-table';
       table.innerHTML = `
         <thead>
-          <tr style="border-bottom: 1px solid var(--border-card); background: #f8fafc; position: sticky; top: 0; z-index: 10;">
-            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 80px;">공정</th>
-            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary);">안정 관리 항목</th>
-            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 60px; text-align: center;">점수</th>
-            <th style="padding: 10px; font-weight: 700; color: var(--text-secondary); width: 100px; text-align: center;">안정 상태</th>
+          <tr>
+            <th class="col-excellent-process">공정</th>
+            <th class="col-excellent-item">안정 관리 항목</th>
+            <th class="col-excellent-score">점수</th>
+            <th class="col-excellent-status">안정 상태</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -4995,32 +4880,33 @@ const app = {
       const tbody = table.querySelector('tbody');
 
       excellentItems.forEach((item, index) => {
-        const tr = document.createElement('tr');
-        tr.style.cssText = `
-          border-bottom: 1px solid var(--border-card);
-          transition: background 0.15s;
-          background: ${index % 2 === 1 ? '#f8fafc' : '#ffffff'};
-        `;
-        tr.onmouseenter = () => { tr.style.background = '#f1f5f9'; };
-        tr.onmouseleave = () => { tr.style.background = index % 2 === 1 ? '#f8fafc' : '#ffffff'; };
+        // Score badge class decision
+        const scoreVal = parseFloat(item.score);
+        let scoreClass = 'score-3';
+        if (scoreVal < 7.0) scoreClass = 'score-1';
+        else if (scoreVal < 9.0) scoreClass = 'score-2';
 
+        const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td style="padding: 10px;"><span style="font-size:11px; font-weight:700; background:var(--bg-status-low); border:1px solid var(--border-status-low); padding:2px 6px; border-radius:4px; color:var(--text-status-low);">${item.process}</span></td>
-          <td style="padding: 10px;">
-            <div style="font-weight:700; color:var(--text-primary);">${item.check_item}</div>
-            <div style="font-size:11px; color:var(--text-muted-light); margin-top:2px;">실적: ${item.findings || 'SOP 완벽 준수 및 이력 확인 만족'}</div>
+          <td class="cell-excellent-process"><span class="premium-text-badge local">${item.process}</span></td>
+          <td class="cell-excellent-item">
+            <div class="title">${item.check_item}</div>
+            <div class="desc">실적: ${item.findings || 'SOP 완벽 준수 및 이력 확인 만족'}</div>
           </td>
-          <td style="padding: 10px; text-align:center;"><span style="font-size:11px; font-weight:800; color:var(--text-status-low); background:var(--bg-status-low); padding:2px 6px; border-radius:4px; border:1px solid var(--border-status-low);">${item.score}</span></td>
-          <td style="padding: 10px; text-align:center;">
-            <span style="display:inline-flex; align-items:center; gap:3px; font-size:10.5px; font-weight:700; background:var(--bg-status-low); color:var(--text-status-low); border:1px solid var(--border-status-low); padding:2px 6px; border-radius:4px;">
-              <span style="width:5px; height:5px; background:var(--color-status-low); border-radius:50%;"></span>
+          <td class="cell-excellent-score">
+            <span class="premium-matrix-score-badge ${scoreClass}">${item.score}</span>
+          </td>
+          <td class="cell-excellent-status">
+            <span class="premium-text-badge local">
+              <span class="badge-dot"></span>
               만족 (Excellent)
             </span>
           </td>
         `;
         tbody.appendChild(tr);
       });
-      excellentTableBox.appendChild(table);
+      container.appendChild(table);
+      excellentTableBox.appendChild(container);
     }
 
     if (typeof lucide !== 'undefined') {
@@ -5100,50 +4986,41 @@ const app = {
 
     if (top20Items.length === 0) {
       recBox.innerHTML = `
-        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; color:var(--text-secondary); height:100%; border:1px dashed rgba(255,255,255,0.05); border-radius:6px; font-size:12.5px;">
-          <i data-lucide="shield-check" style="width:32px; height:32px; color:#00ff66; margin-bottom:8px;"></i>
-          <span style="font-weight:700; color:var(--text-primary);">선결 요건 및 개선 과제 0건</span>
-          <span style="font-size:11px; margin-top:2px;">모든 품질 지표가 최상의 합격 등급을 충족하고 있습니다.</span>
+        <div class="premium-matrix-empty height-md">
+          <i data-lucide="shield-check" class="icon-status-low"></i>
+          <span class="premium-matrix-empty-title">선결 요건 및 개선 과제 0건</span>
+          <span class="premium-matrix-empty-desc">모든 품질 지표가 최상의 합격 등급을 충족하고 있습니다.</span>
         </div>
       `;
     } else {
       top20Items.forEach((item, idx) => {
         const card = document.createElement('div');
-        card.style.cssText = `
-          background: #f8fafc;
-          border: 1px solid var(--border-card);
-          border-left: 3px solid var(--color-status-medium);
-          border-radius: 6px;
-          padding: 10px 12px;
-          display: flex;
-          align-items: flex-start;
-          gap: 10px;
-          transition: all 0.2s;
-        `;
-        card.onmouseenter = () => {
-          card.style.borderColor = 'var(--border-input)';
-          card.style.background = '#f1f5f9';
-        };
-        card.onmouseout = () => {
-          card.style.borderColor = 'var(--border-card)';
-          card.style.background = '#f8fafc';
-        };
+        card.className = 'premium-task-card';
+        
+        // Score badge class decision
+        const scoreVal = parseFloat(item.score);
+        let scoreClass = 'score-0';
+        if (scoreVal >= 9.0) scoreClass = 'score-3';
+        else if (scoreVal >= 7.0) scoreClass = 'score-2';
+        else if (scoreVal >= 5.0) scoreClass = 'score-1';
 
         card.innerHTML = `
-          <i data-lucide="alert-triangle" style="width:16px; height:16px; color:var(--color-status-medium); flex-shrink:0; margin-top:2px;"></i>
-          <div style="flex:1;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
-              <span style="font-size:11px; font-weight:800; color:var(--text-status-medium); background:var(--bg-status-medium); padding:2px 6px; border-radius:4px;">
+          <i data-lucide="alert-triangle" class="task-icon"></i>
+          <div class="task-body">
+            <div class="task-header">
+              <span class="premium-text-badge benchmarking task-badge">
                 #${idx + 1} 과제 - ${item.process}
               </span>
-              <span style="font-size:11px; font-weight:800; color:var(--text-status-high);">진단 점수: ${item.score}/10</span>
+              <span class="task-score-wrapper">
+                진단 점수: <span class="premium-matrix-score-badge ${scoreClass} task-score-badge">${item.score}</span>
+              </span>
             </div>
-            <div style="font-size:12px; font-weight:700; color:var(--text-primary); margin-bottom:4px;">${item.check_item}</div>
-            <div style="font-size:11px; color:var(--text-secondary); line-height:1.4;">
+            <div class="task-title">${item.check_item}</div>
+            <div class="task-desc">
               <strong>지적 요약:</strong> ${item.findings || '-'}
             </div>
-            <div style="font-size:11.5px; color:var(--brand-blue); font-weight:700; margin-top:5px; display:flex; align-items:center; gap:4px;">
-              <i data-lucide="arrow-right" style="width:12px; height:12px;"></i>
+            <div class="task-action-guide">
+              <i data-lucide="arrow-right" class="task-action-icon"></i>
               대책: ${item.guidance || 'SOP 수립 및 계측 신뢰성 인터락 보완 고도화'}
             </div>
           </div>
@@ -5175,84 +5052,84 @@ const app = {
     });
 
     const aiActionHtml = `
-      <div style="display: flex; align-items: center; gap: 15px; background: #f8fafc; border: 1px solid var(--border-card); border-radius: 8px; padding: 15px; margin-bottom: 20px; box-shadow: var(--shadow-sm);">
-        <div style="width: 55px; height: 55px; border-radius: 50%; background: ${criBg}; border: 2px solid ${criColor}; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: ${criColor}; flex-shrink: 0; font-family: 'Inter', sans-serif;">
+      <div class="premium-cri-badge-wrapper">
+        <div class="premium-cri-badge-circle grade-${criGrade.toLowerCase()}">
           ${criGrade}
         </div>
-        <div style="flex:1;">
-          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
-            <span style="font-size:14px; font-weight:800; color:var(--text-primary); font-family: 'Inter', sans-serif;">
+        <div class="premium-cri-badge-body">
+          <div class="premium-cri-badge-header">
+            <span class="premium-cri-badge-title">
               ${pName} 공장 CRI (Compliance Risk Index)
             </span>
-            <span style="font-size:16px; font-weight:900; color:${criColor}; font-family: 'Inter', sans-serif;">
+            <span class="premium-cri-value grade-${criGrade.toLowerCase()}">
               ${formattedCri}%
             </span>
           </div>
-          <div style="font-size:11.5px; color:var(--text-secondary); line-height:1.4;">
+          <div class="premium-cri-badge-desc">
             ${criDesc}
           </div>
         </div>
       </div>
 
-      <div style="display:flex; align-items:center; gap:6px; color:var(--brand-blue); font-size:13px; font-weight:800; margin-bottom:12px; font-family: 'Inter', sans-serif;">
-        <i data-lucide="sparkles" style="width:16px; height:16px;"></i>
+      <div class="premium-ai-feed-title brand-blue-text">
+        <i data-lucide="sparkles" class="banner-icon"></i>
         <span>AI REAL-TIME AUDIT ADVISORY FEED</span>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 15px; line-height: 1.6; font-size:12px;">
-        <div>
-          <div style="font-weight: 800; color: var(--text-status-high); font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
-            <span style="display:inline-block; width:6px; height:6px; background:var(--color-status-high); border-radius:50%;"></span>
+      <div class="premium-ai-feed-box">
+        <div class="premium-ai-feed-section">
+          <div class="premium-ai-feed-title status-high">
+            <span class="status-dot"></span>
             1. Risk Summary (종합 취약점 진단)
           </div>
-          <div style="color: var(--text-primary); padding-left: 10px; border-left: 2px solid var(--border-card);">
+          <div class="premium-ai-feed-content">
             현재 ${pName} 공장의 실시간 데이터 분석 결과, 과거 OEM 오딧 지적 이력 및 사내 진단 데이터 상 
             <strong>${worstProcess}</strong> 공정이 품질 관리 실사 측면에서 가장 높은 재발방지 취약 노드(점수 ${lowestAvg.toFixed(1)}/10)로 탐지되었습니다. 
             CRI 지수 수준은 <strong>${formattedCri}% (${criGrade} 등급)</strong>으로 수검 오딧 이전에 즉각적인 시정 조치(Corrective Actions) 및 SOP 개정이 강력히 요구됩니다.
           </div>
         </div>
 
-        <div>
-          <div style="font-weight: 800; color: var(--text-status-medium); font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
-            <span style="display:inline-block; width:6px; height:6px; background:var(--color-status-medium); border-radius:50%;"></span>
+        <div class="premium-ai-feed-section">
+          <div class="premium-ai-feed-title status-medium">
+            <span class="status-dot"></span>
             2. Root Cause Hypothesis (원천 원인 분석 가설)
           </div>
-          <div style="color: var(--text-primary); padding-left: 10px; border-left: 2px solid var(--border-card);">
+          <div class="premium-ai-feed-content">
             - <strong>4M 변경 관리 절차 불이행 가설</strong>: ${worstProcess} 공정 내의 핵심 금형 및 자재 규격 대체 적용 시 품질 부서의 사전 승인(FMEA) 및 검증(MSA) 워크플로우 통제 인터락 부재.<br>
             - <strong>정량적 모니링 주기 한계 가설</strong>: 생산 작업자 가상 인터뷰 결과, 온도/가압 프로파일 한계 관리선 이탈 시 이상 조치 가이드(OCAP) 작동 유효성 검증 체계 미흡.
           </div>
         </div>
 
-        <div>
-          <div style="font-weight: 800; color: var(--text-status-low); font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
-            <span style="display:inline-block; width:6px; height:6px; background:var(--color-status-low); border-radius:50%;"></span>
+        <div class="premium-ai-feed-section">
+          <div class="premium-ai-feed-title status-low">
+            <span class="status-dot"></span>
             3. Corrective Action (현장 즉각 8D 대책안)
           </div>
-          <div style="color: var(--text-primary); padding-left: 10px; border-left: 2px solid var(--border-card);">
+          <div class="premium-ai-feed-content">
             - <strong>D3 (임시 대책)</strong>: 취약 공정 작업자 대상 온도 제어 표준 및 금형 클리닝 주기 가이드라인 긴급 직무 교육 시행 및 교대조별 100% 점검 보증.<br>
             - <strong>D4 (근본 원인 조치)</strong>: 생산 작업 단계에서 SOP 외 조건 투입 시 생산 가동이 자동 차단(Poka-Yoke)되는 전산 제어 코드 긴급 업그레이드 적용.<br>
             - <strong>D5 (영구 대책 검증)</strong>: 8D 조치 담당자 지정 하에 3개 배치 연속 품질 안정성(Cpk 1.67 이상) 데이터 수집 및 실증 데이터 수립.
           </div>
         </div>
 
-        <div>
-          <div style="font-weight: 800; color: var(--brand-blue); font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
-            <span style="display:inline-block; width:6px; height:6px; background:var(--brand-blue); border-radius:50%;"></span>
+        <div class="premium-ai-feed-section">
+          <div class="premium-ai-feed-title status-brand">
+            <span class="status-dot"></span>
             4. Required Evidence (수검 필수 현장 증적)
           </div>
-          <div style="color: var(--text-primary); padding-left: 10px; border-left: 2px solid var(--border-card);">
+          <div class="premium-ai-feed-content">
             - ${worstProcess} 공정 온도 조절기 계측기 교정 검교정 성적서 원본 공유 폴더(Evidences) 동기화 보존.<br>
             - D3 교육 이행 확인을 위한 작업자 자필 서명 서약 교육 일지 확보.<br>
             - 공정 제어 한계(UCL/LCL) 개정 검증을 입증하는 최신 한계 관리 스탯 일지 보관.
           </div>
         </div>
 
-        <div>
-          <div style="font-weight: 800; color: var(--text-status-info); font-size: 12.5px; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
-            <span style="display:inline-block; width:6px; height:6px; background:var(--color-status-info); border-radius:50%;"></span>
+        <div class="premium-ai-feed-section">
+          <div class="premium-ai-feed-title status-info">
+            <span class="status-dot"></span>
             5. SOP Revision Guide (표준 작업 지침서 개정안)
           </div>
-          <div style="color: var(--text-primary); padding-left: 10px; border-left: 2px solid var(--border-card);">
+          <div class="premium-ai-feed-content">
             - <strong>문서번호 SOP-${activePlantCode}-${worstProcess.substring(0,3).toUpperCase()}-2026 개정</strong>: '가압 온도 이상 3분 이상 지속 시 부적합 격리창고(MR Zone) 전산 강제 이송 및 4M 특별 변경 이력 즉시 보고' 제6항 조항 신설 개정 추진.<br>
             - 현장 오퍼레이팅 보드에 실사 대조용 한글/영문 개정판 SOP 코멘트 명시 부착.
           </div>
