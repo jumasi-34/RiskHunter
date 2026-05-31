@@ -3940,17 +3940,18 @@ const app = {
 
     // 4. 점수 변환 뱃지 헬퍼
     const getScoreBadge = (scoreVal) => {
+      const naStyle = `display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #cbd5e1; color: #475569; font-size: 9px; font-weight: bold;`;
       if (scoreVal === undefined || scoreVal === null) {
-        return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 20px; border-radius: 10px; background: #cbd5e1; color: #475569; font-size: 10px; font-weight: bold;">N/A</span>`;
+        return `<span style="${naStyle}" title="해당없음 (N/A)">-</span>`;
       }
       const strScore = scoreVal.toString().trim().toUpperCase();
       if (strScore === 'N/A' || strScore === '') {
-        return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 20px; border-radius: 10px; background: #cbd5e1; color: #475569; font-size: 10px; font-weight: bold;">N/A</span>`;
+        return `<span style="${naStyle}" title="해당없음 (N/A)">-</span>`;
       }
       
       const score = parseFloat(strScore);
       if (isNaN(score)) {
-        return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 20px; border-radius: 10px; background: #cbd5e1; color: #475569; font-size: 10px; font-weight: bold;">N/A</span>`;
+        return `<span style="${naStyle}" title="해당없음 (N/A)">-</span>`;
       }
       
       if (score >= 9.0) {
@@ -3983,17 +3984,17 @@ const app = {
       const cellStyle = isActive 
         ? `background: #eef2ff; color: var(--brand-blue); border-left: 2px solid var(--brand-blue); border-right: 2px solid var(--brand-blue); border-top: 2px solid var(--brand-blue); border-bottom: 2px solid var(--brand-blue); position: sticky; top: 0; z-index: 11; font-weight: 800;` 
         : `background: #f8fafc; color: var(--text-secondary); position: sticky; top: 0; z-index: 10;`;
-      return `<th class="plant-col ${isActive ? 'active-col' : ''}" style="${cellStyle} text-align: center; font-size: 11px; padding: 10px 2px; width: 34px; border-bottom: 1px solid var(--border-card);">${p}</th>`;
+      return `<th class="plant-col ${isActive ? 'active-col' : ''}" style="${cellStyle} text-align: center; font-size: 11.5px; padding: 10px 6px; width: 56px; border-bottom: 1px solid var(--border-card);">${p}</th>`;
     }).join('');
 
     let tableHtml = `
       <table style="width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; font-family: 'Inter', sans-serif; table-layout: fixed;">
         <thead>
           <tr style="background: #f8fafc;">
-            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 12px; border-bottom: 1px solid var(--border-card); width: 85px;">공정</th>
-            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 4px; border-bottom: 1px solid var(--border-card); width: 45px; text-align: center;">구분</th>
-            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 4px; border-bottom: 1px solid var(--border-card); width: 45px; text-align: center;">번호</th>
-            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 12px; border-bottom: 1px solid var(--border-card); width: auto;">점검 요건 (Check Item)</th>
+            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 12px; border-bottom: 1px solid var(--border-card); width: 100px;">공정</th>
+            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 4px; border-bottom: 1px solid var(--border-card); width: 50px; text-align: center;">구분</th>
+            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 4px; border-bottom: 1px solid var(--border-card); width: 50px; text-align: center;">번호</th>
+            <th style="position: sticky; top: 0; z-index: 10; background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--text-secondary); padding: 10px 12px; border-bottom: 1px solid var(--border-card); width: auto; min-width: 250px;">점검 요건 (Check Item)</th>
             ${plantHeaders}
           </tr>
         </thead>
@@ -4032,8 +4033,8 @@ const app = {
           : `border-bottom: 1px solid #f1f5f9;`;
 
         const cellStyle = isActive 
-          ? `background: #f5f8ff; border-left: 2px solid var(--brand-blue); border-right: 2px solid var(--brand-blue); ${bottomBorder} text-align: center; vertical-align: middle; padding: 8px 2px; width: 34px;` 
-          : `text-align: center; vertical-align: middle; padding: 8px 2px; border-bottom: 1px solid #f1f5f9; width: 34px;`;
+          ? `background: #f5f8ff; border-left: 2px solid var(--brand-blue); border-right: 2px solid var(--brand-blue); ${bottomBorder} text-align: center; vertical-align: middle; padding: 8px 6px; width: 56px;` 
+          : `text-align: center; vertical-align: middle; padding: 8px 6px; border-bottom: 1px solid #f1f5f9; width: 56px;`;
         return `<td class="plant-cell ${isActive ? 'active-cell' : ''}" style="${cellStyle}">${badgeHtml}</td>`;
       }).join('');
 
@@ -4042,7 +4043,7 @@ const app = {
           <td style="font-size: 11px; font-weight: 600; color: var(--text-primary); padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${processKo}">${processKo}</td>
           <td style="text-align: center; padding: 10px 4px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;">${categoryBadge}</td>
           <td style="text-align: center; font-size: 11px; font-weight: bold; color: var(--text-muted-light); padding: 10px 4px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;">${item.item_no}</td>
-          <td style="font-size: 11.5px; color: var(--text-primary); padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; white-space: normal; word-break: break-word; line-height: 1.4;" title="${item.check_item.replace(/"/g, '&quot;')}">${item.check_item}</td>
+          <td style="font-size: 11.5px; color: var(--text-primary); padding: 10px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; white-space: normal; word-break: break-word; line-height: 1.45;" title="${item.check_item.replace(/"/g, '&quot;')}">${item.check_item}</td>
           ${plantCells}
         </tr>
       `;
