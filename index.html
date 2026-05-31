@@ -261,6 +261,24 @@
             <!-- JS 동적 로드 -->
           </div>
         </div>
+
+        <!-- 🏭 글로벌 공장별 종합 품질 리스크 지수 (CRI) 현황 (메뉴 3 연동) -->
+        <div class="card-solid flex-col" style="margin-bottom: 20px; padding: 18px 20px; gap: 15px;" id="dashboard-cri-status-section">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-card); padding-bottom: 12px; margin-bottom: 5px;">
+            <div>
+              <h2 class="card-title" style="display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 800; color: var(--text-primary);">
+                <i data-lucide="activity" style="width: 18px; height: 18px; color: var(--text-status-high);"></i> 글로벌 공장별 CRI (Composite Risk Index) 현황
+              </h2>
+              <p class="card-subtitle" style="font-size: 12px; margin-top: 2px;">메뉴 3 (Plant Risk & Action) 리더보드 데이터와 실시간 연계된 8대 생산 공장 품질 리스크 지수</p>
+            </div>
+            <button class="badge" style="background: rgba(16, 185, 129, 0.08); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); font-weight: 700; cursor: pointer; padding: 4px 10px; border-radius: 4px; font-size: 11px;" onclick="antigravity.navigateToPlantRisk('ALL');">
+              공장별 리스크 상세 분석 이동 ↩
+            </button>
+          </div>
+          <div id="dashboard-plant-cri-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; width: 100%;">
+            <!-- JS 동적 로드 -->
+          </div>
+        </div>
         
         <!-- 차트 및 리스크 보드 -->
         <div class="grid-2col">

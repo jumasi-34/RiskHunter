@@ -736,6 +736,37 @@ const app = {
     }
   },
 
+  // 🔗 대시보드 CRI 카드 클릭 시 3번 메뉴로의 동적 인터랙티브 링크 연동
+  navigateToPlantRisk(plantCode) {
+    console.log(`🔗 Navigating to Plant Risk & Action for: ${plantCode}`);
+    
+    if (plantCode === 'ALL') {
+      this.state.plantRiskActivePlant = 'DP';
+      this.state.selectedPlant = 'DP';
+    } else {
+      this.state.plantRiskActivePlant = plantCode;
+      this.state.selectedPlant = plantCode;
+    }
+    
+    const tab3FactorySelect = document.getElementById('tab3-plant-select');
+    if (tab3FactorySelect) {
+      tab3FactorySelect.value = this.state.plantRiskActivePlant;
+    }
+    const systemFactorySelect = document.getElementById('system-factory-select');
+    if (systemFactorySelect) {
+      systemFactorySelect.value = this.state.plantRiskActivePlant;
+    }
+    const globalPlantFilter = document.getElementById('filter-plant');
+    if (globalPlantFilter) {
+      globalPlantFilter.value = this.state.plantRiskActivePlant;
+    }
+
+    this.switchTab('plant-risk-action');
+    this.renderPlantRiskScreen();
+    
+    this.showToast(`${plantCode} 공장의 종합 품질 리스크 상세 분석 화면으로 이동하였습니다.`, 'success');
+  },
+
   // 📝 탭별 헤더 텍스트 실시간 업데이트
   updateHeader(tabId) {
     const titleNode = document.getElementById('page-title');
@@ -7884,6 +7915,126 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
       }
       
       // lucide 아이콘 동적 갱신
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    }
+
+    // ------------------------------------------------------------------------
+    // [1-3] 글로벌 공장별 종합 품질 리스크 지수 (CRI) 현황 동적 렌더링 (메뉴 3 연동)
+    // ------------------------------------------------------------------------
+    const plantCriGrid = document.getElementById('dashboard-plant-cri-grid');
+    if (plantCriGrid) {
+      let plants = (this.state.commonCodes.plants || []).filter(p => p.code !== 'ALL' && p.is_active);
+      if (plants.length === 0) {
+        plants = [
+          { code: 'KP', name: '한국금산' },
+          { code: 'DP', name: '한국대전' },
+          { code: 'JP', name: '중국가흥' },
+          { code: 'CP', name: '중국중경' },
+          { code: 'HP', name: '중국강소' },
+          { code: 'IP', name: '인도네시아' },
+          { code: 'MP', name: '헝가리' },
+          { code: 'TP', name: '미국테네시' }
+        ];
+      }
+
+      const allDetails = this.state.oeQualityAssessmentDetails || [];
+      const allIssues = (this.state.qualityIssues || []).filter(item => item.REG_DATE && item.REG_DATE.startsWith('2026') && item.HK_FAULT_YN === 'Y');
+
+      const rankings = plants.map(plant => {
+        const plantItems = allDetails.filter(item => item.plant === plant.code);
+        
+        const validSystemItems = plantItems.filter(item => {
+          if (item.category === 'Process') return false;
+          if (!item.score || item.score.toString().trim().toUpperCase() === 'N/A') return false;
+          return true;
+        });
+        let systemLevel = 100.0;
+        if (validSystemItems.length > 0) {
+          const sumScores = validSystemItems.reduce((sum, item) => sum + parseFloat(item.score), 0);
+          systemLevel = (sumScores / (validSystemItems.length * 10)) * 100;
+        }
+        
+        const validAssessmentItems = plantItems.filter(item => {
+          if (item.category !== 'Process') return false;
+          if (!item.score || item.score.toString().trim().toUpperCase() === 'N/A') return false;
+          return true;
+        });
+        let assessmentScore = 100.0;
+        if (validAssessmentItems.length > 0) {
+          const sumScores = validAssessmentItems.reduce((sum, item) => sum + parseFloat(item.score), 0);
+          assessmentScore = (sumScores / (validAssessmentItems.length * 10)) * 100;
+        }
+        
+        const plantIssuesCount = allIssues.filter(item => item.PLANT === plant.code).length;
+        const issuesPenalty = Math.min(100, plantIssuesCount * 10);
+        
+        const cri = 0.4 * (100 - systemLevel) + 0.3 * (100 - assessmentScore) + 0.3 * issuesPenalty;
+        
+        return {
+          code: plant.code,
+          name: plant.name,
+          cri: cri,
+          systemLevel: systemLevel,
+          assessmentScore: assessmentScore,
+          issuesPenalty: issuesPenalty,
+          issuesCount: plantIssuesCount
+        };
+      });
+
+      // CRI 기준 내림차순 정렬 (위험도가 높은 곳 우선 정렬)
+      rankings.sort((a, b) => b.cri - a.cri);
+
+      plantCriGrid.innerHTML = rankings.map((item, idx) => {
+        let riskBadgeText = 'LOW';
+        let riskBadgeClass = 'badge-success';
+        let progressBarColor = '#10b981'; // LOW: Green
+        
+        if (item.cri >= 20.0) {
+          riskBadgeText = 'CRITICAL';
+          riskBadgeClass = 'badge-danger blink';
+          progressBarColor = '#ef4444'; // CRITICAL: Red
+        } else if (item.cri >= 6.0) {
+          riskBadgeText = 'MODERATE';
+          riskBadgeClass = 'badge-warning';
+          progressBarColor = '#f59e0b'; // MODERATE: Amber
+        }
+
+        return `
+          <div class="card-solid" 
+               style="padding: 16px; background: rgba(30, 41, 59, 0.03); border: 1px solid var(--border-card); border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; cursor: pointer; transition: all 0.2s ease-in-out;" 
+               onclick="antigravity.navigateToPlantRisk('${item.code}')"
+               onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='var(--brand-blue)'; this.style.boxShadow='0 8px 20px rgba(37, 99, 235, 0.08)';" 
+               onmouseout="this.style.transform='none'; this.style.borderColor='var(--border-card)'; this.style.boxShadow='none';">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; flex-direction: column;">
+                <span style="font-weight: 800; color: var(--text-primary); font-size: 14px;">${item.name}</span>
+                <span style="font-size: 10px; color: var(--text-muted-light); font-weight: 700; text-transform: uppercase; margin-top: 1px;">${item.code}</span>
+              </div>
+              <span class="badge ${riskBadgeClass}" style="font-size: 10px; font-weight: 800; padding: 2px 6px;">
+                ${riskBadgeText}
+              </span>
+            </div>
+            
+            <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 5px;">
+              <span style="font-size: 11.5px; color: var(--text-secondary); font-weight: 500;">종합 리스크 지수</span>
+              <span style="font-family: 'Outfit', monospace; font-weight: 800; font-size: 22px; color: var(--text-primary);">${item.cri.toFixed(1)}</span>
+            </div>
+
+            <div style="width: 100%; height: 4px; background: rgba(15, 23, 42, 0.06); border-radius: 2px; overflow: hidden; border: 1px solid var(--border-card); margin-top: 2px;">
+              <div style="width: ${Math.min(100, item.cri)}%; height: 100%; background: ${progressBarColor}; border-radius: 2px; transition: width 0.3s ease;"></div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted-light); border-top: 1px solid rgba(15, 23, 42, 0.03); padding-top: 8px; margin-top: 4px;">
+              <span>인프라: <strong style="color: var(--text-secondary); font-weight: 700;">${item.systemLevel.toFixed(0)}%</strong></span>
+              <span>현장실사: <strong style="color: var(--text-secondary); font-weight: 700;">${item.assessmentScore.toFixed(0)}%</strong></span>
+              <span>이슈: <strong style="color: var(--text-secondary); font-weight: 700;">${item.issuesCount}건</strong></span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
       if (typeof lucide !== 'undefined') {
         lucide.createIcons();
       }
