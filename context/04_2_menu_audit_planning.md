@@ -67,9 +67,9 @@
     - **[상단-중단-하단 3단 복합 레이아웃]**:
       1. **상단**: 계기판 제목 및 모니터링 상태 배지가 가로 100% 한 줄 배치.
       2. **중단**: 5대 KPI 카드들(`.kpi-sub-card`)이 `repeat(5, 1fr)`로 계기판 가로 폭 100% 전체를 완전히 가득 채우며 완벽하게 균등 5분할 분포(D-DAY, 전체 항목 수, 완료, 진행중/대기, 지연). 미디어 쿼리를 탑재하여 노트북 및 태블릿 해상도에서도 찌그러짐이 일절 없도록 1100px 이하에서는 `repeat(3, 1fr)`, 768px 이하에서는 `repeat(2, 1fr)`로 컴팩트하게 재배열 연동.
-      3. **하단**: 실시간 준비율 원형 게이지(반지름 26px 둘레 163.36px 규격 정밀 유지)와 4대 디테일 인포 블록(완성차 OEM, 대상 공장, 감사 일정, Audit 감사 종류)이 가로 한 줄로 자연스럽게 정렬되며 가로를 가득 채움.
-    - **[하단 원형 게이지 및 4대 디테일 칩 반응형 정렬]**:
-      - 왼쪽 원형 게이지(`.monitoring-gauge-area`)에는 `flex-shrink: 0; min-width: max-content;`를 부여해 어떤 해상도에서도 게이지와 준비율 숫자가 찌그러지지 않도록 원천 보호함.
+      3. **하단**: 실시간 준비율 요약 텍스트 영역(기존 원형 게이지는 제거됨)과 4대 디테일 인포 블록(완성차 OEM, 대상 공장, 감사 일정, Audit 감사 종류)이 가로 한 줄로 자연스럽게 정렬되며 가로를 가득 채움.
+    - **[하단 준비율 텍스트 및 4대 디테일 칩 반응형 정렬]**:
+      - 왼쪽 준비율 영역(`.monitoring-gauge-area`)에는 `flex-shrink: 0; min-width: max-content;`를 부여해 어떤 해상도에서도 텍스트와 준비율 수치가 찌그러지지 않도록 원천 보호함.
       - 오른쪽 디테일 칩 영역(`.monitoring-detail-grid`)은 노트북(1200px 이하) 환경에서 하단에 깔끔하게 가로 한 줄(`grid-template-columns: repeat(4, 1fr)`)로 정렬되며, 850px 이하에서는 `repeat(2, 1fr)` (2열 2행)로 칩들이 자연스럽게 재배치되어 텍스트 깨짐을 원천 방지함.
     - 4대 디테일 인포 블록은 가로 한 줄 분할 칩 그리드(gap 10px)로 배치되며, `background: var(--bg-app, #f8fafc)` (차분한 라이트 그레이), `border: 1px solid var(--border-card, #e2e8f0)` (가벼운 테두리), `padding: 5px 10px;` 사양 및 말줄임표(`text-overflow: ellipsis`)를 적용하여 어떤 문자열도 정합성 있게 보존.
     - 5대 KPI 가로 카드들(`.kpi-sub-card`)은 `background: var(--bg-app, #f8fafc)`, `border: 1px solid var(--border-card, #e2e8f0)` 조합에 `padding: 8px 6px !important;`, `height: 100% !important;` 및 수치 폰트를 현대적인 테크 서체 `'Outfit', sans-serif`로 지정하여 가로 100%를 웅장하고 컴팩트하게 채우도록 정렬.
