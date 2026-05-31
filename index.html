@@ -1210,17 +1210,19 @@
         </div>
 
         <!-- 🛠️ 라이브러리 로컬 필터 바 (Library Local Filter Panel) -->
-        <div class="card-solid filter-bar-card" id="library-filter-bar" style="margin-top: 15px; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; padding: 12px 20px;">
-          <div class="filter-item">
-            <label for="library-filter-plant"><i data-lucide="factory"></i> 대상 공장</label>
-            <select id="library-filter-plant" class="filter-select">
-              <!-- 동적 로딩 -->
-            </select>
-          </div>
+        <div class="card-solid filter-bar-card" id="library-filter-bar" style="margin-top: 15px; margin-bottom: 15px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; padding: 12px 20px;">
           <div class="filter-item">
             <label for="library-filter-customer"><i data-lucide="car"></i> 완성차 고객사 (OEM)</label>
             <select id="library-filter-customer" class="filter-select">
               <!-- 동적 로딩 -->
+            </select>
+          </div>
+          <div class="filter-item">
+            <label for="library-filter-lang"><i data-lucide="globe"></i> 출력 언어 (Language)</label>
+            <select id="library-filter-lang" class="filter-select">
+              <option value="KO">🇰🇷 한국어 (KO)</option>
+              <option value="EN">🇺🇸 English (EN)</option>
+              <option value="ZH">🇨🇳 中文 (ZH)</option>
             </select>
           </div>
           <div class="filter-item filter-btn-item">
@@ -1231,48 +1233,48 @@
           </div>
         </div>
 
+        <!-- 🔍 실시간 통합 검색 바 (Full-Width Search Bar) -->
+        <div class="card-solid" style="margin-bottom: 20px; padding: 10px 16px; background: rgba(30, 41, 59, 0.2); border: 1px solid var(--border-card); display: flex; align-items: center; gap: 10px; border-radius: 8px;">
+          <i data-lucide="search" style="width: 18px; height: 18px; color: var(--text-secondary); flex-shrink: 0;"></i>
+          <input type="text" id="checklist-search-input" class="chat-input" placeholder="체크리스트 질문, 증적 요구 요건, 지적사항, 원인 분석, 조치 대책 등 통합 검색..." style="width: 100%; border: none; background: transparent; padding: 6px 0; color: var(--text-primary); font-size: 14px; outline: none;">
+        </div>
+
         <!-- 서브 탭 1: Master Checklist -->
         <div id="sub-tab-content-master-checklist" class="sub-tab-pane active-sub-pane">
-          <!-- 공정별 전체 현황 요약 보드 -->
-          <div id="checklist-process-summary-container" class="card-solid" style="padding: 16px 20px; margin-bottom: 16px; min-width: 0; width: 100%; overflow: hidden;">
-            <div style="font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-              <i data-lucide="layers" style="width: 16px; height: 16px; color: var(--brand-blue);"></i>
-              <span>Process-wise Overall Status (공정 Process별 수검 현황 요약)</span>
-            </div>
-            <div id="checklist-process-summary" style="display: flex; min-height: 40px; align-items: center; width: 100%; min-width: 0; overflow: hidden;">
-              <!-- Dynamic process dropdown & stats loaded from JS -->
-              <div class="loading-text" style="color: var(--text-secondary); font-size: 13px;">데이터를 파싱하여 공정별 통계를 연산 중입니다...</div>
-            </div>
-          </div>
-
           <div class="checklist-container">
             <div class="card-solid checklist-main-panel w-100">
-              <div class="card-header">
+              <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--border-card);">
                 <div class="flex-between" style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
-                  <div>
-                    <h2 class="card-title">현장 자체 감사 마스터 체크리스트 (Smart Checklist)</h2>
-                    <p class="card-subtitle">공정 리스크 및 OEM 규격 조항이 하이브리드 연계된 표준 체크리스트</p>
+                  <!-- 내측 서브 탭 바 및 엑셀 추출 버튼 -->
+                  <div class="inner-tabs" style="display: flex; gap: 6px; background: rgba(0,0,0,0.15); padding: 4px; border-radius: 8px; border: 1px solid var(--border-card);">
+                    <button class="inner-tab-btn active" id="tab-checklist-custom" data-inner-tab="custom" style="padding: 6px 16px; border: none; background: var(--brand-blue); border-radius: 6px; font-size: 13px; font-weight: 600; color: var(--text-light); cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                      <i data-lucide="check-square" style="width: 14px; height: 14px;"></i>
+                      <span>[Check List 1] 맞춤형 감사 체크리스트</span>
+                    </button>
+                    <button class="inner-tab-btn" id="tab-checklist-findings" data-inner-tab="findings" style="padding: 6px 16px; border: none; background: transparent; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                      <i data-lucide="alert-octagon" style="width: 14px; height: 14px;"></i>
+                      <span>[Check List 2] 과거 OE Audit 지적사항</span>
+                    </button>
                   </div>
                   <div class="flex-row gap-8" style="display: flex; gap: 8px; align-items: center;">
-                    <input type="text" id="checklist-search-input" class="chat-input" placeholder="질문, 규격, 증적 통합 검색..." style="width: 220px; font-size: 13px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-card); border-radius: 6px; padding: 6px 12px; color: var(--text-primary);">
                     <button class="btn btn-secondary" id="btn-checklist-csv-export" style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; cursor: pointer;">
                       <i data-lucide="download" style="width: 14px; height: 14px;"></i>
-                      <span>CSV 내보내기</span>
+                      <span>엑셀 추출</span>
                     </button>
                   </div>
                 </div>
               </div>
-              <div class="card-body" style="overflow: hidden; display: flex; flex-direction: column; flex: 1;">
-                <div class="table-responsive" style="overflow-x: auto; overflow-y: auto; flex: 1; min-height: 250px; min-width: 0; width: 100%;">
+
+              <!-- [Check List 1] 맞춤형 감사 체크리스트 패널 -->
+              <div id="panel-checklist-custom" class="card-body" style="overflow: hidden; display: flex; flex-direction: column; flex: 1; padding: 0 20px 16px;">
+                <div class="table-responsive" style="overflow-x: auto; overflow-y: auto; flex: 1; min-height: 250px; min-width: 0; width: 100%; margin-top: 15px;">
                   <table class="data-table" id="checklist-data-table" style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead>
                       <tr style="border-bottom: 1px solid var(--border-card); background: rgba(255,255,255,0.02);">
-                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 60px;">ID</th>
-                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 80px;">고객사</th>
-                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 130px;">규격 코드</th>
-                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 110px;">공정 분류</th>
-                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 80px; text-align: center;">중요도</th>
-                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary);">감사 핵심 질문 (Audit Question)</th>
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 120px;">구분 (SECTION)</th>
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary);">감사 체크리스트 핵심 질문 (AUDIT QUESTION)</th>
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 300px;">대응 합치 증적 요구 요건 (EVIDENCE REQUIRED)</th>
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 220px;">검사 방법</th>
                       </tr>
                     </thead>
                     <tbody id="checklist-table-body">
@@ -1285,6 +1287,36 @@
                   <div style="display: flex; gap: 6px;">
                     <button class="btn btn-secondary" id="btn-checklist-prev-page" style="padding: 4px 10px; font-size: 11px;"><i data-lucide="chevron-left" style="width: 12px; height: 12px;"></i> 이전</button>
                     <button class="btn btn-secondary" id="btn-checklist-next-page" style="padding: 4px 10px; font-size: 11px;">다음 <i data-lucide="chevron-right" style="width: 12px; height: 12px;"></i></button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- [Check List 2] 과거 OE Audit 지적사항 패널 -->
+              <div id="panel-checklist-findings" class="card-body" style="overflow: hidden; display: none; flex-direction: column; flex: 1; padding: 0 20px 16px;">
+                <div class="table-responsive" style="overflow-x: auto; overflow-y: auto; flex: 1; min-height: 250px; min-width: 0; width: 100%; margin-top: 15px;">
+                  <table class="data-table" id="findings-data-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                      <tr style="border-bottom: 1px solid var(--border-card); background: rgba(255,255,255,0.02);">
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 110px;">공정 (PROCESS)</th>
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 60px; text-align: center;">공장</th>
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 100px; text-align: center;">프로젝트</th>
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary);">지적 사항 (POINT OUT)</th>
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 200px;">원인 분석 (ROOT CAUSE)</th>
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 200px;">영구 조치 계획 (COUNTERMEASURE)</th>
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 100px; text-align: center;">상태</th>
+                        <th style="padding: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 110px; text-align: center;">감사 일정</th>
+                      </tr>
+                    </thead>
+                    <tbody id="findings-table-body">
+                      <!-- Dynamic rows loaded from JS -->
+                    </tbody>
+                  </table>
+                </div>
+                <div id="findings-table-pagination" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-top: 1px solid var(--border-card); font-size: 12px; color: var(--text-secondary);">
+                  <span id="findings-pagination-info">데이터 로딩 중...</span>
+                  <div style="display: flex; gap: 6px;">
+                    <button class="btn btn-secondary" id="btn-findings-prev-page" style="padding: 4px 10px; font-size: 11px;"><i data-lucide="chevron-left" style="width: 12px; height: 12px;"></i> 이전</button>
+                    <button class="btn btn-secondary" id="btn-findings-next-page" style="padding: 4px 10px; font-size: 11px;">다음 <i data-lucide="chevron-right" style="width: 12px; height: 12px;"></i></button>
                   </div>
                 </div>
               </div>

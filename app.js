@@ -784,6 +784,7 @@ const app = {
       const filterBar = document.getElementById('library-filter-bar');
       if (filterBar) filterBar.style.display = 'flex';
       this.renderChecklistTable();
+      this.renderFindingsTable();
     } else if (subTabId === 'customer-reqs') {
       const filterBar = document.getElementById('library-filter-bar');
       if (filterBar) filterBar.style.display = 'none'; // 공장 선택 필터가 필요 없으므로 숨김!
@@ -5293,37 +5294,111 @@ const app = {
   // 📁 5. Library (통합 감사 지식 라이브러리 핵심 구현)
   // ==========================================================================
   initLibraryTab() {
-    // 1. 수검 공정별 전체 현황 카드 렌더링
+    // 1. 상태 변수 초기화
+    if (!this.state.libraryInnerTab) this.state.libraryInnerTab = 'custom';
+    if (!this.state.findingsCurrentPage) this.state.findingsCurrentPage = 1;
+    if (!this.state.findingsPageSize) this.state.findingsPageSize = 10;
+
+    // 2. 수검 공정별 전체 현황 카드 렌더링 (null-guarded)
     this.renderProcessSummary();
 
-    // 2. 마스터 체크리스트 테이블 그리드 렌더링 및 페이지네이션 초기화
+    // 3. 양대 테이블 렌더링
     this.renderChecklistTable();
+    this.renderFindingsTable();
 
-    // 3. OE 기술 사양서 리스트 렌더링
+    // 4. OE 기술 사양서 리스트 및 매핑 렌더링
     this.renderDocumentLibrary();
-
-    // 4. 규격-리스크 매핑 구조 렌더링
     this.renderRequirementMapping();
 
-    // 5. 체크리스트 검색바 실시간 바인딩 (이벤트 디바운싱 대체용)
+    // 5. 로컬 출력 언어 필터 초기 설정 및 바인딩
+    const langSelect = document.getElementById('library-filter-lang');
+    if (langSelect) {
+      langSelect.value = this.state.currentLang || 'KO';
+      langSelect.addEventListener('change', (e) => {
+        this.state.currentLang = e.target.value;
+        localStorage.setItem('riskhunter_language', this.state.currentLang);
+        
+        // 상단 글로벌 셀렉터 동기화
+        const globalLang = document.getElementById('global-lang-select');
+        if (globalLang) globalLang.value = this.state.currentLang;
+
+        this.showToast(`시스템 언어가 [${e.target.options[e.target.selectedIndex].text}](으)로 변경되었습니다.`, 'success');
+        this.onLanguageChange();
+      });
+    }
+
+    // 6. 내측 서브 탭 (Check List 1 / Check List 2) 스위칭 바인딩
+    const tabCustom = document.getElementById('tab-checklist-custom');
+    const tabFindings = document.getElementById('tab-checklist-findings');
+    const panelCustom = document.getElementById('panel-checklist-custom');
+    const panelFindings = document.getElementById('panel-checklist-findings');
+
+    if (tabCustom && tabFindings && panelCustom && panelFindings) {
+      tabCustom.addEventListener('click', () => {
+        this.state.libraryInnerTab = 'custom';
+        
+        tabCustom.classList.add('active');
+        tabCustom.style.background = 'var(--brand-blue)';
+        tabCustom.style.color = 'var(--text-light)';
+        tabCustom.style.fontWeight = '600';
+
+        tabFindings.classList.remove('active');
+        tabFindings.style.background = 'transparent';
+        tabFindings.style.color = 'var(--text-secondary)';
+        tabFindings.style.fontWeight = '500';
+
+        panelCustom.style.display = 'flex';
+        panelFindings.style.display = 'none';
+
+        this.renderChecklistTable();
+      });
+
+      tabFindings.addEventListener('click', () => {
+        this.state.libraryInnerTab = 'findings';
+
+        tabFindings.classList.add('active');
+        tabFindings.style.background = 'var(--brand-blue)';
+        tabFindings.style.color = 'var(--text-light)';
+        tabFindings.style.fontWeight = '600';
+
+        tabCustom.classList.remove('active');
+        tabCustom.style.background = 'transparent';
+        tabCustom.style.color = 'var(--text-secondary)';
+        tabCustom.style.fontWeight = '500';
+
+        panelCustom.style.display = 'none';
+        panelFindings.style.display = 'flex';
+
+        this.renderFindingsTable();
+      });
+    }
+
+    // 7. 실시간 통합 검색바 바인딩
     const checklistSearch = document.getElementById('checklist-search-input');
     if (checklistSearch) {
       checklistSearch.addEventListener('input', (e) => {
         this.state.checklistSearchQuery = e.target.value.trim();
-        this.state.checklistCurrentPage = 1; // 검색 시 1페이지로 리턴
+        this.state.checklistCurrentPage = 1; 
+        this.state.findingsCurrentPage = 1;
+        
         this.renderChecklistTable();
+        this.renderFindingsTable();
       });
     }
 
-    // 6. CSV 내보내기 액션 핸들러 바인딩
+    // 8. 엑셀 추출 액션 핸들러 바인딩
     const btnCsvExport = document.getElementById('btn-checklist-csv-export');
     if (btnCsvExport) {
       btnCsvExport.addEventListener('click', () => {
-        this.exportChecklistToCSV();
+        if (this.state.libraryInnerTab === 'custom') {
+          this.exportChecklistToCSV();
+        } else {
+          this.exportFindingsToCSV();
+        }
       });
     }
 
-    // 7. 이전 / 다음 페이지네이션 버튼 바인딩
+    // 9. Check List 1 페이지네이션 버튼 바인딩
     const btnPrevPage = document.getElementById('btn-checklist-prev-page');
     const btnNextPage = document.getElementById('btn-checklist-next-page');
     if (btnPrevPage) {
@@ -5345,7 +5420,29 @@ const app = {
       });
     }
 
-    // 8. 서브 상세 드로어 닫기 버튼 핸들러
+    // 10. Check List 2 페이지네이션 버튼 바인딩
+    const btnFindingsPrev = document.getElementById('btn-findings-prev-page');
+    const btnFindingsNext = document.getElementById('btn-findings-next-page');
+    if (btnFindingsPrev) {
+      btnFindingsPrev.addEventListener('click', () => {
+        if (this.state.findingsCurrentPage > 1) {
+          this.state.findingsCurrentPage--;
+          this.renderFindingsTable();
+        }
+      });
+    }
+    if (btnFindingsNext) {
+      btnFindingsNext.addEventListener('click', () => {
+        const totalItems = this.getFilteredFindings().length;
+        const totalPages = Math.ceil(totalItems / this.state.findingsPageSize);
+        if (this.state.findingsCurrentPage < totalPages) {
+          this.state.findingsCurrentPage++;
+          this.renderFindingsTable();
+        }
+      });
+    }
+
+    // 11. 서브 상세 드로어 닫기 버튼 핸들러
     const btnCloseDrawer = document.getElementById('btn-close-drawer');
     if (btnCloseDrawer) {
       btnCloseDrawer.addEventListener('click', () => {
@@ -5354,7 +5451,7 @@ const app = {
       });
     }
 
-    // 9. OE 요약본 검색 필드 바인딩
+    // 12. OE 요약본 검색 필드 바인딩
     const libSearch = document.getElementById('lib-search-input');
     if (libSearch) {
       libSearch.addEventListener('input', (e) => {
@@ -5363,7 +5460,7 @@ const app = {
       });
     }
 
-    // 10. 가상 원본 다운로드 트리거 바인딩
+    // 13. 가상 원본 다운로드 트리거 바인딩
     const btnDownloadDoc = document.getElementById('btn-lib-download-doc');
     if (btnDownloadDoc) {
       btnDownloadDoc.addEventListener('click', () => {
@@ -5724,10 +5821,30 @@ const app = {
 
     tbody.innerHTML = '';
 
+    const processTranslations = {
+      'Mixing': { KO: '정련', EN: 'Mixing', ZH: '混炼' },
+      'Extrusion': { KO: '압출', EN: 'Extrusion', ZH: '挤出' },
+      'Curing': { KO: '가류', EN: 'Curing', ZH: '硫化' },
+      'Building': { KO: '성형', EN: 'Building', ZH: '成型' },
+      'Calendaring': { KO: '압연', EN: 'Calendaring', ZH: '压延' },
+      'Cutting': { KO: '재단', EN: 'Cutting', ZH: '裁断' },
+      'Bead': { KO: '비드', EN: 'Bead', ZH: '胎圈' },
+      'Incoming': { KO: '수입검사', EN: 'Incoming', ZH: '来料' },
+      'Re-work': { KO: '재작업', EN: 'Re-work', ZH: '返工' },
+      'Form': { KO: '폼', EN: 'Form', ZH: '海绵' },
+      'Sealant': { KO: '실란트', EN: 'Sealant', ZH: '密封胶' },
+      'Logistics': { KO: '물류', EN: 'Logistics', ZH: '物流' },
+      'Inspection': { KO: '외관검사', EN: 'Inspection', ZH: '检测' },
+      'Test': { KO: '시험', EN: 'Test', ZH: '测试' },
+      'System': { KO: '시스템', EN: 'System', ZH: '体系' },
+      'General': { KO: '일반', EN: 'General', ZH: '通用' }
+    };
+    const currentLang = this.state.currentLang || 'KO';
+
     if (paginatedItems.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="6" style="padding: 40px; text-align: center; color: var(--text-secondary); font-size: 13px;">
+          <td colspan="4" style="padding: 40px; text-align: center; color: var(--text-secondary); font-size: 13px;">
             <i data-lucide="info" style="width: 24px; height: 24px; margin-bottom: 8px; opacity: 0.5;"></i>
             <p>검색 조건 및 선택 공정에 해당되는 표준 감사 체크리스트가 없습니다.</p>
           </td>
@@ -5747,33 +5864,19 @@ const app = {
         tr.style.background = 'rgba(59, 130, 246, 0.08)';
       }
 
-      // 중요도 배지 정의
-      let priorityBadge = '';
-      if (item.priority && item.priority.toUpperCase() === 'HIGH') {
-        priorityBadge = `<span style="padding: 2px 6px; font-size: 10px; font-weight: 700; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 4px;">High</span>`;
-      } else if (item.priority && item.priority.toUpperCase() === 'MEDIUM') {
-        priorityBadge = `<span style="padding: 2px 6px; font-size: 10px; font-weight: 700; background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 4px;">Med</span>`;
-      } else {
-        priorityBadge = `<span style="padding: 2px 6px; font-size: 10px; font-weight: 700; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 4px;">Low</span>`;
-      }
-
-      // 고객사별 커스텀 배지 색상 매핑
-      const customer = item.customer || 'OEM';
-      let custBg = 'rgba(255, 255, 255, 0.05)';
-      let custCol = 'var(--text-primary)';
-      if (customer.toUpperCase().includes('BMW')) { custBg = 'rgba(29, 78, 216, 0.15)'; custCol = '#60a5fa'; }
-      else if (customer.toUpperCase().includes('AUDI')) { custBg = 'rgba(220, 38, 38, 0.15)'; custCol = '#f87171'; }
-      else if (customer.toUpperCase().includes('HYUNDAI') || customer.toUpperCase().includes('HKMC')) { custBg = 'rgba(16, 185, 129, 0.15)'; custCol = '#34d399'; }
+      const rawProcess = item.process_category || 'General';
+      const processName = (processTranslations[rawProcess] && processTranslations[rawProcess][currentLang]) || rawProcess;
 
       tr.innerHTML = `
-        <td style="padding: 12px; font-size: 13px; font-family: monospace; color: var(--text-secondary);">${item.id}</td>
-        <td style="padding: 12px; font-size: 12px; font-weight: 600;">
-          <span style="padding: 2px 6px; background: ${custBg}; color: ${custCol}; border-radius: 4px;">${customer}</span>
+        <td style="padding: 12px; font-size: 12px; font-weight: 500;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span class="badge" style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-card); font-size: 11px; align-self: flex-start;">${processName}</span>
+            <span style="font-size: 10px; color: var(--text-secondary); max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.section}">${item.section}</span>
+          </div>
         </td>
-        <td style="padding: 12px; font-size: 12px; font-family: monospace; font-weight: 500; color: var(--text-light); text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 130px;" title="${item.doc_code}">${item.doc_code}</td>
-        <td style="padding: 12px; font-size: 12px; font-weight: 500;"><span class="badge" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-card); font-size: 11px;">${item.process_category}</span></td>
-        <td style="padding: 12px; text-align: center;">${priorityBadge}</td>
-        <td style="padding: 12px; font-size: 13px; color: var(--text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 400px;" title="${item.audit_question}">${item.audit_question}</td>
+        <td style="padding: 12px; font-size: 13px; color: var(--text-primary); max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.audit_question}">${item.audit_question}</td>
+        <td style="padding: 12px; font-size: 12px; color: var(--text-secondary); max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.evidence_compliance}">${item.evidence_compliance}</td>
+        <td style="padding: 12px; font-size: 12px; color: var(--text-secondary); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.audit_method}">${item.audit_method}</td>
       `;
 
       // 행 클릭 이벤트 수립 -> 세부 드로어 열기 및 데이터 바인딩
@@ -5943,6 +6046,340 @@ const app = {
     document.body.removeChild(link);
     
     this.showToast(`체크리스트 ${list.length}건이 성공적으로 다운로드되었습니다.`, 'success');
+  },
+
+  // 📋 [Check List 2] 과거 OE Audit 지적사항 필터 데이터 추출
+  getFilteredFindings() {
+    let list = this.state.auditFindings || [];
+    
+    // 🛡️ 완성차 계층형 매핑 마스터 (Smart OEM Hierarchy) 반영 (Customer)
+    const selectedCustomer = this.state.librarySelectedCustomer || 'ALL';
+    if (selectedCustomer !== 'ALL') {
+      let targetOems = [selectedCustomer];
+      if (OEM_MASTER[selectedCustomer] && OEM_MASTER[selectedCustomer].subs) {
+        targetOems = targetOems.concat(OEM_MASTER[selectedCustomer].subs);
+      }
+      const lowerTargetOems = targetOems.map(o => o.toLowerCase());
+      list = list.filter(item => lowerTargetOems.includes((item.CAR_MAKER || '').toLowerCase()));
+    }
+    
+    // 2. 통합 검색어 필터
+    if (this.state.checklistSearchQuery) {
+      const q = this.state.checklistSearchQuery.toLowerCase();
+      list = list.filter(item => {
+        const pointOutKo = (item.POINT_OUT_KO || item.POINT_OUT || '').toLowerCase();
+        const pointOutEn = (item.POINT_OUT_EN || '').toLowerCase();
+        const rootCauseKo = (item.ROOT_CAUSE_KO || item.ROOT_CAUSE_ANALYSIS || '').toLowerCase();
+        const rootCauseEn = (item.ROOT_CAUSE_EN || '').toLowerCase();
+        const counterMeasureKo = (item.COUNTER_MEASURE_KO || item.COUNTER_MEASURE || '').toLowerCase();
+        const counterMeasureEn = (item.COUNTER_MEASURE_EN || '').toLowerCase();
+        const process = (item.PROCESS || '').toLowerCase();
+        const project = (item.PROJECT || '').toLowerCase();
+        const carMaker = (item.CAR_MAKER || '').toLowerCase();
+        
+        return pointOutKo.includes(q) ||
+               pointOutEn.includes(q) ||
+               rootCauseKo.includes(q) ||
+               rootCauseEn.includes(q) ||
+               counterMeasureKo.includes(q) ||
+               counterMeasureEn.includes(q) ||
+               process.includes(q) ||
+               project.includes(q) ||
+               carMaker.includes(q);
+      });
+    }
+
+    return list;
+  },
+
+  // 👥 다국어 번역 헬퍼
+  getTranslatedField(item, field) {
+    const lang = this.state.currentLang || 'KO';
+    if (field === 'POINT_OUT') {
+      if (lang === 'KO') return item.POINT_OUT_KO || item.POINT_OUT || 'N/A';
+      if (lang === 'EN') return item.POINT_OUT_EN || item.POINT_OUT || 'N/A';
+      if (lang === 'ZH') return item.POINT_OUT_ZH || item.POINT_OUT_EN || item.POINT_OUT || 'N/A';
+    }
+    if (field === 'ROOT_CAUSE') {
+      if (lang === 'KO') return item.ROOT_CAUSE_KO || item.ROOT_CAUSE_ANALYSIS || 'N/A';
+      if (lang === 'EN') return item.ROOT_CAUSE_EN || item.ROOT_CAUSE_ANALYSIS || 'N/A';
+      if (lang === 'ZH') return item.ROOT_CAUSE_ZH || item.ROOT_CAUSE_EN || item.ROOT_CAUSE_ANALYSIS || 'N/A';
+    }
+    if (field === 'COUNTER_MEASURE') {
+      if (lang === 'KO') return item.COUNTER_MEASURE_KO || item.COUNTER_MEASURE || 'N/A';
+      if (lang === 'EN') return item.COUNTER_MEASURE_EN || item.COUNTER_MEASURE || 'N/A';
+      if (lang === 'ZH') return item.COUNTER_MEASURE_ZH || item.COUNTER_MEASURE_EN || item.COUNTER_MEASURE || 'N/A';
+    }
+    return 'N/A';
+  },
+
+  // 📋 [Check List 2] 과거 OE Audit 지적사항 데이터 테이블 및 페이지네이션 렌더러
+  renderFindingsTable() {
+    const tbody = document.getElementById('findings-table-body');
+    const pagInfo = document.getElementById('findings-pagination-info');
+    if (!tbody || !pagInfo) return;
+
+    const filtered = this.getFilteredFindings();
+    const totalItems = filtered.length;
+    const totalPages = Math.ceil(totalItems / this.state.findingsPageSize) || 1;
+
+    // 현재 슬라이스 한계 클램핑
+    if (this.state.findingsCurrentPage > totalPages) this.state.findingsCurrentPage = totalPages;
+
+    const startIdx = (this.state.findingsCurrentPage - 1) * this.state.findingsPageSize;
+    const endIdx = Math.min(startIdx + this.state.findingsPageSize, totalItems);
+    const paginatedItems = filtered.slice(startIdx, endIdx);
+
+    tbody.innerHTML = '';
+
+    const processTranslations = {
+      'Mixing': { KO: '정련', EN: 'Mixing', ZH: '混炼' },
+      'Extrusion': { KO: '압출', EN: 'Extrusion', ZH: '挤出' },
+      'Curing': { KO: '가류', EN: 'Curing', ZH: '硫化' },
+      'Building': { KO: '성형', EN: 'Building', ZH: '成型' },
+      'Calendaring': { KO: '압연', EN: 'Calendaring', ZH: '压延' },
+      'Cutting': { KO: '재단', EN: 'Cutting', ZH: '裁断' },
+      'Bead': { KO: '비드', EN: 'Bead', ZH: '胎圈' },
+      'Incoming': { KO: '수입검사', EN: 'Incoming', ZH: '来料' },
+      'Re-work': { KO: '재작업', EN: 'Re-work', ZH: '返工' },
+      'Form': { KO: '폼', EN: 'Form', ZH: '海绵' },
+      'Sealant': { KO: '실란트', EN: 'Sealant', ZH: '密封胶' },
+      'Logistics': { KO: '물류', EN: 'Logistics', ZH: '物流' },
+      'Inspection': { KO: '외관검사', EN: 'Inspection', ZH: '检测' },
+      'Test': { KO: '시험', EN: 'Test', ZH: '测试' },
+      'System': { KO: '시스템', EN: 'System', ZH: '体系' },
+      'General': { KO: '일반', EN: 'General', ZH: '通用' }
+    };
+    const currentLang = this.state.currentLang || 'KO';
+
+    if (paginatedItems.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" style="padding: 40px; text-align: center; color: var(--text-secondary); font-size: 13px;">
+            <i data-lucide="info" style="width: 24px; height: 24px; margin-bottom: 8px; opacity: 0.5;"></i>
+            <p>검색 조건에 해당되는 과거 OE Audit 지적사항이 없습니다.</p>
+          </td>
+        </tr>
+      `;
+      pagInfo.textContent = `0 - 0 / 총 0건`;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      return;
+    }
+
+    paginatedItems.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid var(--border-card)';
+      tr.style.cursor = 'pointer';
+      tr.className = 'table-row-hover';
+      if (this.state.selectedFindingItem && this.state.selectedFindingItem === item) {
+        tr.style.background = 'rgba(59, 130, 246, 0.08)';
+      }
+
+      const rawProcess = item.PROCESS || item.process || this.getFindingProcess(item) || 'General';
+      const processName = (processTranslations[rawProcess] && processTranslations[rawProcess][currentLang]) || rawProcess;
+
+      const projectText = item.PROJECT || '-';
+      const pointOut = this.getTranslatedField(item, 'POINT_OUT');
+      const rootCause = this.getTranslatedField(item, 'ROOT_CAUSE');
+      const counterMeasure = this.getTranslatedField(item, 'COUNTER_MEASURE');
+
+      tr.innerHTML = `
+        <td style="padding: 12px; font-size: 12px; font-weight: 600; color: #3b82f6; vertical-align: middle;">
+          ${processName}
+        </td>
+        <td style="padding: 12px; font-size: 11px; font-weight: 700; color: var(--text-primary); text-align: center; vertical-align: middle; line-height: 1.2; letter-spacing: 0.05em;">
+          ${(item.PLANT || 'MP').split('').join('<br>')}
+        </td>
+        <td style="padding: 12px; font-size: 12px; color: var(--text-secondary); text-align: center; vertical-align: middle;">
+          ${projectText}
+        </td>
+        <td style="padding: 12px; font-size: 12px; font-weight: 500; color: #dc2626; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle;" title="${pointOut}">
+          ${pointOut}
+        </td>
+        <td style="padding: 12px; font-size: 12px; color: var(--text-secondary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle;" title="${rootCause}">
+          ${rootCause || '-'}
+        </td>
+        <td style="padding: 12px; font-size: 12px; color: var(--text-secondary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle;" title="${counterMeasure}">
+          ${counterMeasure || '-'}
+        </td>
+        <td style="padding: 12px; text-align: center; vertical-align: middle;">
+          <span class="badge" style="font-size: 11px; padding: 2px 8px; border-radius: 4px; display: inline-block; background: ${item.STATUS === 'Closed' || item.STATUS === 'Complete' ? 'rgba(16,185,129,0.06)' : 'rgba(245,158,11,0.06)'}; color: ${item.STATUS === 'Closed' || item.STATUS === 'Complete' ? '#10b981' : '#f59e0b'}; border: 1px solid ${item.STATUS === 'Closed' || item.STATUS === 'Complete' ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.25)'};">
+            ${item.STATUS || 'On-going'}
+          </span>
+        </td>
+        <td style="padding: 12px; text-align: center; vertical-align: middle; font-size: 11px; font-weight: 600; color: #16a34a; font-family: monospace;">
+          ${item.REG_DT || item.START_DT || '-'}
+        </td>
+      `;
+
+      // 행 클릭 이벤트 수립 -> 세부 드로어 열기 및 데이터 바인딩
+      tr.addEventListener('click', () => {
+        this.state.selectedFindingItem = item;
+        this.renderFindingsTable(); // 배경 행 색상 싱크
+        this.openFindingsChecklistDrawer(item);
+      });
+
+      tbody.appendChild(tr);
+    });
+
+    pagInfo.textContent = `${startIdx + 1} - ${endIdx} / total ${totalItems}건`;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  },
+
+  // 📂 과거 지적사항 상세 수검 슬라이드 드로어 오픈 및 내용 렌더링
+  openFindingsChecklistDrawer(item) {
+    const drawer = document.getElementById('checklist-drawer');
+    const drawerBody = document.getElementById('checklist-drawer-body');
+    if (!drawer || !drawerBody) return;
+
+    drawer.classList.add('active');
+
+    const pointOut = this.getTranslatedField(item, 'POINT_OUT');
+    const rootCause = this.getTranslatedField(item, 'ROOT_CAUSE');
+    const counterMeasure = this.getTranslatedField(item, 'COUNTER_MEASURE');
+    const processName = item.PROCESS || item.process || this.getFindingProcess(item) || 'General';
+    const projectText = `${item.CAR_MAKER || ''} ${item.PROJECT || ''}`.trim() || 'General';
+
+    drawerBody.innerHTML = `
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <!-- 문서 세션 타이틀 -->
+        <div style="background: rgba(239, 68, 68, 0.05); border-left: 3px solid #ef4444; padding: 12px; border-radius: 4px;">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; margin-bottom: 4px;">과거 OE Audit 지적사항 정보</div>
+          <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);">${item.SUBJECT || 'Audit Finding'}</div>
+          <div style="font-size: 11px; font-family: monospace; color: var(--text-secondary); margin-top: 4px; display: flex; justify-content: space-between;">
+            <span>OEM: ${item.CAR_MAKER || 'N/A'}</span>
+            <span>Project: ${projectText}</span>
+          </div>
+        </div>
+
+        <!-- 지적사항 (Point Out) -->
+        <div>
+          <div style="font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+            <i data-lucide="alert-triangle" style="width: 14px; height: 14px; color: #ef4444;"></i>
+            <span>지적사항 (Point Out)</span>
+          </div>
+          <div style="background: rgba(239,68,68,0.02); border: 1px solid rgba(239, 68, 68, 0.15); padding: 14px; border-radius: 6px; font-size: 13px; font-weight: 500; line-height: 1.6; color: var(--text-primary);">
+            ${pointOut}
+          </div>
+        </div>
+
+        <!-- 원인 분석 (Root Cause) -->
+        <div>
+          <div style="font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+            <i data-lucide="help-circle" style="width: 14px; height: 14px; color: #f59e0b;"></i>
+            <span>원인 분석 (Root Cause)</span>
+          </div>
+          <div style="background: rgba(245,158,11,0.02); border: 1px solid rgba(245, 158, 11, 0.15); padding: 12px; border-radius: 6px; font-size: 12px; line-height: 1.6; color: var(--text-secondary);">
+            ${rootCause}
+          </div>
+        </div>
+
+        <!-- 조치 대책 (Counter Measure) -->
+        <div>
+          <div style="font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+            <i data-lucide="check-circle" style="width: 14px; height: 14px; color: #10b981;"></i>
+            <span>조치 대책 (Counter Measure)</span>
+          </div>
+          <div style="background: rgba(16,185,129,0.02); border: 1px solid rgba(16, 185, 129, 0.15); padding: 12px; border-radius: 6px; font-size: 12px; line-height: 1.6; color: var(--text-light);">
+            ${counterMeasure}
+          </div>
+        </div>
+
+        <!-- 하이테크 스펙 메타 표 -->
+        <div style="margin-top: 10px; border: 1px solid var(--border-card); border-radius: 6px; overflow: hidden; font-size: 11px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border-card); background: rgba(255,255,255,0.02);">
+            <div style="padding: 8px 12px; border-right: 1px solid var(--border-card); color: var(--text-secondary); font-weight: 600;">공정 카테고리</div>
+            <div style="padding: 8px 12px; color: var(--text-primary); font-weight: 600;">${processName}</div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border-card);">
+            <div style="padding: 8px 12px; border-right: 1px solid var(--border-card); color: var(--text-secondary); font-weight: 600;">등록일 / 완료일</div>
+            <div style="padding: 8px 12px; color: var(--text-primary); font-weight: 600;">${item.REG_DT || 'N/A'} / ${item.COMP_DT || '진행중'}</div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border-card); background: rgba(255,255,255,0.02);">
+            <div style="padding: 8px 12px; border-right: 1px solid var(--border-card); color: var(--text-secondary); font-weight: 600;">진행 상태</div>
+            <div style="padding: 8px 12px; color: var(--text-primary); font-weight: 600;">
+              <span class="badge" style="font-size: 10px; background: ${item.STATUS === 'Complete' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)'}; color: ${item.STATUS === 'Complete' ? '#10b981' : '#f59e0b'}; border: 1px solid ${item.STATUS === 'Complete' ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'};">
+                ${item.STATUS || 'On-going'}
+              </span>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr;">
+            <div style="padding: 8px 12px; border-right: 1px solid var(--border-card); color: var(--text-secondary); font-weight: 600;">차량 정보 / 자재 코드</div>
+            <div style="padding: 8px 12px; color: var(--text-primary); font-weight: 600; font-family: monospace;">${item.PROJECT || 'N/A'} / ${item.M_CODE || 'N/A'}</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  },
+
+  // 📥 과거 지적사항 Excel(CSV) 다운로드 엔진
+  exportFindingsToCSV() {
+    const list = this.getFilteredFindings();
+    if (list.length === 0) {
+      this.showToast("내보낼 데이터가 존재하지 않습니다.", "warning");
+      return;
+    }
+
+    console.log(`📥 Compiling CSV for ${list.length} findings with UTF-8 BOM...`);
+
+    // 1. CSV 헤더 구성
+    const headers = ["구분(PROCESS)", "고객사(OEM)", "프로젝트(PROJECT)", "자재코드(M-CODE)", "지적사항(POINT OUT)", "원인 분석(ROOT CAUSE)", "조치 대책(COUNTER MEASURE)", "등록일(REG_DT)", "완료일(COMP_DT)", "진행 상태(STATUS)"];
+    
+    // 2. 값 이스케이프 함수
+    const escapeCsvValue = (val) => {
+      if (val === null || val === undefined) return "";
+      let str = String(val).replace(/"/g, '""');
+      if (str.includes(",") || str.includes("\n") || str.includes('"')) {
+        str = `"${str}"`;
+      }
+      return str;
+    };
+
+    // 3. 행 구성
+    const rows = list.map(item => {
+      const processName = item.PROCESS || item.process || this.getFindingProcess(item) || 'General';
+      const pointOut = this.getTranslatedField(item, 'POINT_OUT');
+      const rootCause = this.getTranslatedField(item, 'ROOT_CAUSE');
+      const counterMeasure = this.getTranslatedField(item, 'COUNTER_MEASURE');
+      
+      return [
+        processName,
+        item.CAR_MAKER || "",
+        item.PROJECT || "",
+        item.M_CODE || "",
+        pointOut,
+        rootCause,
+        counterMeasure,
+        item.REG_DT || "",
+        item.COMP_DT || "",
+        item.STATUS || ""
+      ];
+    });
+
+    // 4. CSV 버퍼 구성
+    const csvContent = [headers.map(escapeCsvValue).join(",")]
+      .concat(rows.map(row => row.map(escapeCsvValue).join(",")))
+      .join("\n");
+
+    // 5. UTF-8 BOM 마커 (\ufeff) 삽입
+    const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+    const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+    
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    
+    const dateStr = new Date().toISOString().slice(0,10);
+    const lang = this.state.currentLang || 'KO';
+    link.setAttribute("download", `RiskHunter_Past_Findings_${lang}_${dateStr}.csv`);
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    this.showToast(`지적사항 이력 ${list.length}건이 성공적으로 다운로드되었습니다.`, 'success');
   },
 
   // 🔍 단어 경계 감지형 검색 매칭 헬퍼 (Word-Boundary aware search matcher)
@@ -7440,11 +7877,13 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
       libFilterPlant.addEventListener('change', (e) => {
         this.state.librarySelectedPlant = e.target.value;
         this.state.checklistCurrentPage = 1;
+        this.state.findingsCurrentPage = 1;
         console.log(`[Library Filter] Plant Changed: ${this.state.librarySelectedPlant}`);
         this.showToast(`[라이브러리] 대상 공장이 ${e.target.options[e.target.selectedIndex].text}(으)로 필터링되었습니다.`);
         
         this.renderProcessSummary();
         this.renderChecklistTable();
+        this.renderFindingsTable();
         this.renderDocumentLibrary();
         this.renderRequirementMapping();
       });
@@ -7454,11 +7893,13 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
       libFilterCustomer.addEventListener('change', (e) => {
         this.state.librarySelectedCustomer = e.target.value;
         this.state.checklistCurrentPage = 1;
+        this.state.findingsCurrentPage = 1;
         console.log(`[Library Filter] Customer Changed: ${this.state.librarySelectedCustomer}`);
         this.showToast(`[라이브러리] 고객사가 ${e.target.value === 'ALL' ? '전체 고객사' : e.target.value}(으)로 필터링되었습니다.`);
         
         this.renderProcessSummary();
         this.renderChecklistTable();
+        this.renderFindingsTable();
         this.renderDocumentLibrary();
         this.renderRequirementMapping();
       });
@@ -7469,6 +7910,7 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
         this.state.librarySelectedPlant = 'ALL';
         this.state.librarySelectedCustomer = 'ALL';
         this.state.checklistCurrentPage = 1;
+        this.state.findingsCurrentPage = 1;
         
         if (libFilterPlant) libFilterPlant.value = 'ALL';
         if (libFilterCustomer) libFilterCustomer.value = 'ALL';
@@ -7478,6 +7920,7 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
         
         this.renderProcessSummary();
         this.renderChecklistTable();
+        this.renderFindingsTable();
         this.renderDocumentLibrary();
         this.renderRequirementMapping();
       });
@@ -7521,8 +7964,10 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
     // 만약 Library 탭이 활성화되어 있다면, 서브 컴포넌트들을 재렌더링하여 실시간 동기화
     if (this.state.currentTab === 'library') {
       this.state.checklistCurrentPage = 1; // 필터 변경 시 첫 페이지로 리셋
+      this.state.findingsCurrentPage = 1;
       this.renderProcessSummary();
       this.renderChecklistTable();
+      this.renderFindingsTable();
       this.renderDocumentLibrary();
       this.renderRequirementMapping();
     }
@@ -7548,6 +7993,12 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
     // 2. Dashboard 탭이 활성화되어 있다면 실시간 리스크 보드 등 갱신을 위해 재렌더링
     if (this.state.currentTab === 'dashboard') {
       this.renderDashboard();
+    }
+
+    // 3. Library 탭이 활성화되어 있다면 테이블들 재렌더링 (다국어 갱신)
+    if (this.state.currentTab === 'library') {
+      this.renderChecklistTable();
+      this.renderFindingsTable();
     }
   },
 

@@ -54,93 +54,70 @@
 
 ## 📋 3. 서브 탭 1: Full Checklist Library (공정별 감사 마스터 체크리스트)
 
-[audit_checklists.json](file:///home/jumasi/RiskHunter/data/audit_checklists.json) 데이터를 비동기 fetch하여 사용자가 공정별 전체 현황을 직관적으로 확인하고 정합성 높은 검색을 수행할 수 있도록 지원합니다.
+[audit_checklists.json](file:///home/jumasi/RiskHunter/data/audit_checklists.json) 및 [audit_findings.json](file:///home/jumasi/RiskHunter/data/audit_findings.json) 데이터를 비동기 fetch하여 사용자가 완성차 고객사 맞춤형 감사 질문과 과거 지적사항 이력을 교차 확인하고 정합성 높은 검색을 수행할 수 있도록 지원합니다.
 
-### ① 공정별 전체 현황 요약 보드 (Process-wise Status Grid)
-- **요구 사양**: 체크리스트 목록 상단에 15대 타이어 생산 공정(Mixing, Extrusion, Curing, Building, Inspection 등) 또는 대분류 프로세스 카테고리별 전체 현황을 카드 형태로 시각화합니다.
-- **시각 요소**: 
-  - 가로 스크롤 또는 유연한 Flex Grid 형태의 미니 글래스모피즘 공정 현황 보드 배치.
-  - 공정명 배지, 해당 공정에 배정된 **총 감사 질문 개수 (Total Questions)**, **고위험(High Priority) 질문 비율/개수**, 그리고 **자체 점검 진척률**을 직관적인 인디케이터로 표현합니다.
-  - 특정 공정 카드를 클릭하면 하단 데이터 그리드가 해당 공정으로 무지연 필터링되는 퀵 필터 인터랙션을 탑재합니다.
+### ① 상단 요약 대시보드 제거 및 필터 단순화 (Simplified Filter Panels)
+화면 가독성 및 직관적 데이터 도출 피드백을 수용하여, 상단의 불필요한 공정 요약보드는 완전히 삭제하고 필터를 대폭 단순화했습니다.
+- **로컬 필터링 구성**:
+  1. **완성차 고객사 (OEM)**: 스마트 OEM 계층 구조에 근거하여 관련 서브 브랜드를 통합적으로 필터링.
+  2. **출력 언어 (Language)**: 한국어(KO), English(EN), 中文(ZH) 다국어 스위칭 제공.
+- **실시간 통합 검색 바 (Full-Width Search Bar)**:
+  - 하단에 가로 100% 폭의 검색창 `#checklist-search-input`을 배치하여 체크리스트 질문, 증적 요구 요건, 지적사항, 원인 분석, 조치 대책 등 두 테이블에 대해 실시간 통합 키워드 검색을 수행합니다.
 
-### ② 체크리스트 고속 데이터 그리드 (Checklist Grid)
+### ② 내측 서브 탭 분할 및 고속 데이터 그리드 (Inner Sub-Tabs & Paginated Tables)
+상황에 맞춰 오디터가 체크리스트 질문과 과거 지적사항 이력을 넘나들며 볼 수 있도록 내부에 두 개의 슬라이드 탭 패널을 장착했습니다.
+
+#### 1) `[Check List 1] 맞춤형 감사 체크리스트` 패널 (`#panel-checklist-custom`)
 - **테이블 컬럼**:
-  1. **ID**: 체크리스트 고유 ID.
-  2. **고객사 (Customer)**: 완성차 OEM명 배지 (Audi, BMW, Benz, VW 등).
-  3. **규격 코드 (Doc Code)**: 연계된 원천 규격 코드.
-  4. **공정 분류 (Process)**: `process_category` 또는 `related_4m` 배지.
-  5. **중요도 (Priority)**: High (적색/황색 뱃지 테두리 애니메이션), Medium, Low.
-  6. **감사 질문 (Audit Question)**: 핵심 질문 내용 요약 (텍스트가 길 경우 호버 시 풀 텍스트 툴팁 제공).
-  7. **준수 증적 (Compliance Evidence)**: 품질 확보를 위해 현장에서 제출해야 할 물리 증적 목록 (상세 드로어 연동).
+  1. **구분 (SECTION)**: 대분류 `process_category` 배지 및 하위 세부 조항 섹션명 표기.
+  2. **감사 체크리스트 핵심 질문 (AUDIT QUESTION)**: 핵심 감사 요건 한국어/다국어 질문.
+  3. **대응 합치 증적 요구 요건 (EVIDENCE REQUIRED)**: 현장 감사 증적 실물 가이드라인.
+  4. **검사 방법**: 현장 감사 검증 방법 서술.
+
+#### 2) `[Check List 2] 과거 OE Audit 지적사항` 패널 (`#panel-checklist-findings`)
+- **테이블 컬럼 (8대 프리미엄 컬럼 구성)**:
+  1. **공정 (PROCESS)**: 다국어 형태소 텍스트 마이닝 기반 실시간 추출 매핑된 제조 공정 대분류명 (다국어 번역 연동).
+  2. **공장**: 지적사항 수검을 받은 대상 제조 공장 코드 (가로 폭 최적화를 위해 문자 세로 열정렬 표기).
+  3. **프로젝트**: 수검 대상 타이어 부품 개발 프로젝트 차종명.
+  4. **지적 사항 (POINT OUT)**: 과거 Audit에서 실제로 적발된 부적합 지적 원문 (빨간색 계열 테마 강조 텍스트, 다국어 연동).
+  5. **원인 분석 (ROOT CAUSE)**: 결함을 초래한 제조 근본 원인 분석 내용 요약 (다국어 연동).
+  6. **영구 조치 계획 (COUNTERMEASURE)**: 이행된 표준 시정 및 영구 재발 방지 대책 (다국어 연동).
+  7. **상태**: 지적 건 개선 완료/진행중 상태 (Closed/Complete 시 얇은 초록색 배지 테두리 디자인 적용).
+  8. **감사 일정**: 오디터 수검 일정 연월일 (초록색 폰트 모노스페이스 표기).
 
 ### ③ 핵심 비즈니스 로직 (Core Business Logic)
 
-#### 🛡️ 1) 제조공정 필터 제거에 따른 Null Guard 설계 (Zero Crash Policy)
-화면 가독성 및 필터 단순화 피드백을 적극 수용하여, UI 단의 로컬 공정 필터 누락이나 글로벌 공정 필터바가 특정 뷰에서 분리되더라도 시스템이 크래시되지 않도록 방어하는 샌드박스 코드를 탑재합니다.
-- **프로그램 중단 방지**: `document.getElementById('process-select')` 또는 `filter-process`가 `null`을 반환하더라도 프로그램 실행이 멈추지 않도록 제어 분기를 마련합니다.
-- **공정 디폴트 필터링 백업**: 사용자가 공정을 선택할 수 없는 환경이거나 누락 상태일 경우, 내부 변수인 `selectedProcess`는 상시 **`"All" (전체 공정)`**을 기본값으로 상속받아 유연하게 작동합니다.
+#### 🛡️ 1) 영속 다국어 및 번역 포백 메커니즘 (Zero Crash Multilingual Fallbacks)
+- **출력 언어(Language)** 변경 시, 로컬 스토리지 보존 및 글로벌/로컬 언어 설정을 완벽하게 양방향 싱크합니다.
+- 과거 지적사항의 경우 언어에 따라 다음과 같이 분기 매핑하며, 누락 시 안전 Fallback 처리하여 화면 깨짐을 원천 방어합니다:
+  - **KO (한국어)**: `POINT_OUT_KO` / `ROOT_CAUSE_KO` / `COUNTER_MEASURE_KO`
+  - **EN (English)**: `POINT_OUT_EN` / `ROOT_CAUSE_EN` / `COUNTER_MEASURE_EN`
+  - **ZH (中文)**: `POINT_OUT_ZH` (없을 시 EN 포백) / `ROOT_CAUSE_ZH` (없을 시 EN 포백) / `COUNTER_MEASURE_ZH` (없을 시 EN 포백)
 
 #### 🚗 2) 완성차 계층형 매핑 마스터 (Smart OEM Hierarchy)
 완성차 브랜드 필터 선택 시 종속 합작사 및 서브 브랜드(Sub-brand)의 데이터를 계층적으로 자동 통합 및 상속하여 조회 범위를 지능적으로 확장합니다.
-
+사용자가 부모 OEM(`selectedOem`)을 선택하면, 검색 대상 타겟 배열(`targetOems`)을 다음과 같이 빌드하여 필터링합니다:
 ```javascript
-const OEM_MASTER = {
-    "VW": { name: "Volkswagen (폭스바겐)", subs: ["Anhui VW", "FAW VW"] },
-    "Audi": { name: "Audi AG (아우디)", subs: ["SAIC Audi"] },
-    "Benz": { name: "Mercedes-Benz (벤츠)", subs: [] },
-    "BMW": { name: "BMW Group (비엠더블유)", subs: [] },
-    "BYD": { name: "BYD (비야디)", subs: [] },
-    "China Local": { name: "China Local (중국 로컬 OEM)", subs: [] },
-    "FAW": { name: "FAW Group (제일자동차)", subs: ["FAW-Bestune"] },
-    "Ford": { name: "Ford Motor (포드)", subs: [] },
-    "GM": { name: "General Motors (지엠)", subs: [] },
-    "Great wall auto": { name: "Great Wall Motor (장성기차)", subs: [] },
-    "HKMC": { name: "Hyundai/Kia (현대자동차/기아)", subs: ["HMC", "KMC", "Hyundai"] },
-    "Lucid": { name: "Lucid Motors (루시드)", subs: [] },
-    "Porsche": { name: "Porsche (포르쉐)", subs: [] },
-    "Renault-Nisaan": { name: "Renault-Nissan (르노-닛산)", subs: [] },
-    "Rivian": { name: "Rivian (리비안)", subs: [] },
-    "Stellantis": { name: "Stellantis (스텔란티스)", subs: [] },
-    "TATA Daewoo": { name: "TATA Daewoo (타타대우)", subs: [] },
-    "Tesla": { name: "Tesla (테슬라)", subs: [] },
-    "Toyota": { name: "Toyota (토요타)", subs: [] },
-    "Xiaomi": { name: "Xiaomi (샤오미)", subs: [] }
-};
+let targetOems = [selectedOem];
+if (OEM_MASTER[selectedOem] && OEM_MASTER[selectedOem].subs) {
+    targetOems = targetOems.concat(OEM_MASTER[selectedOem].subs);
+}
+const lowerTargetOems = targetOems.map(o => o.toLowerCase());
 ```
-- 사용자가 부모 OEM(`selectedOem`)을 선택하면, 검색 대상 타겟 배열(`targetOems`)을 다음과 같이 빌드하여 필터링합니다:
-  ```javascript
-  let targetOems = [selectedOem];
-  if (OEM_MASTER[selectedOem] && OEM_MASTER[selectedOem].subs) {
-      targetOems = targetOems.concat(OEM_MASTER[selectedOem].subs);
-  }
-  const lowerTargetOems = targetOems.map(o => o.toLowerCase());
-  ```
 
 #### 🔄 3) 맞춤형 감사 체크리스트 추출 및 중복 병합 알고리즘 (De-duplication)
 고객사 필터, 공정 필터, 검색 키워드를 조합하여 데이터를 필터링하고 중복 질문을 완전히 합칩니다.
 - **De-duplication**: 질문 텍스트의 앞뒤 공백을 다듬어 세트(`Set`) 자료구조를 통해 중복을 제로화함으로써 동일 질문의 누적 노출을 방지합니다.
-  ```javascript
-  const seenQuestions = new Set();
-  filteredChecklists = filteredChecklists.filter(item => {
-      const q = (item.audit_question || '').trim();
-      if (!q) return true;
-      if (seenQuestions.has(q)) return false;
-      seenQuestions.add(q);
-      return true;
-  });
-  ```
 
 #### 📥 4) 한글 깨짐 방지 엑셀 데이터 단일화 내보내기 알고리즘 (UTF-8 BOM Export)
-사용자가 체크리스트를 현재 필터링된 데이터 상태 그대로 CSV 파일로 다운로드할 수 있는 버튼을 제공합니다.
+사용자가 내측 탭에 선택되어 필터링된 두 종류의 체크리스트를 CSV 파일로 각각 다운로드할 수 있는 버튼을 제공합니다.
 - **한국어 MS Excel 호환 인코딩**: 국내 엑셀 프로그램에서 한글 깨짐 없이 정상 개봉되도록 **UTF-8 BOM (UTF-8-SIG, `\ufeff`)**을 접두사 바인딩 처리합니다.
-  ```javascript
-  const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement("a");
-  const url = URL.createObjectURL(blob);
-  link.setAttribute("href", url);
-  link.setAttribute("download", `${filename}.csv`);
-  ```
-- **출력 헤더 맵**: `구분 (Section)`, `감사 체크리스트 핵심 질문`, `대응 합치 증적 요구 요건`, `검사 방법`으로 정렬되어 화면 구성과의 정합성을 완성합니다.
+- **체크리스트 내보내기**: `RiskHunter_Master_Checklist_[PROCESS]_[DATE].csv` 파일명으로 저장.
+- **지적사항 내보내기**: `RiskHunter_Past_Findings_[LANG]_[DATE].csv` 파일명으로 저장.
+
+### ④ 우측 수검 슬라이드 드로어 통합 (Row-click Details Slide Drawer)
+- 두 테이블 행 클릭 시, 우측에서 미려하게 슬라이딩 인(Sliding-in)되는 `#checklist-drawer`를 공용 재사용하여, 선택된 데이터 오브젝트의 성격에 맞춰 상이한 헤더 색상, 아이콘 및 상세 4M 연계 메타 테이블을 실시간 바인딩 제공합니다.
+- 드로어 내에서도 출력 언어 스위칭 및 검색 키워드 하이라이팅이 실시간으로 상호 연계 작동하여 사용자 경험을 완성합니다.
 
 ---
 
@@ -307,7 +284,7 @@ const FALLBACK_FINDING_DICT = {
 
 본 컨텍스트에 따라 구현된 결과물이 통과해야 할 필수 정량 자가 검증 기준입니다:
 
-1. **공정별 현황 확인**: Library 탭 진입 시 공정별 미니 현황 카드가 정상 렌더링되고, 특정 공정 클릭 시 하단 그리드 목록이 해당 공정에 해당하는 항목으로 빈틈없이 리로드 정합성을 유지하는가?
+1. **대시보드 제거 및 단순 필터**: Library 탭 진입 시 복잡하고 불필요한 상단 대시보드가 완벽히 소거되어 있으며, 필터는 오직 '완성차 고객사 (OEM)' 및 '출력 언어 (Language)'로만 단순화되어 UI 피로도를 최소화하는가?
 2. **De-duplication 및 OEM 상속**: 마스터 체크리스트 데이터 로딩 시 중복 질문이 완벽히 거정 제거(`Set`)되어 렌더링되며, 완성차 부모 브랜드 선택 시 자회사 데이터가 정상적으로 통합 정밀 필터링되는가?
 3. **규격 문서 서머리 출력**: Customer Requirements 서브 탭 내에서 카드를 클릭했을 때, 슬라이드 드로어가 매끄러운 트랜지션으로 전개되며 applicable_processes, key_clauses, tire_process_translation 내용이 누락 없이 가독성 높게 바인딩되는가?
 4. **파일 다운로드 신뢰성**: 다운로드 버튼 클릭 시 즉각 다운로드 창이 로컬에 표시되며, 한글이 깨지지 않는 원본 파일 또는 AI 상세 요약 텍스트 문서가 완벽히 저장되는가?
