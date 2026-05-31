@@ -2316,24 +2316,70 @@ body {
   border-radius: 12px !important; /* 프리미엄 패널 라운드(12px) */
   box-shadow: var(--shadow-base, 0 4px 6px -1px rgba(0, 0, 0, 0.05)) !important; /* 자연스러운 섀도우 */
   width: 100% !important; /* 부모 너비를 완전히 채우도록 강제 보정 */
+  padding: 16px 20px !important;
+  margin-bottom: 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box !important;
 }
 
-#tab-audit-planning .monitoring-dashboard-card .left-boundary {
-  border-right: 1px solid var(--border-card, #e2e8f0) !important; /* 가볍고 맑은 테두리 */
+/* 상단 타이틀 영역 */
+#tab-audit-planning .monitoring-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
-/* 2x2 디테일 그리드 내 개별 정보 카드 */
-#tab-audit-planning .monitoring-dashboard-card .detail-info-block {
-  background: var(--bg-app, #f8fafc) !important; /* 차분한 라이트 그레이 */
-  border: 1px solid var(--border-card, #e2e8f0) !important; /* 가벼운 테두리 */
-  border-radius: 6px !important;
-  color: var(--text-primary, #0f172a) !important; /* 가독성 높은 주조색 텍스트 */
+#tab-audit-planning .monitoring-title {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: var(--text-primary, #0f172a) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
 }
 
-#tab-audit-planning .monitoring-dashboard-card .detail-info-title {
-  color: var(--text-muted-light, #64748b) !important; /* WCAG AA 만족용 회색 */
+#tab-audit-planning .monitoring-status-badge {
+  background: var(--bg-status-info, rgba(37, 99, 235, 0.06)) !important;
+  color: var(--text-status-info, #2563eb) !important;
+  border: 1px solid var(--border-status-info, rgba(37, 99, 235, 0.15)) !important;
+  border-radius: 4px !important;
+  padding: 2px 8px !important;
+  font-size: 10px !important;
   font-weight: 700 !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+/* 5대 KPI 그리드 영역 */
+#tab-audit-planning .monitoring-kpi-grid {
+  display: grid !important;
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 12px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 1400px) {
+  #tab-audit-planning .monitoring-kpi-grid {
+    gap: 8px !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  #tab-audit-planning .monitoring-kpi-grid {
+    grid-template-columns: repeat(3, 1fr) !important; /* 3열+2열 형태 */
+    gap: 8px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  #tab-audit-planning .monitoring-kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 }
 
 /* 5대 KPI 가로 카드들 - 초슬림 고농축 패키지 */
@@ -2341,15 +2387,16 @@ body {
   background: var(--bg-app, #f8fafc) !important; /* 연한 회색/블루 조화 배경 */
   border: 1px solid var(--border-card, #e2e8f0) !important; /* 미세한 그레이 테두리 */
   border-radius: 8px !important;
-  padding: 6px 4px !important;
+  padding: 8px 6px !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: center !important;
   align-items: center !important;
   text-align: center !important;
-  min-height: 54px !important;
+  min-height: 56px !important;
   height: 100% !important; /* 그리드 높이에 맞춰 수직 100% 확장하여 빈틈없이 채움 */
   transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
 }
 
 #tab-audit-planning .monitoring-dashboard-card .kpi-sub-card:hover {
@@ -2369,10 +2416,32 @@ body {
 }
 
 #tab-audit-planning .monitoring-dashboard-card .kpi-sub-card .kpi-value {
-  font-size: 16px !important;
+  font-size: 15px !important;
   font-weight: 800 !important;
-  font-family: var(--font-family-header) !important; /* 현대적인 테크 서체 */
+  font-family: 'Outfit', sans-serif !important; /* 현대적인 테크 서체 */
   line-height: 1.1 !important;
+}
+
+@media (max-width: 1400px) {
+  #tab-audit-planning .monitoring-dashboard-card .kpi-sub-card .kpi-value {
+    font-size: 13.5px !important;
+  }
+}
+
+#tab-audit-planning .monitoring-dashboard-card .kpi-sub-card .dday-value {
+  color: var(--brand-blue, #2563eb) !important;
+}
+#tab-audit-planning .monitoring-dashboard-card .kpi-sub-card .total-value {
+  color: var(--text-primary, #0f172a) !important;
+}
+#tab-audit-planning .monitoring-dashboard-card .kpi-sub-card .completed-value {
+  color: #10b981 !important;
+}
+#tab-audit-planning .monitoring-dashboard-card .kpi-sub-card .progress-value {
+  color: #3b82f6 !important;
+}
+#tab-audit-planning .monitoring-dashboard-card .kpi-sub-card .delayed-value {
+  color: #ef4444 !important;
 }
 
 #tab-audit-planning .monitoring-dashboard-card .kpi-sub-card .kpi-sub-text {
@@ -2381,6 +2450,162 @@ body {
   margin-top: 2px !important;
   line-height: 1.1 !important;
   white-space: nowrap !important;
+}
+
+/* 하단 복합 영역 */
+#tab-audit-planning .monitoring-bottom-section {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-top: 1px solid var(--border-card, #e2e8f0) !important;
+  padding-top: 14px !important;
+  gap: 20px !important;
+  width: 100% !important;
+  flex-wrap: wrap !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 1200px) {
+  #tab-audit-planning .monitoring-bottom-section {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 16px !important;
+  }
+}
+
+/* 하단 왼쪽: 수검 전체 준비율 원형 게이지 + 요약 텍스트 */
+#tab-audit-planning .monitoring-gauge-area {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-shrink: 0 !important;
+  min-width: max-content !important;
+  box-sizing: border-box !important;
+}
+
+#tab-audit-planning .circular-progress-container {
+  position: relative !important;
+  width: 56px !important;
+  height: 56px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+#tab-audit-planning .circular-progress-svg {
+  width: 56px !important;
+  height: 56px !important;
+  transform: rotate(-90deg) !important;
+  flex-shrink: 0 !important;
+}
+
+#tab-audit-planning .circular-bg-circle {
+  stroke: #e2e8f0 !important;
+  stroke-width: 4.5 !important;
+  fill: transparent !important;
+}
+
+#tab-audit-planning .circular-fill-circle {
+  stroke: var(--brand-blue, #2563eb) !important;
+  stroke-width: 4.5 !important;
+  fill: transparent !important;
+  stroke-dasharray: 163.36 !important;
+  stroke-dashoffset: 163.36 !important;
+  transition: stroke-dashoffset 0.3s ease !important;
+}
+
+#tab-audit-planning .circular-progress-text {
+  position: absolute !important;
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  font-family: 'Outfit', sans-serif !important;
+  color: var(--brand-blue, #2563eb) !important;
+}
+
+#tab-audit-planning .gauge-summary-text-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+#tab-audit-planning .gauge-lbl {
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  color: var(--text-muted-light, #64748b) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.02em !important;
+}
+
+#tab-audit-planning .gauge-sub-desc {
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  color: var(--text-primary, #0f172a) !important;
+  margin-top: 1px !important;
+}
+
+/* 하단 오른쪽: 4대 디테일 인포 가로 4분할 칩 리스트 */
+#tab-audit-planning .monitoring-detail-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 10px !important;
+  flex-grow: 1 !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 1400px) {
+  #tab-audit-planning .monitoring-detail-grid {
+    gap: 8px !important;
+  }
+}
+
+@media (max-width: 1200px) {
+  #tab-audit-planning .monitoring-detail-grid {
+    grid-template-columns: repeat(4, 1fr) !important; /* 아래로 떨어졌으므로 꽉 찬 4열 유지 */
+  }
+}
+
+@media (max-width: 850px) {
+  #tab-audit-planning .monitoring-detail-grid {
+    grid-template-columns: repeat(2, 1fr) !important; /* 가로가 더 작으면 2열 2행 */
+  }
+}
+
+@media (max-width: 480px) {
+  #tab-audit-planning .monitoring-detail-grid {
+    grid-template-columns: 1fr !important; /* 모바일급에선 1열 */
+  }
+}
+
+#tab-audit-planning .detail-item-container {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  box-sizing: border-box !important;
+}
+
+#tab-audit-planning .monitoring-dashboard-card .detail-info-title {
+  font-size: 9px !important;
+  color: var(--text-muted-light, #64748b) !important; /* WCAG AA 만족용 회색 */
+  font-weight: 700 !important;
+  margin-bottom: 1px !important;
+}
+
+#tab-audit-planning .monitoring-dashboard-card .detail-info-block {
+  background: var(--bg-app, #f8fafc) !important; /* 차분한 라이트 그레이 */
+  border: 1px solid var(--border-card, #e2e8f0) !important; /* 가벼운 테두리 */
+  border-radius: 6px !important;
+  color: var(--text-primary, #0f172a) !important; /* 가독성 높은 주조색 텍스트 */
+  padding: 5px 10px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  box-sizing: border-box !important;
+}
+
+#tab-audit-planning .monospace-font {
+  font-family: var(--font-family-mono, monospace) !important;
 }
 
 /* ==========================================================================
