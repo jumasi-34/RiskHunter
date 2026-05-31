@@ -4375,9 +4375,7 @@ const app = {
       <thead>
         <tr>
           <th class="col-audit-type">구분 (TYPE)</th>
-          <th class="col-audit-plant">공장 (PLANT)</th>
           <th class="col-audit-oem">고객사 (OEM)</th>
-          <th class="col-audit-vehicle">차종 (VEHICLE)</th>
           <th class="col-audit-occ-date">발생일 (OCC DATE)</th>
           <th class="col-audit-target-date">조치예정일 (TARGET DATE)</th>
           <th class="col-audit-point-out">지적 사항 (POINT OUT)</th>
@@ -4469,9 +4467,7 @@ const app = {
 
       tr.innerHTML = `
         <td class="cell-audit-type">${typeBadge}</td>
-        <td class="cell-audit-plant">${item.PLANT || '-'}</td>
         <td class="cell-audit-oem">${item.CAR_MAKER || '-'}</td>
-        <td class="cell-audit-vehicle">${item.PROJECT || '-'}</td>
         <td class="cell-audit-occ-date">${item.REG_DT || item.START_DT || '-'}</td>
         <td class="cell-audit-target-date">${item.COMP_DT || item.END_DT || '-'}</td>
         <td class="cell-audit-point-out">
