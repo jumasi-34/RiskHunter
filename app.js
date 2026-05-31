@@ -69,6 +69,7 @@ const app = {
     currentLang: 'KO', // 글로벌 다국어 서비스 상태 기본값 ('KO' | 'EN' | 'ZH')
     plantRiskActivePlant: 'DP', // Phase 4 활성 공장 기본값
     activePlantRiskSubtab: 'risk-compass', // 기본 서브 탭
+    compassLayoutMode: 'split', // 1번 탭 뷰 레이아웃 모드 ('split' | 'wide')
     currentUser: { name: '박정호 수석', role: 'admin', dept: '품질보증부', badge: 'ADMIN', color: '#ef4444' },
     currentRole: 'admin', // 기본 역할: 최고관리자 (admin)
     users: [
@@ -2969,6 +2970,20 @@ const app = {
       };
     });
 
+    // 💡 🌓 뷰 레이아웃 스위처 버튼 이벤트 바인딩
+    const btnViewSplit = document.getElementById('btn-view-split');
+    const btnViewWide = document.getElementById('btn-view-wide');
+    if (btnViewSplit && btnViewWide) {
+      btnViewSplit.onclick = (e) => {
+        e.preventDefault();
+        this.applyCompassLayout('split');
+      };
+      btnViewWide.onclick = (e) => {
+        e.preventDefault();
+        this.applyCompassLayout('wide');
+      };
+    }
+
     // 화면 첫 렌더링
     this.renderPlantRiskScreen();
   },
@@ -3023,6 +3038,7 @@ const app = {
 
     // 3. 서브 탭별 화면 분기 렌더링
     if (activeSubtab === 'risk-compass') {
+      this.syncCompassLayout();
       this.renderRiskCompassTab(activePlantCode);
     } else if (activeSubtab === 'system-level') {
       this.renderSystemLevelTab(activePlantCode);
@@ -3117,6 +3133,50 @@ const app = {
     if (moderateNode) moderateNode.textContent = moderateCount;
     if (lowNode) lowNode.textContent = lowCount;
     if (issuesNode) issuesNode.textContent = totalIssuesCount;
+  },
+
+  // 🌓 Integrated Risk Compass 뷰 레이아웃 싱크 및 복원
+  syncCompassLayout() {
+    const mode = this.state.compassLayoutMode || 'split';
+    const gridEl = document.querySelector('.premium-compass-grid-2');
+    const btnSplit = document.getElementById('btn-view-split');
+    const btnWide = document.getElementById('btn-view-wide');
+
+    if (gridEl) {
+      if (mode === 'wide') {
+        gridEl.classList.add('wide-mode');
+      } else {
+        gridEl.classList.remove('wide-mode');
+      }
+    }
+
+    if (btnSplit && btnWide) {
+      if (mode === 'wide') {
+        btnSplit.classList.remove('active');
+        btnWide.classList.add('active');
+      } else {
+        btnSplit.classList.add('active');
+        btnWide.classList.remove('active');
+      }
+    }
+  },
+
+  // 🌓 뷰 레이아웃 스위칭 동작 처리
+  applyCompassLayout(mode) {
+    this.state.compassLayoutMode = mode;
+    this.syncCompassLayout();
+
+    // Chart.js 레이더 차트 리사이즈 및 업데이트 실행
+    if (this.state.charts && this.state.charts.radarRiskCompass) {
+      setTimeout(() => {
+        try {
+          this.state.charts.radarRiskCompass.resize();
+          this.state.charts.radarRiskCompass.update();
+        } catch (e) {
+          console.warn("Failed to resize radar chart on layout change", e);
+        }
+      }, 50); // DOM 리렌더링 및 transition 타임을 고려한 미세 딜레이 적용
+    }
   },
 
   // ================= Sub-Tab 1: Integrated Risk Compass 렌더링 =================

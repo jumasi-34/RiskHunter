@@ -5564,3 +5564,77 @@ body {
   font-weight: 700 !important;
   letter-spacing: -0.3px !important;
 }
+
+/* ==========================================================================
+   🌓 View Layout Switcher & Wide Mode
+   ========================================================================== */
+.premium-view-switcher-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.premium-view-switcher {
+  display: inline-flex;
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  padding: 3px;
+  margin-top: 5px;
+}
+
+.premium-switcher-btn {
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.premium-switcher-btn:hover {
+  color: #1e293b;
+}
+
+.premium-switcher-btn.active {
+  background: #ffffff;
+  color: var(--brand-blue);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 와이드 모드 오버라이드 */
+.premium-compass-grid-2.wide-mode {
+  grid-template-columns: 1fr !important; /* 상하 수직 배치 */
+}
+
+/* 와이드 모드일 때 히트맵 테이블 폰트 및 여백 원복 */
+.premium-compass-grid-2.wide-mode .premium-heatmap-table th {
+  padding: 10px 14px !important;
+  font-size: 11px !important;
+  letter-spacing: normal !important;
+}
+
+.premium-compass-grid-2.wide-mode .premium-heatmap-table td {
+  padding: 10px 14px !important;
+  font-size: 11.5px !important;
+}
+
+.premium-compass-grid-2.wide-mode .premium-heatmap-table .premium-matrix-td-label {
+  width: 140px !important;
+  min-width: 140px !important;
+  max-width: 140px !important;
+  padding: 10px 14px !important;
+  font-size: 11.5px !important;
+  line-height: 1.45 !important;
+}
+
+.premium-compass-grid-2.wide-mode .premium-heatmap-table .premium-matrix-cell {
+  padding: 10px 14px !important;
+  font-size: 11px !important;
+  letter-spacing: normal !important;
+}
