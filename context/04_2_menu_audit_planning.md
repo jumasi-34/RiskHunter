@@ -39,9 +39,9 @@
 *   **프리미엄 라이트 솔리드 대시보드 (.monitoring-dashboard-card)**:
     - 백그라운드 `var(--bg-card, #ffffff)` (순백색 솔리드 표면), 테두리 `var(--border-card, #e2e8f0)` (표준 연그레이 테두리), 텍스트 `var(--text-primary, #0f172a)` (WCAG 2.1 AA 충족 및 최적 가독성).
     - `padding: 12px 18px; margin-bottom: 8px;` 및 `min-height: 130px;`로 카드 자체의 불필요한 빈 여백을 정밀 차단.
-    - 가로 100%를 꽉 채우도록 내부 그리드에 `width: 100%;` 지정하여 좌우 빈 여백 붕괴 버그 완벽 차단.
+    - 가로 100%를 꽉 채우고(width: 100%), 내부 그리드 비율을 `1.2fr 1.8fr`로 세련되게 양분하고, gap을 `20px`로 확대하여 전체 카드가 화면 너비에 걸쳐 우아하고 균등하게 분포하도록 최적 정렬.
     - 2x2 디테일 정보 블록은 `background: var(--bg-app, #f8fafc)` (차분한 라이트 그레이), `border: 1px solid var(--border-card, #e2e8f0)` (가벼운 테두리), `padding: 4px 8px;` 및 gap 6px의 고농축 그리드 뷰 구현.
-    - 5대 가로 KPI 카드들(.kpi-sub-card)은 `background: var(--bg-app, #f8fafc)`, `border: 1px solid var(--border-card, #e2e8f0)` 조합에 `padding: 6px 4px !important;` 및 수치 폰트를 현대적인 테크 서체 `'Outfit', sans-serif`로 지정하여 세련되고 균등하게 분할된 B2B 가로 계기판 컴팩트 마감.
+    - 5대 가로 KPI 카드들(.kpi-sub-card)은 `background: var(--bg-app, #f8fafc)`, `border: 1px solid var(--border-card, #e2e8f0)` 조합에 `padding: 6px 4px !important;`, `height: 100% !important` 지정을 통해 그리드 수직 변화에 맞추어 빈틈없이 꽉 찬 구조를 가지며, 수치 폰트를 현대적인 테크 서체 `'Outfit', sans-serif`로 지정하여 세련되고 균등하게 분할된 B2B 가로 계기판 컴팩트 마감.
     - 상단 필터 셀렉터들의 높이를 `34px`로 통합 소형화하고 간격을 `8px`로 좁혀 전체 화면 대비 과한 면적 점유 방지.
 
 ### ③ 신규 감사 일정 등록 팝업 (White Modal) 규칙
