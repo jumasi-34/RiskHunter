@@ -189,61 +189,6 @@
       <section id="tab-dashboard" class="tab-pane active">
         <!-- 대시보드 최상단 로컬 필터바 제거 (HQ 종합 관점 고정) -->
 
-        <!-- 4대 통계 KPI -->
-        <div class="kpi-grid">
-          <div class="card-solid kpi-card">
-            <div class="kpi-header">
-              <span class="kpi-title">총 누적 리스크 건수</span>
-              <div class="kpi-icon-wrapper high-risk"><i data-lucide="alert-triangle"></i></div>
-            </div>
-            <div class="kpi-value-container" id="kpi-total-risks-val">
-              <div class="skeleton skeleton-text skeleton-val"></div>
-            </div>
-            <div class="kpi-footer" id="kpi-total-risks-sub">
-              <div class="skeleton skeleton-text skeleton-sub"></div>
-            </div>
-          </div>
-          
-          <div class="card-solid kpi-card">
-            <div class="kpi-header">
-              <span class="kpi-title">미해결 품질 이슈 (QI)</span>
-              <div class="kpi-icon-wrapper info"><i data-lucide="activity"></i></div>
-            </div>
-            <div class="kpi-value-container" id="kpi-qi-unresolved-val">
-              <div class="skeleton skeleton-text skeleton-val"></div>
-            </div>
-            <div class="kpi-footer" id="kpi-qi-unresolved-sub">
-              <div class="skeleton skeleton-text skeleton-sub"></div>
-            </div>
-          </div>
-          
-          <div class="card-solid kpi-card">
-            <div class="kpi-header">
-              <span class="kpi-title">미점검 4M 변경점</span>
-              <div class="kpi-icon-wrapper medium-risk"><i data-lucide="shuffle"></i></div>
-            </div>
-            <div class="kpi-value-container" id="kpi-4m-unresolved-val">
-              <div class="skeleton skeleton-text skeleton-val"></div>
-            </div>
-            <div class="kpi-footer" id="kpi-4m-unresolved-sub">
-              <div class="skeleton skeleton-text skeleton-sub"></div>
-            </div>
-          </div>
-          
-          <div class="card-solid kpi-card">
-            <div class="kpi-header">
-              <span class="kpi-title">과거 감사 미해결 지적</span>
-              <div class="kpi-icon-wrapper high-risk"><i data-lucide="clipboard"></i></div>
-            </div>
-            <div class="kpi-value-container" id="kpi-audit-unresolved-val">
-              <div class="skeleton skeleton-text skeleton-val"></div>
-            </div>
-            <div class="kpi-footer" id="kpi-audit-unresolved-sub">
-              <div class="skeleton skeleton-text skeleton-sub"></div>
-            </div>
-          </div>
-        </div>
-
         <!-- 📅 향후 예정된 Audit 일정 및 준비현황 요약 위젯 (메뉴 2 연동) -->
         <div class="card-solid flex-col" style="margin-bottom: 20px; padding: 18px 20px; gap: 15px;">
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-card); padding-bottom: 12px; margin-bottom: 5px;">
@@ -295,7 +240,70 @@
             </div>
           </div>
         </div>
-        
+
+        <!-- 📂 통합 감사 지식 라이브러리 (Library) 현황 위젯 (메뉴 5 연동) -->
+        <div class="card-solid flex-col" style="margin-bottom: 20px; padding: 18px 20px; gap: 15px;" id="dashboard-library-summary-section">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-card); padding-bottom: 12px; margin-bottom: 5px;">
+            <div>
+              <h2 class="card-title" style="display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 800; color: var(--text-primary);">
+                <i data-lucide="folder-open" style="width: 18px; height: 18px; color: var(--brand-blue);"></i> 통합 감사 지식 라이브러리 (Library) 현황
+              </h2>
+              <p class="card-subtitle" style="font-size: 12px; margin-top: 2px;">메뉴 5 (Library) 및 AI 감사 비서가 관리하는 전사 기술 규격 표준 및 과거 지적사항 허브</p>
+            </div>
+            <button class="badge" style="background: rgba(37, 99, 235, 0.08); color: var(--brand-blue); border: 1px solid rgba(37, 99, 235, 0.2); font-weight: 700; cursor: pointer; padding: 4px 10px; border-radius: 4px; font-size: 11px;" onclick="document.querySelector('[data-tab=\'library\']').click();">
+              라이브러리 지식 맵 이동 ↩
+            </button>
+          </div>
+
+          <!-- 라이브러리 요약 그리드 (3열 구조: 좌/중/우 카드) -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; width: 100%;">
+            <!-- 1. 기술 규격서 요약 -->
+            <div class="card-solid" style="background: rgba(30, 41, 59, 0.02); border: 1px solid var(--border-card); padding: 14px 16px; border-radius: 6px; display: flex; flex-direction: column; gap: 10px; box-shadow: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 12.5px; font-weight: 800; color: var(--text-primary);">고객사(OEM) 기술 요건 문서</span>
+                <span class="badge badge-info" style="font-size: 10px; padding: 2px 6px;">AI 요약 분석</span>
+              </div>
+              <div style="display: flex; align-items: baseline; gap: 6px; margin: 4px 0;">
+                <span style="font-family: 'Outfit', monospace; font-weight: 800; font-size: 26px; color: var(--text-primary); line-height: 1;" id="db-lib-doc-count">-</span>
+                <span style="font-size: 11px; color: var(--text-muted-light); font-weight: 700;">건 등록 완료</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.5; border-top: 1px solid rgba(15, 23, 42, 0.05); padding-top: 8px;">
+                Hyundai, GM, BMW, Audi, VW 등 글로벌 탑 OEM의 핵심 타이어 기술 스펙 및 승인 조건 탑재.
+              </div>
+            </div>
+
+            <!-- 2. 마스터 체크리스트 질문 수 -->
+            <div class="card-solid" style="background: rgba(30, 41, 59, 0.02); border: 1px solid var(--border-card); padding: 14px 16px; border-radius: 6px; display: flex; flex-direction: column; gap: 10px; box-shadow: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 12.5px; font-weight: 800; color: var(--text-primary);">표준 감사 마스터 체크리스트</span>
+                <span class="badge badge-success" style="font-size: 10px; padding: 2px 6px;">De-duplicated</span>
+              </div>
+              <div style="display: flex; align-items: baseline; gap: 6px; margin: 4px 0;">
+                <span style="font-family: 'Outfit', monospace; font-weight: 800; font-size: 26px; color: var(--text-primary); line-height: 1;" id="db-lib-checklist-count">-</span>
+                <span style="font-size: 11px; color: var(--text-muted-light); font-weight: 700;">개 표준 문항</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.5; border-top: 1px solid rgba(15, 23, 42, 0.05); padding-top: 8px;">
+                중복 질문 제거 알고리즘 및 15대 표준 가류, 성형 공정별 최적화된 감사 검증 기법 및 증적 매핑 완료.
+              </div>
+            </div>
+
+            <!-- 3. 과거 지적사항 데이터베이스 -->
+            <div class="card-solid" style="background: rgba(30, 41, 59, 0.02); border: 1px solid var(--border-card); padding: 14px 16px; border-radius: 6px; display: flex; flex-direction: column; gap: 10px; box-shadow: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 12.5px; font-weight: 800; color: var(--text-primary);">과거 OE Audit 지적사항 (SOP)</span>
+                <span class="badge badge-warning" style="font-size: 10px; padding: 2px 6px;">텍스트 마이닝 분류</span>
+              </div>
+              <div style="display: flex; align-items: baseline; gap: 6px; margin: 4px 0;">
+                <span style="font-family: 'Outfit', monospace; font-weight: 800; font-size: 26px; color: var(--text-primary); line-height: 1;" id="db-lib-findings-count">-</span>
+                <span style="font-size: 11px; color: var(--text-muted-light); font-weight: 700;">건 이력 데이터</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.5; border-top: 1px solid rgba(15, 23, 42, 0.05); padding-top: 8px;">
+                과거 부적합 이력 데이터의 원인분석, 개선조치, SOP 개정 표준 가이드를 지능형 자연어 분류 기술로 매핑.
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- 차트 및 리스크 보드 -->
         <div class="grid-2col">
           <div class="card-solid flex-col">
@@ -318,22 +326,59 @@
             </div>
           </div>
         </div>
-        
-        <!-- 하단 실시간 경고판 -->
-        <div class="card-solid flex-col alert-board-wrapper">
-          <div class="card-header border-none">
-            <div class="flex-between w-100">
-              <div>
-                <h2 class="card-title text-danger"><i data-lucide="shield-alert"></i> Live Risk Alert Board</h2>
-                <p class="card-subtitle">임계값(3.5점 이상) 초과 고위험 감지 공정 대응 권고</p>
-              </div>
-              <span class="badge badge-danger blink">REALTIME</span>
+
+        <!-- 4대 통계 KPI (최하단으로 이동됨) -->
+        <div class="kpi-grid" style="margin-top: 10px;">
+          <div class="card-solid kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">총 누적 리스크 건수</span>
+              <div class="kpi-icon-wrapper high-risk"><i data-lucide="alert-triangle"></i></div>
+            </div>
+            <div class="kpi-value-container" id="kpi-total-risks-val">
+              <div class="skeleton skeleton-text skeleton-val"></div>
+            </div>
+            <div class="kpi-footer" id="kpi-total-risks-sub">
+              <div class="skeleton skeleton-text skeleton-sub"></div>
             </div>
           </div>
-          <div class="card-body" id="live-risk-alerts" style="padding-top: 0; max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
-            <div class="skeleton skeleton-text" style="width: 90%; margin-bottom: 12px; height: 18px;"></div>
-            <div class="skeleton skeleton-text" style="width: 85%; margin-bottom: 12px; height: 18px;"></div>
-            <div class="skeleton skeleton-text" style="width: 70%; height: 18px;"></div>
+          
+          <div class="card-solid kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">미해결 품질 이슈 (QI)</span>
+              <div class="kpi-icon-wrapper info"><i data-lucide="activity"></i></div>
+            </div>
+            <div class="kpi-value-container" id="kpi-qi-unresolved-val">
+              <div class="skeleton skeleton-text skeleton-val"></div>
+            </div>
+            <div class="kpi-footer" id="kpi-qi-unresolved-sub">
+              <div class="skeleton skeleton-text skeleton-sub"></div>
+            </div>
+          </div>
+          
+          <div class="card-solid kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">미점검 4M 변경점</span>
+              <div class="kpi-icon-wrapper medium-risk"><i data-lucide="shuffle"></i></div>
+            </div>
+            <div class="kpi-value-container" id="kpi-4m-unresolved-val">
+              <div class="skeleton skeleton-text skeleton-val"></div>
+            </div>
+            <div class="kpi-footer" id="kpi-4m-unresolved-sub">
+              <div class="skeleton skeleton-text skeleton-sub"></div>
+            </div>
+          </div>
+          
+          <div class="card-solid kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">과거 감사 미해결 지적</span>
+              <div class="kpi-icon-wrapper high-risk"><i data-lucide="clipboard"></i></div>
+            </div>
+            <div class="kpi-value-container" id="kpi-audit-unresolved-val">
+              <div class="skeleton skeleton-text skeleton-val"></div>
+            </div>
+            <div class="kpi-footer" id="kpi-audit-unresolved-sub">
+              <div class="skeleton skeleton-text skeleton-sub"></div>
+            </div>
           </div>
         </div>
       </section>

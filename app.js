@@ -8414,148 +8414,24 @@ ${(sum.required_evidences || []).map((e, i) => `${i+1}. ${e}`).join('\n')}
     }
 
     // ------------------------------------------------------------------------
-    // [4] Live Risk Alert Board (임계치 3.5 초과 공정 실시간 자동 진단 경고 알림판)
+    // [4] 신규: 통합 감사 지식 라이브러리 (Library) 현황 데이터 바인딩 (메뉴 5 연동)
     // ------------------------------------------------------------------------
-    const alertBoard = document.getElementById('live-risk-alerts');
-    if (alertBoard) {
-      alertBoard.innerHTML = '';
+    const dbLibDocCount = document.getElementById('db-lib-doc-count');
+    const dbLibChecklistCount = document.getElementById('db-lib-checklist-count');
+    const dbLibFindingsCount = document.getElementById('db-lib-findings-count');
 
-      const plants = ['DP', 'KP', 'JP', 'HP', 'CP', 'MP', 'IP', 'TP'];
-      const plantNamesMapping = {
-        'DP': '대전공장', 'KP': '금산공장', 'JP': '가흥공장',
-        'HP': '강소공장', 'CP': '중경공장', 'MP': '헝가리공장',
-        'IP': '인도네시아공장', 'TP': '테네시공장'
-      };
+    if (dbLibDocCount) {
+      dbLibDocCount.textContent = (this.state.documentLibrary || []).length.toLocaleString();
+    }
+    if (dbLibChecklistCount) {
+      dbLibChecklistCount.textContent = (this.state.auditChecklists || []).length.toLocaleString();
+    }
+    if (dbLibFindingsCount) {
+      dbLibFindingsCount.textContent = (this.state.auditFindings || []).length.toLocaleString();
+    }
 
-      const mfgProcs = this.state.commonCodes.processes || [];
-      const systemCats = this.state.commonCodes.categories || [];
-      const allProcessEntities = [...mfgProcs, ...systemCats];
-
-      const highRisks = [];
-
-      // 전 공장 및 전 공정에 대해 3.5 이상 위험 조합 스캔 추출
-      plants.forEach(pCode => {
-        allProcessEntities.forEach(proc => {
-          const res = this.calculatePlantRiskScore(pCode, 'ALL', proc.code);
-          if (res.score >= 3.5) {
-            highRisks.push({
-              plantCode: pCode,
-              plantName: plantNamesMapping[pCode] || pCode,
-              procCode: proc.code,
-              procName: proc.name,
-              score: res.score,
-              details: res
-            });
-          }
-        });
-      });
-
-      // 위험 지수 내림차순 정렬
-      highRisks.sort((a, b) => b.score - a.score);
-
-      if (highRisks.length > 0) {
-        // 고위험 공정 경고 알림 리스트 렌더링
-        highRisks.forEach(risk => {
-          const item = document.createElement('div');
-          // 계기판 감성의 미려한 글래스모피즘 형태 카드 렌더
-          item.className = 'alert-item';
-          item.style.cssText = `
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 16px;
-            background: rgba(239, 68, 68, 0.04);
-            border-left: 4px solid #ef4444;
-            border-right: 1px solid rgba(239, 68, 68, 0.15);
-            border-top: 1px solid rgba(239, 68, 68, 0.15);
-            border-bottom: 1px solid rgba(239, 68, 68, 0.15);
-            border-radius: 6px;
-            transition: all 0.2s ease-in-out;
-          `;
-          
-          // 호버 시 살짝 밝아지는 마이크로 인터랙션
-          item.addEventListener('mouseover', () => {
-            item.style.background = 'rgba(239, 68, 68, 0.08)';
-            item.style.transform = 'translateX(2px)';
-          });
-          item.addEventListener('mouseout', () => {
-            item.style.background = 'rgba(239, 68, 68, 0.04)';
-            item.style.transform = 'translateX(0)';
-          });
-
-          // 전문 수석 오디터의 정밀 가이드 어드바이저리 출력
-          let advisoryText = '';
-          if (risk.procCode === 'Curing') {
-            advisoryText = `가류 세정 프로세스 및 벤트핀(Air Vent Pin) 막힘 모니터링 체크리스트 최우선 집중 현장 투어 검증을 강력히 권장합니다.`;
-          } else if (risk.procCode === 'Building') {
-            advisoryText = `드럼 및 권취 롤러 기구 교대점 및 작업자 성형 에어 배출(Air Trapped) 표준 미준수 여부 밀착 오디팅이 긴요합니다.`;
-          } else if (risk.procCode === 'Mixing') {
-            advisoryText = `원재료 COA 검정, 탱크 레벨 센서 및 배합 오일 정밀 교정 이력을 집중 검토하여 재발을 미연에 봉쇄하십시오.`;
-          } else {
-            advisoryText = `과거 지적 시정안 준수 여부 및 작업자 SOP 교육 가동 상태의 현장 긴급 오디팅을 실시하십시오.`;
-          }
-
-          item.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 14px; flex: 1; padding-right: 15px;">
-              <div style="display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: rgba(239,68,68,0.15); border-radius: 50%; color: #ef4444; flex-shrink: 0;">
-                <i data-lucide="alert-triangle" style="width: 18px; height: 18px;"></i>
-              </div>
-              <div>
-                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                  <span style="font-weight: 700; color: #fff; font-size: 13.5px;">${risk.plantName} (${risk.plantCode})</span>
-                  <span style="font-size: 10px; font-weight: 700; padding: 2px 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: var(--text-light); border-radius: 4px;">
-                    ${risk.procName} 공정
-                  </span>
-                </div>
-                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 5px; line-height: 1.45;">
-                  <strong>[Advisory]</strong> ${advisoryText} <span style="color: var(--text-muted);">(${risk.details.qiCount}QI / ${risk.details.m4Count}4M / ${risk.details.findingsCount}Audit Findings)</span>
-                </p>
-              </div>
-            </div>
-            <div style="text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-              <div style="font-size: 10px; font-weight: 700; color: #ef4444; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); padding: 1px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px;">
-                <span class="blink" style="width: 4px; height: 4px; background: #ef4444; border-radius: 50%;"></span>
-                HIGH RISK
-              </div>
-              <div style="font-size: 18px; font-weight: 900; color: #ef4444; font-family: monospace;">
-                ${risk.score.toFixed(1)} <span style="font-size: 10px; color: var(--text-muted); font-weight: 500;">/ 5.0</span>
-              </div>
-            </div>
-          `;
-          alertBoard.appendChild(item);
-        });
-
-      } else {
-        // [Normal Status] 임계치를 초과하는 리스크가 전혀 없는 완벽한 안심 상태일 때
-        const cleanPanel = document.createElement('div');
-        cleanPanel.style.cssText = `
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 30px 20px;
-          background: rgba(16, 185, 129, 0.02);
-          border: 1px dashed rgba(16, 185, 129, 0.25);
-          border-radius: 8px;
-          text-align: center;
-          gap: 12px;
-          margin-top: 10px;
-        `;
-        cleanPanel.innerHTML = `
-          <div style="display: flex; align-items: center; justify-content: center; width: 48px; height: 44px; background: rgba(16,185,129,0.08); border-radius: 50%; color: #10b981; margin-bottom: 2px;">
-            <i data-lucide="shield-check" style="width: 24px; height: 24px;"></i>
-          </div>
-          <h3 style="font-size: 14.5px; font-weight: 700; color: var(--text-light);">공정 위험도 감지 안심 상태 (Safe Stable Status)</h3>
-          <p style="font-size: 12px; color: var(--text-secondary); max-width: 500px; line-height: 1.5;">
-            현재 지정된 전사 글로벌 필터 기준 하에 실시간 임계값(<span style="color: #ef4444; font-weight: 600;">3.5점</span>)을 초과하여 누적된 품질실패(QI) / 4M 변경지연 / 감사 지적사항(Findings) 위해 요인이 전혀 식별되지 않은 완벽한 <strong>정상(Stable) 운영 환경</strong>입니다.
-          </p>
-        `;
-        alertBoard.appendChild(cleanPanel);
-      }
-      
-      if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-      }
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
     }
   },
 
