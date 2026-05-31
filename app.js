@@ -848,7 +848,7 @@ const app = {
     ];
 
     // audits 로딩
-    const storedAudits = localStorage.getItem('riskhunter_audits');
+    const storedAudits = localStorage.getItem('cqms_customer_audit_db');
     if (storedAudits) {
       try {
         this.state.audits = JSON.parse(storedAudits);
@@ -858,7 +858,7 @@ const app = {
       }
     } else {
       this.state.audits = defaultAudits;
-      localStorage.setItem('riskhunter_audits', JSON.stringify(defaultAudits));
+      localStorage.setItem('cqms_customer_audit_db', JSON.stringify(defaultAudits));
     }
 
     // selectedAuditId 로딩
@@ -1742,7 +1742,7 @@ const app = {
 
     // 3. 전역 State 및 LocalStorage 에 세션 보존 영속화
     this.state.audits.push(newAudit);
-    localStorage.setItem('riskhunter_audits', JSON.stringify(this.state.audits));
+    localStorage.setItem('cqms_customer_audit_db', JSON.stringify(this.state.audits));
 
     // 신규 등록 일정을 즉시 활성 감사 일정으로 격상 선택
     this.state.selectedAuditId = newId;
