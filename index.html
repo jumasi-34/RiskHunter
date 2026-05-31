@@ -1011,27 +1011,39 @@
           </div>
 
           <!-- 📢 ACTUAL OE QUALITY ASSESSMENT ITEMS (실사 진단 현황) 섹션 헤더 -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px; margin-bottom: 15px; padding: 0 5px; border-bottom: 2px solid var(--border-card); padding-bottom: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px; margin-bottom: 15px; padding: 0 5px; border-bottom: 2px solid var(--border-card); padding-bottom: 10px;">
             <h3 style="font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 8px; margin: 0;">
               <i data-lucide="shield-alert" style="width: 18px; height: 18px; color: var(--color-status-medium);"></i>
-              📢 ACTUAL OE QUALITY ASSESSMENT ITEMS [실사 진단 현황]
+              📢 ACTUAL OE QUALITY ASSESSMENT ITEMS <span style="font-size: 13px; color: var(--text-secondary); font-weight: 600; font-family: 'Inter', sans-serif;">[실사 진단 현황]</span>
             </h3>
-            <span id="tab3-total-assessment-count" style="font-size: 12.5px; color: var(--text-secondary); font-weight: 700; font-family: 'Inter', sans-serif;">189개 항목</span>
+            <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); padding: 4px 10px; border-radius: 6px; display: flex; align-items: center; gap: 6px;">
+              <span style="width: 6px; height: 6px; background: #10b981; border-radius: 50%;"></span>
+              <span id="tab3-total-assessment-count" style="font-size: 12px; color: var(--text-status-low); font-weight: 800; font-family: 'Outfit', sans-serif; line-height: 1;">189개 항목</span>
+            </div>
           </div>
 
           <!-- A. 최우선 준비 아이템 (Score <= 6) - 100% Full Width -->
           <div class="card-solid flex-col" style="min-height: 250px; margin-bottom: 20px; padding: 20px;">
-            <div class="card-header" style="border-bottom: 1px solid var(--border-card); padding-bottom: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-              <div>
-                <h2 class="card-title" style="display: flex; align-items: center; gap: 8px; color: var(--text-status-high); font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800;">
-                  <i data-lucide="flame" style="width: 16px; height: 16px; color: var(--color-status-high);"></i>
-                  최우선 조치 대상 항목 (Priority Prep Items - 0점 ~ 6점)
-                </h2>
-                <p class="card-subtitle" style="font-size: 11.5px; margin-top: 2px;">사내 자체 현장 실사 진단 점수 6점 이하의 취약 조항 및 우수 공장 벤치마킹 가이드</p>
+            <div class="card-header" style="border-bottom: 1px solid var(--border-card); padding-bottom: 12px; margin-bottom: 15px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 20px; flex-wrap: wrap;">
+              <!-- 1열: 제목 및 설명 (최우선 조치 대상 - 레드 세로 데코 바 포함) -->
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 4px; height: 34px; background: linear-gradient(to bottom, var(--color-status-high), #f87171); border-radius: 2px; flex-shrink: 0;"></div>
+                <div>
+                  <h2 class="card-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800; color: var(--text-status-high); margin: 0; letter-spacing: -0.01em; line-height: 1.2;">
+                    <i data-lucide="flame" style="width: 15px; height: 16px; color: var(--color-status-high); flex-shrink: 0;"></i>
+                    최우선 조치 대상 항목 <span style="font-size: 11.5px; color: var(--text-secondary); font-weight: 600; font-family: 'Inter', sans-serif;">(Priority Prep Items - 0점 ~ 6점)</span>
+                  </h2>
+                  <p class="card-subtitle" style="font-size: 11px; color: var(--text-muted-light); margin-top: 3px; font-weight: 500; margin-bottom: 0;">사내 자체 현장 실사 진단 점수 6점 이하의 취약 조항 및 우수 공장 벤치마킹 가이드</p>
+                </div>
               </div>
-              <div style="display: flex; align-items: center; gap: 15px;">
-                <span id="tab3-priority-prep-count" style="font-size: 12px; color: var(--text-secondary); font-weight: 700; font-family: 'Inter', sans-serif;">3개 항목</span>
-                <button id="btn-export-priority-prep" class="btn" style="background: transparent; border: 1px solid var(--brand-blue); color: var(--brand-blue); font-size: 11px; font-weight: 700; padding: 0 10px; border-radius: 4px; display: flex; align-items: center; gap: 4px; cursor: pointer; transition: all 0.2s; height: 26px; line-height: 24px;" onmouseover="this.style.background='rgba(37, 99, 235, 0.08)'" onmouseout="this.style.background='transparent'">
+              
+              <!-- 2열: 스테이터스 및 다운로드 버튼 (밀도 높은 레드 글래스모픽 위젯) -->
+              <div style="display: flex; align-items: center; gap: 12px; background: rgba(239, 68, 68, 0.04); border: 1px solid rgba(239, 68, 68, 0.12); padding: 5px 12px; border-radius: 8px; backdrop-filter: blur(8px); box-shadow: var(--shadow-sm); height: 40px; flex-shrink: 0;">
+                <div style="display: flex; flex-direction: column; align-items: flex-end; padding-right: 12px; border-right: 1px solid rgba(239, 68, 68, 0.15);">
+                  <span style="font-size: 9px; color: var(--text-muted-light); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1;">취약 항목 건수</span>
+                  <span id="tab3-priority-prep-count" style="font-size: 12.5px; color: var(--text-status-high); font-weight: 800; font-family: 'Outfit', sans-serif; margin-top: 2px; line-height: 1;">3개 항목</span>
+                </div>
+                <button id="btn-export-priority-prep" class="btn" style="background: var(--color-status-high); border: none; color: #ffffff; font-size: 11px; font-weight: 700; padding: 0 10px; border-radius: 6px; display: flex; align-items: center; gap: 4px; cursor: pointer; transition: all 0.2s; height: 28px; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.15);" onmouseover="this.style.background='#dc2626'; this.style.boxShadow='0 3px 6px rgba(239, 68, 68, 0.25)'" onmouseout="this.style.background='var(--color-status-high)'; this.style.boxShadow='0 2px 4px rgba(239, 68, 68, 0.15)'">
                   <i data-lucide="download" style="width: 12px; height: 12px;"></i>
                   EXCEL 다운로드
                 </button>
@@ -1046,17 +1058,26 @@
 
           <!-- B. 나머지 표준 항목 (Score >= 8) - 100% Full Width -->
           <div class="card-solid flex-col" style="min-height: 300px; margin-bottom: 20px; padding: 20px;">
-            <div class="card-header" style="border-bottom: 1px solid var(--border-card); padding-bottom: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-              <div>
-                <h2 class="card-title" style="display: flex; align-items: center; gap: 8px; color: var(--text-status-low); font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800;">
-                  <i data-lucide="check-circle-2" style="width: 16px; height: 16px; color: var(--color-status-low);"></i>
-                  나머지 표준 항목 (Remaining Standard Items - 8점 ~ 10점)
-                </h2>
-                <p class="card-subtitle" style="font-size: 11.5px; margin-top: 2px;">자체 진단 점수 8점 이상의 고득점 안정 관리 항목 목록 (N/A 전면 배제)</p>
+            <div class="card-header" style="border-bottom: 1px solid var(--border-card); padding-bottom: 12px; margin-bottom: 15px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 20px; flex-wrap: wrap;">
+              <!-- 1열: 제목 및 설명 (안정 표준 항목 - 그린 세로 데코 바 포함) -->
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 4px; height: 34px; background: linear-gradient(to bottom, var(--color-status-low), #34d399); border-radius: 2px; flex-shrink: 0;"></div>
+                <div>
+                  <h2 class="card-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800; color: var(--text-status-low); margin: 0; letter-spacing: -0.01em; line-height: 1.2;">
+                    <i data-lucide="check-circle-2" style="width: 15px; height: 16px; color: var(--color-status-low); flex-shrink: 0;"></i>
+                    나머지 표준 항목 <span style="font-size: 11.5px; color: var(--text-secondary); font-weight: 600; font-family: 'Inter', sans-serif;">(Remaining Standard Items - 8점 ~ 10점)</span>
+                  </h2>
+                  <p class="card-subtitle" style="font-size: 11px; color: var(--text-muted-light); margin-top: 3px; font-weight: 500; margin-bottom: 0;">자체 진단 점수 8점 이상의 고득점 안정 관리 항목 목록 (N/A 전면 배제)</p>
+                </div>
               </div>
-              <div style="display: flex; align-items: center; gap: 15px;">
-                <span id="tab3-excellent-count" style="font-size: 12px; color: var(--text-secondary); font-weight: 700; font-family: 'Inter', sans-serif;">178개 항목</span>
-                <button id="btn-export-remaining" class="btn" style="background: transparent; border: 1px solid var(--brand-blue); color: var(--brand-blue); font-size: 11px; font-weight: 700; padding: 0 10px; border-radius: 4px; display: flex; align-items: center; gap: 4px; cursor: pointer; transition: all 0.2s; height: 26px; line-height: 24px;" onmouseover="this.style.background='rgba(37, 99, 235, 0.08)'" onmouseout="this.style.background='transparent'">
+              
+              <!-- 2열: 스테이터스 및 다운로드 버튼 (밀도 높은 그린 글래스모픽 위젯) -->
+              <div style="display: flex; align-items: center; gap: 12px; background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.12); padding: 5px 12px; border-radius: 8px; backdrop-filter: blur(8px); box-shadow: var(--shadow-sm); height: 40px; flex-shrink: 0;">
+                <div style="display: flex; flex-direction: column; align-items: flex-end; padding-right: 12px; border-right: 1px solid rgba(16, 185, 129, 0.15);">
+                  <span style="font-size: 9px; color: var(--text-muted-light); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1;">안정 항목 건수</span>
+                  <span id="tab3-excellent-count" style="font-size: 12.5px; color: var(--text-status-low); font-weight: 800; font-family: 'Outfit', sans-serif; margin-top: 2px; line-height: 1;">178개 항목</span>
+                </div>
+                <button id="btn-export-remaining" class="btn" style="background: var(--color-status-low); border: none; color: #ffffff; font-size: 11px; font-weight: 700; padding: 0 10px; border-radius: 6px; display: flex; align-items: center; gap: 4px; cursor: pointer; transition: all 0.2s; height: 28px; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.15);" onmouseover="this.style.background='#059669'; this.style.boxShadow='0 3px 6px rgba(16, 185, 129, 0.25)'" onmouseout="this.style.background='var(--color-status-low)'; this.style.boxShadow='0 2px 4px rgba(16, 185, 129, 0.15)'">
                   <i data-lucide="download" style="width: 12px; height: 12px;"></i>
                   EXCEL 다운로드
                 </button>
