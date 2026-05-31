@@ -145,7 +145,17 @@ graph TD
 | **Body & Text** | **`Inter`** | 체크리스트 질문, 표 본문, AI 코멘트, 툴팁 등 | 장문의 기술 규격 조항 정독 시 눈의 피로를 최소화하는 글로벌 표준 서체 |
 | **Code & Console** | **`JetBrains Mono`** | SQL 에디터, 쿼리 결과 프레임 데이터 등 | 등폭(Monospace) 서체로 행 정렬 및 데이터 정렬 무결성 확보 |
 
-*   **기본 규칙**: 글꼴 미제공 환경을 대비한 폴백 구조(`'Inter', 'Noto Sans KR', sans-serif`)를 유지하며, 자모음 자간(`letter-spacing: -0.01em`)을 섬세히 좁혀 고급스러운 프리미엄 인쇄 미학을 완성합니다.
+*   **기본 규칙**: 글꼴 미제공 환경을 대비한 폴백 구조를 유지하며, 자모음 자간(`letter-spacing: -0.01em`)을 섬세히 좁혀 고급스러운 프리미엄 인쇄 미학을 완성합니다.
+
+### 📝 타이포그래피 폰트 패밀리 변수 (Typography Family Tokens)
+
+```css
+:root {
+  --font-family-header: 'Outfit', sans-serif;
+  --font-family-body: 'Inter', -apple-system, sans-serif;
+  --font-family-mono: 'JetBrains Mono', monospace;
+}
+```
 
 ---
 

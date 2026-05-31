@@ -47,6 +47,11 @@
   --text-muted-light: #64748b;    /* HSL(215, 16%, 47%) - 밝은 배경(카드, 메인캔버스)용 설명 텍스트 (WCAG 4.5:1 만족) */
   --text-light: #ffffff;          /* 어두운 컴포넌트/사이드바용 밝은 텍스트 [★경고: pure white 이므로 밝은카드/배경 사용 금지 - 글자 안 보임] */
 
+  /* --- 📝 Typography Family Tokens --- */
+  --font-family-header: 'Outfit', sans-serif;
+  --font-family-body: 'Inter', -apple-system, sans-serif;
+  --font-family-mono: 'JetBrains Mono', monospace;
+
   /* --- 🫧 Layout Borders --- */
   --border-card: #e2e8f0;         /* 표준 카드 연그레이 테두리 */
   --border-input: #cbd5e1;        /* 입력 폼 및 셀렉터 테두리 */
@@ -72,7 +77,7 @@
 body {
   background-color: var(--bg-app);
   color: var(--text-primary);
-  font-family: 'Inter', -apple-system, sans-serif;
+  font-family: var(--font-family-body);
   overflow: hidden;
   height: 100vh;
   width: 100vw;
@@ -107,7 +112,7 @@ body {
   align-items: center;
   gap: 10px;
   color: var(--text-light);
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-family-header);
   font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -256,7 +261,7 @@ body {
 }
 
 .header-title {
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-family-header);
   font-size: 28px;
   font-weight: 700;
   color: var(--text-primary);
@@ -359,7 +364,7 @@ body {
 }
 
 .card-title {
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-family-header);
   font-size: 18px;
   font-weight: 600;
   color: var(--text-primary);
@@ -694,7 +699,7 @@ body {
 }
 
 .oem-profile-title {
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-family-header);
   font-size: 16px;
   font-weight: 700;
   color: var(--text-primary);
@@ -777,7 +782,7 @@ body {
 }
 
 .drawer-title {
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-family-header);
   font-size: 18px;
   font-weight: 600;
 }
@@ -1092,7 +1097,7 @@ body {
 }
 
 .error-title {
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-family-header);
   font-size: 22px;
   font-weight: 700;
   color: var(--text-primary);
@@ -1107,7 +1112,7 @@ body {
 }
 
 .error-details {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   font-size: 11px;
   color: var(--text-status-high);
   background-color: var(--bg-status-high);
@@ -2027,7 +2032,7 @@ body {
 }
 
 .calendar-title-text {
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-family-header);
   font-size: 18px;
   font-weight: 700;
   color: var(--text-primary);
@@ -2096,7 +2101,7 @@ body {
   font-size: 12px;
   font-weight: 700;
   color: var(--text-secondary);
-  font-family: monospace;
+  font-family: var(--font-family-mono);
 }
 
 .calendar-cell-events {
@@ -2280,7 +2285,7 @@ body {
 #tab-audit-planning .monitoring-dashboard-card .kpi-sub-card .kpi-value {
   font-size: 16px !important;
   font-weight: 800 !important;
-  font-family: 'Outfit', sans-serif !important; /* 현대적인 테크 서체 */
+  font-family: var(--font-family-header) !important; /* 현대적인 테크 서체 */
   line-height: 1.1 !important;
 }
 
