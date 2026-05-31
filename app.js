@@ -2859,6 +2859,9 @@ const app = {
     const endDateInput = document.getElementById('tab3-end-date');
     if (endDateInput) endDateInput.value = this.state.tab3EndDate || '';
 
+    // 2.9. 상단 4 Summary Cards (KPI Widgets) 동적 집계 렌더링
+    this.updatePlantRiskSummaryCards();
+
     // 3. 서브 탭별 화면 분기 렌더링
     if (activeSubtab === 'risk-compass') {
       this.renderRiskCompassTab(activePlantCode);
@@ -2872,6 +2875,89 @@ const app = {
     if (typeof lucide !== 'undefined') {
       lucide.createIcons();
     }
+  },
+
+  // 🌟 상단 4 Summary Cards (KPI Widgets) 동적 집계 렌더링
+  updatePlantRiskSummaryCards() {
+    console.log("🚥 Updating Plant Risk Top 4 Summary Cards...");
+
+    let plants = (this.state.commonCodes.plants || []).filter(p => p.code !== 'ALL' && p.is_active);
+    if (plants.length === 0) {
+      plants = [
+        { code: 'KP', name: '한국금산' },
+        { code: 'DP', name: '한국대전' },
+        { code: 'JP', name: '중국가흥' },
+        { code: 'CP', name: '중국중경' },
+        { code: 'HP', name: '중국강소' },
+        { code: 'IP', name: '인도네시아' },
+        { code: 'MP', name: '헝가리' },
+        { code: 'TP', name: '미국테네시' }
+      ];
+    }
+
+    const allDetails = this.state.oeQualityAssessmentDetails || [];
+    const allIssues = this.state.qualityIssues || [];
+
+    let criticalCount = 0;
+    let moderateCount = 0;
+    let lowCount = 0;
+
+    plants.forEach(plant => {
+      const plantItems = allDetails.filter(item => item.plant === plant.code);
+      
+      // System Level 계산
+      const validSystemItems = plantItems.filter(item => {
+        if (item.category === 'Process') return false;
+        if (!item.score || item.score.toString().trim().toUpperCase() === 'N/A') return false;
+        return true;
+      });
+      let systemLevel = 100.0;
+      if (validSystemItems.length > 0) {
+        const sumScores = validSystemItems.reduce((sum, item) => sum + parseFloat(item.score), 0);
+        systemLevel = (sumScores / (validSystemItems.length * 10)) * 100;
+      }
+      
+      // Assessment Score 계산
+      const validAssessmentItems = plantItems.filter(item => {
+        if (item.category !== 'Process') return false;
+        if (!item.score || item.score.toString().trim().toUpperCase() === 'N/A') return false;
+        return true;
+      });
+      let assessmentScore = 100.0;
+      if (validAssessmentItems.length > 0) {
+        const sumScores = validAssessmentItems.reduce((sum, item) => sum + parseFloat(item.score), 0);
+        assessmentScore = (sumScores / (validAssessmentItems.length * 10)) * 100;
+      }
+      
+      // Issues Penalty
+      const plantIssuesCount = allIssues.filter(item => item.PLANT === plant.code).length;
+      const issuesPenalty = Math.min(100, plantIssuesCount * 10);
+      
+      // Composite Risk Index (CRI)
+      const cri = 0.4 * (100 - systemLevel) + 0.3 * (100 - assessmentScore) + 0.3 * issuesPenalty;
+
+      // 등급 집계
+      if (cri >= 41.1) {
+        criticalCount++;
+      } else if (cri >= 38.1) {
+        moderateCount++;
+      } else {
+        lowCount++;
+      }
+    });
+
+    const totalIssuesCount = allIssues.length;
+
+    // DOM 업데이트
+    const criticalNode = document.getElementById('summary-critical-count');
+    const moderateNode = document.getElementById('summary-moderate-count');
+    const lowNode = document.getElementById('summary-low-count');
+    const issuesNode = document.getElementById('summary-issues-count');
+
+    if (criticalNode) criticalNode.textContent = criticalCount;
+    if (moderateNode) moderateNode.textContent = moderateCount;
+    if (lowNode) lowNode.textContent = lowCount;
+    if (issuesNode) issuesNode.textContent = totalIssuesCount;
   },
 
   // ================= Sub-Tab 1: Integrated Risk Compass 렌더링 =================
